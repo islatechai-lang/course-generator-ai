@@ -33,6 +33,11 @@ export async function checkAccess(
   resourceId: string,
   userId: string
 ): Promise<AccessCheckResult> {
+  // Guard against invalid resource tags to avoid 400 errors
+  if (!resourceId.startsWith("biz_") && !resourceId.startsWith("exp_") && !resourceId.startsWith("prod_")) {
+    return { has_access: false, access_level: "no_access" };
+  }
+
   try {
     const response = await whop.users.checkAccess(resourceId, { id: userId });
     console.log(`[Whop SDK] checkAccess for user ${userId} on resource ${resourceId}: has_access=${response.has_access}, level=${response.access_level}`);
@@ -40,8 +45,11 @@ export async function checkAccess(
       has_access: response.has_access || false,
       access_level: (response.access_level as AccessCheckResult["access_level"]) || "no_access",
     };
-  } catch (error) {
-    console.error(`[Whop SDK] checkAccess failed for user ${userId} on resource ${resourceId}:`, error);
+  } catch (error: any) {
+    // Silently handle expected errors to keep logs clean
+    if (error.status !== 400 && error.status !== 403) {
+      console.error(`[Whop SDK] checkAccess failed for user ${userId} on resource ${resourceId}:`, error.message);
+    }
     return { has_access: false, access_level: "no_access" };
   }
 }
@@ -57,23 +65,21 @@ export async function checkPlanAccess(
         plan_ids: [planId],
         statuses: ['active', 'trialing'],
       }).catch((err: any) => {
-        console.error(`[Whop SDK] memberships.list error for user ${userId}:`, err.message);
+        // Silently handle expected authorization errors
+        if (err.status !== 400 && err.status !== 403) {
+          console.error(`[Whop SDK] memberships.list error for user ${userId}:`, err.message);
+        }
         return { data: [] };
       });
       const hasPro = response.data.length > 0;
       console.log(`[Whop SDK] checkPlanAccess for user ${userId} on plan ${planId}: hasPro=${hasPro}, membershipCount=${response.data.length}`);
 
-      if (hasPro) return true;
-
-      // Fallback: Try checkAccess which works for some resources even when membership list is forbidden
-      const access = await checkAccess(planId, userId);
-      return access.has_access;
+      return hasPro;
     }
 
     const access = await checkAccess(planId, userId);
     return access.has_access;
   } catch (error) {
-    console.error(`[Whop SDK] checkPlanAccess failed for user ${userId} on plan ${planId}:`, error);
     return false;
   }
 }
