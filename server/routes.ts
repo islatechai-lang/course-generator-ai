@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import fileUpload from "express-fileupload";
 import { PDFParse } from "pdf-parse";
 import { storage } from "./storage";
-import { verifyUserToken, checkAccess, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, getCompanyIdFromExperience, createProCheckoutSession } from "./whop";
+import { verifyUserToken, checkAccess, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, getCompanyIdFromExperience, createProCheckoutSession, checkPlanAccess } from "./whop";
 import { generateCourse, regenerateModule, regenerateLesson, generateCourseImage, generateImagePrompt, generateCourseMediaPlan, generateLessonImage, generateQuiz, generateDeepVideoImage, generateVeoVideoSegment, analyzeDocumentMetadata, generateFallbackImagePrompt, generateBlockContent, generateCourseImageWithDeAPI } from "./gemini";
 import { stitchVideos } from "./video-processor";
 import path from "path";
@@ -163,8 +163,7 @@ async function requireAdmin(req: AuthenticatedRequest, res: Response, next: Next
 
     // Check for Pro plan access - safely
     try {
-      const planAccess = await whop.users.checkAccess(PRO_PLAN_ID, { id: req.whopUserId });
-      req.isPro = planAccess.has_access || false;
+      req.isPro = await checkPlanAccess(req.whopUserId, PRO_PLAN_ID);
     } catch (error) {
       console.error(`[requireAdmin] Pro plan check failed for user ${req.whopUserId}:`, error);
       req.isPro = false;
@@ -194,8 +193,7 @@ async function requireExperienceAccess(req: AuthenticatedRequest, res: Response,
 
     // Check for Pro plan access - safely
     try {
-      const planAccess = await whop.users.checkAccess(PRO_PLAN_ID, { id: req.whopUserId });
-      req.isPro = planAccess.has_access || false;
+      req.isPro = await checkPlanAccess(req.whopUserId, PRO_PLAN_ID);
     } catch (error) {
       console.error(`[requireExperienceAccess] Pro plan check failed for user ${req.whopUserId}:`, error);
       req.isPro = false;

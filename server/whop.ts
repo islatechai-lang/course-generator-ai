@@ -51,6 +51,15 @@ export async function checkPlanAccess(
   planId: string
 ): Promise<boolean> {
   try {
+    if (planId.startsWith("plan_")) {
+      const response = await whop.memberships.list({
+        user_ids: [userId],
+        plan_ids: [planId],
+        statuses: ['active', 'trialing'],
+      });
+      return response.data.length > 0;
+    }
+
     const access = await checkAccess(planId, userId);
     return access.has_access;
   } catch (error) {
