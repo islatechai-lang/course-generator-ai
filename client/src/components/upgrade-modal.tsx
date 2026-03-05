@@ -20,6 +20,8 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
     useEffect(() => {
         console.log("[UpgradeModal] Prop 'open' changed to:", open);
         if (open) {
+            console.log("[UpgradeModal] Modal is officially OPEN");
+            // alert("DEBUG: UpgradeModal is OPEN"); // Commented out but ready if needed
             setShowCheckout(false); // Reset to comparison view when opened
         }
     }, [open]);

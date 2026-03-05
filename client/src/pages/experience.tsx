@@ -249,11 +249,11 @@ export default function ExperiencePage() {
       });
     },
     onError: (err: any) => {
-      console.log("togglePublishMutation error:", err);
-      console.log("err.data:", err.data);
+      console.log("[Frontend] togglePublishMutation error:", err);
+      console.log("[Frontend] err.data:", err.data);
       setPublishingCourseId(null);
       if (err.data?.needsUpgrade) {
-        console.log("Triggering upgrade modal because needsUpgrade is true");
+        console.log("[Frontend] Setting showUpgradeModal to true");
         setShowUpgradeModal(true);
       } else {
         toast({ title: "Error", description: err.message || "Failed to update course.", variant: "destructive" });
