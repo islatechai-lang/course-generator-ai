@@ -42,7 +42,7 @@ interface AuthenticatedRequest {
 }
 
 const DAILY_GENERATION_LIMIT = 2;
-const PRO_PLAN_ID = "plan_HMLVcO8bL39qS";
+const PRO_PLAN_ID = "plan_x0eQCn2WM1qit";
 
 async function getGenerationLimit(userId: string, isPro: boolean = false) {
   const used = await storage.getCoursesGeneratedToday(userId);

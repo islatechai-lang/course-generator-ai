@@ -1,4 +1,5 @@
 import Whop from "@whop/sdk";
+import process from "process";
 
 
 export const whop = new Whop({
