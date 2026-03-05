@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Sparkles, LayoutGrid, PenTool, TrendingUp, CheckCircle2 } from "lucide-react";
+import { Sparkles, Check, X, Shield, Zap, Layout, Globe } from "lucide-react";
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -14,195 +14,189 @@ interface UpgradeModalProps {
 export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
     const [checkoutId, setCheckoutId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [step, setStep] = useState<"intro" | "checkout">("intro");
+    const [showCheckout, setShowCheckout] = useState(false);
     const { toast } = useToast();
 
-    console.log("[UpgradeModal] Rendered. open=", open);
-
     useEffect(() => {
-        console.log("[UpgradeModal] Component mounted.");
-        return () => console.log("[UpgradeModal] Component unmounted.");
-    }, []);
-
-    useEffect(() => {
-        // Reset step when modal opens
+        console.log("[UpgradeModal] Prop 'open' changed to:", open);
         if (open) {
-            console.log("[UpgradeModal] Modal opened. Resetting step to intro.");
-            setStep("intro");
+            setShowCheckout(false); // Reset to comparison view when opened
         }
     }, [open]);
 
-    const handleStartUpgrade = async () => {
-        console.log("[UpgradeModal] handleStartUpgrade clicked.");
-        setStep("checkout");
-        if (!checkoutId) {
-            console.log("[UpgradeModal] No checkoutId, fetching one...");
-            setIsLoading(true);
-            try {
-                const data = await apiRequest("POST", "/api/pro/checkout");
-                console.log("[UpgradeModal] Checkout data received:", data);
-                if (data.checkoutId) {
-                    setCheckoutId(data.checkoutId);
-                }
-            } catch (error) {
-                console.error("[UpgradeModal] Failed to get checkout ID:", error);
-                toast({
-                    title: "Upgrade Error",
-                    description: "Failed to prepare checkout. Please try again later.",
-                    variant: "destructive",
-                });
-                setStep("intro");
-            } finally {
-                setIsLoading(false);
+    const handleStartCheckout = async () => {
+        console.log("[UpgradeModal] Starting checkout process...");
+        setIsLoading(true);
+        try {
+            const data = await apiRequest("POST", "/api/pro/checkout");
+            console.log("[UpgradeModal] Checkout response:", data);
+            if (data.checkoutId) {
+                setCheckoutId(data.checkoutId);
+                setShowCheckout(true);
             }
+        } catch (error) {
+            console.error("[UpgradeModal] Checkout preparation failed:", error);
+            toast({
+                title: "Error",
+                description: "Failed to prepare checkout. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
+    if (!open) return null;
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl p-0 overflow-hidden border-4 border-red-500 bg-white shadow-2xl z-[9999]">
-                <div className="relative bg-white rounded-xl overflow-hidden min-h-[600px] flex flex-col md:flex-row">
-                    <div className="md:w-1/2 p-10 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white flex flex-col justify-between">
-                        <div>
-                            <DialogHeader>
-                                <DialogTitle className="text-3xl font-bold flex items-center gap-3 text-white mb-4 leading-tight">
-                                    <Sparkles className="h-8 w-8 text-yellow-300 animate-pulse" />
-                                    Elevate to Pro
-                                </DialogTitle>
-                                <DialogDescription className="text-indigo-100 text-lg leading-relaxed mb-8">
-                                    Unlock the full power of AI and scale your curriculum business to the next level.
-                                </DialogDescription>
-                            </DialogHeader>
-
-                            <div className="space-y-6 mt-8">
-                                <div className="flex items-start gap-4 transform transition-all hover:translate-x-1">
-                                    <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5 backdrop-blur-sm">
-                                        <LayoutGrid className="h-5 w-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-lg">Publish 10 Courses</p>
-                                        <p className="text-indigo-100 text-sm">Scale from 1 to 10 published courses for your students.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-4 transform transition-all hover:translate-x-1">
-                                    <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5 backdrop-blur-sm">
-                                        <Sparkles className="h-5 w-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-lg">2 Daily AI Generations</p>
-                                        <p className="text-indigo-100 text-sm">Create more content every day with boosted AI limits.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-4 transform transition-all hover:translate-x-1">
-                                    <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5 backdrop-blur-sm">
-                                        <PenTool className="h-5 w-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-lg">Magic AI & Guided Access</p>
-                                        <p className="text-indigo-100 text-sm">Use our most advanced course generation modes.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-4 transform transition-all hover:translate-x-1">
-                                    <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5 backdrop-blur-sm">
-                                        <TrendingUp className="h-5 w-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-lg">Premium AI Models</p>
-                                        <p className="text-indigo-100 text-sm">Higher quality outputs with our latest engine updates.</p>
-                                    </div>
-                                </div>
-                            </div>
+            <DialogContent className="max-w-4xl p-0 overflow-hidden border-none bg-white sm:rounded-2xl shadow-2xl z-[9999]">
+                {showCheckout && checkoutId ? (
+                    <div className="w-full h-[600px] flex flex-col bg-white">
+                        <div className="p-4 border-b flex items-center justify-between bg-slate-50">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowCheckout(false)}
+                                className="text-slate-500 hover:text-indigo-600"
+                            >
+                                ← Back to Plans
+                            </Button>
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Secure Payment</span>
+                            <div className="w-20" /> {/* Spacer */}
                         </div>
-
-                        <div className="mt-auto pt-10 border-t border-white/20">
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-4xl font-black">$35.00</span>
-                                <span className="text-indigo-200 text-lg font-medium">/ month</span>
-                            </div>
-                            <p className="text-xs text-indigo-200 mt-2">Cancel anytime. All features unlocked instantly.</p>
+                        <div className="flex-1 overflow-auto">
+                            <WhopCheckoutEmbed
+                                checkoutId={checkoutId}
+                                onComplete={() => {
+                                    toast({
+                                        title: "Success!",
+                                        description: "Welcome to Pro! Refreshing...",
+                                    });
+                                    onOpenChange(false);
+                                    window.location.reload();
+                                }}
+                            />
                         </div>
                     </div>
-
-                    <div className="md:w-1/2 p-0 flex flex-col items-center justify-center bg-slate-50 relative">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-4 top-4 hover:bg-slate-200 z-10"
-                            onClick={() => onOpenChange(false)}
-                        >
-                            <LayoutGrid className="h-4 w-4 text-slate-400 rotate-45" />
-                        </Button>
-
-                        {step === "intro" ? (
-                            <div className="p-10 flex flex-col items-center text-center max-w-sm w-full">
-                                <div className="h-20 w-20 rounded-3xl bg-indigo-100 flex items-center justify-center mb-8 shadow-inner">
-                                    <CheckCircle2 className="h-10 w-10 text-indigo-600" />
+                ) : (
+                    <div className="flex flex-col md:flex-row min-h-[500px]">
+                        {/* Comparison Sidebar / Info */}
+                        <div className="md:w-1/3 bg-slate-900 p-8 text-white flex flex-col justify-between">
+                            <div>
+                                <div className="h-12 w-12 rounded-2xl bg-indigo-500 flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20">
+                                    <Sparkles className="h-6 w-6 text-white" />
                                 </div>
-                                <h3 className="text-2xl font-bold text-slate-900 mb-3">Ready to scale?</h3>
-                                <p className="text-slate-600 mb-10 leading-relaxed">
-                                    Join other successful creators and unlock your full potential today.
+                                <h2 className="text-2xl font-bold mb-4">Upgrade to Pro</h2>
+                                <p className="text-slate-400 text-sm leading-relaxed mb-8">
+                                    Join the elite creators using Cursai to scale their education business.
                                 </p>
+
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <div className="h-5 w-5 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
+                                            <Shield className="h-3 w-3 text-indigo-400" />
+                                        </div>
+                                        <span>Unlimited Potential</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <div className="h-5 w-5 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
+                                            <Zap className="h-3 w-3 text-indigo-400" />
+                                        </div>
+                                        <span>Instant Activation</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <div className="h-5 w-5 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
+                                            <Globe className="h-3 w-3 text-indigo-400" />
+                                        </div>
+                                        <span>Global Reaching</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-8 pt-8 border-t border-slate-800">
+                                <p className="text-xs text-slate-500">
+                                    Trusted by 500+ creators worldwide.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Main Comparison Area */}
+                        <div className="md:w-2/3 p-8 bg-white">
+                            <div className="grid grid-cols-2 gap-8 mb-8">
+                                {/* Free Plan */}
+                                <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                                    <h3 className="font-bold text-slate-900 mb-1">Free Plan</h3>
+                                    <div className="flex items-baseline gap-1 mb-6">
+                                        <span className="text-2xl font-black text-slate-900">$0</span>
+                                        <span className="text-slate-500 text-xs">/mo</span>
+                                    </div>
+                                    <ul className="space-y-3">
+                                        <li className="flex items-center gap-2 text-xs text-slate-600">
+                                            <Check className="h-3.5 w-3.5 text-emerald-500" /> 1 Published Course
+                                        </li>
+                                        <li className="flex items-center gap-2 text-xs text-slate-600">
+                                            <Check className="h-3.5 w-3.5 text-emerald-500" /> Basic AI Access
+                                        </li>
+                                        <li className="flex items-center gap-2 text-xs text-slate-400">
+                                            <X className="h-3.5 w-3.5" /> No Pro Collections
+                                        </li>
+                                        <li className="flex items-center gap-2 text-xs text-slate-400">
+                                            <X className="h-3.5 w-3.5" /> Normal AI Priority
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                {/* Pro Plan */}
+                                <div className="p-6 rounded-2xl bg-indigo-50 border-2 border-indigo-200 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+                                        Recommended
+                                    </div>
+                                    <h3 className="font-bold text-indigo-900 mb-1">Pro Plan</h3>
+                                    <div className="flex items-baseline gap-1 mb-6">
+                                        <span className="text-2xl font-black text-indigo-900">$35</span>
+                                        <span className="text-indigo-600/60 text-xs">/mo</span>
+                                    </div>
+                                    <ul className="space-y-3">
+                                        <li className="flex items-center gap-2 text-xs text-indigo-900 font-medium">
+                                            <Check className="h-3.5 w-3.5 text-indigo-600" /> 10 Published Courses
+                                        </li>
+                                        <li className="flex items-center gap-2 text-xs text-indigo-900 font-medium">
+                                            <Check className="h-3.5 w-3.5 text-indigo-600" /> Priority AI Access
+                                        </li>
+                                        <li className="flex items-center gap-2 text-xs text-indigo-900 font-medium">
+                                            <Check className="h-3.5 w-3.5 text-indigo-600" /> Advanced Logic Modes
+                                        </li>
+                                        <li className="flex items-center gap-2 text-xs text-indigo-900 font-medium">
+                                            <Check className="h-3.5 w-3.5 text-indigo-600" /> Guided Generations
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
                                 <Button
-                                    onClick={handleStartUpgrade}
-                                    className="w-full h-14 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95 group"
+                                    className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg rounded-xl shadow-xl shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                    onClick={handleStartCheckout}
+                                    disabled={isLoading}
                                 >
-                                    Get Pro Access
-                                    <TrendingUp className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                    {isLoading ? (
+                                        <div className="h-5 w-5 border-2 border-white/30 border-t-white animate-spin rounded-full" />
+                                    ) : (
+                                        <>
+                                            Upgrade My Account Now
+                                            <Sparkles className="h-5 w-5" />
+                                        </>
+                                    )}
                                 </Button>
-                                <button
-                                    onClick={() => onOpenChange(false)}
-                                    className="mt-6 text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors"
-                                >
-                                    Maybe later
-                                </button>
+                                <p className="text-center text-[10px] text-slate-400 px-8">
+                                    Payment processed securely by Whop. Cancel anytime with one click.
+                                    Subscription unlocks features for all your experiences.
+                                </p>
                             </div>
-                        ) : isLoading ? (
-                            <div className="flex flex-col items-center gap-6">
-                                <div className="h-14 w-14 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin shadow-lg" />
-                                <div className="text-center">
-                                    <p className="text-slate-900 font-bold text-lg mb-1">Preparing Checkout</p>
-                                    <p className="text-slate-500 text-sm">Securing your custom upgrade link...</p>
-                                </div>
-                            </div>
-                        ) : checkoutId ? (
-                            <div className="w-full h-full flex flex-col">
-                                <div className="p-4 border-b bg-white flex items-center gap-2">
-                                    <button onClick={() => setStep("intro")} className="text-slate-400 hover:text-indigo-600 transition-colors">
-                                        <TrendingUp className="h-4 w-4 rotate-180" />
-                                    </button>
-                                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Secure Checkout</span>
-                                </div>
-                                <div className="flex-1 overflow-auto flex items-center justify-center">
-                                    <WhopCheckoutEmbed
-                                        checkoutId={checkoutId}
-                                        onComplete={() => {
-                                            toast({
-                                                title: "Upgrade Successful!",
-                                                description: "You now have Pro Access. Please refresh the page.",
-                                            });
-                                            onOpenChange(false);
-                                            window.location.reload();
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="p-8 text-center max-w-xs">
-                                <div className="h-16 w-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6">
-                                    <CheckCircle2 className="h-8 w-8 text-red-500" />
-                                </div>
-                                <h3 className="text-lg font-bold text-slate-900 mb-2">Checkout Error</h3>
-                                <p className="text-slate-500 mb-8 leading-relaxed">We couldn't initialize your secure checkout. This might be a temporary connection issue.</p>
-                                <Button variant="outline" onClick={() => window.location.reload()} className="w-full py-6 font-bold">
-                                    Try Refreshing Page
-                                </Button>
-                            </div>
-                        )}
+                        </div>
                     </div>
-                </div>
+                )}
             </DialogContent>
         </Dialog>
     );
