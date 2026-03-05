@@ -62,7 +62,12 @@ export async function checkPlanAccess(
       });
       const hasPro = response.data.length > 0;
       console.log(`[Whop SDK] checkPlanAccess for user ${userId} on plan ${planId}: hasPro=${hasPro}, membershipCount=${response.data.length}`);
-      return hasPro;
+
+      if (hasPro) return true;
+
+      // Fallback: Try checkAccess which works for some resources even when membership list is forbidden
+      const access = await checkAccess(planId, userId);
+      return access.has_access;
     }
 
     const access = await checkAccess(planId, userId);
@@ -132,8 +137,7 @@ export async function createCheckoutConfiguration(
 export async function createProCheckoutSession(planId: string): Promise<{ checkoutId: string } | null> {
   try {
     const checkoutConfig = await whop.checkoutConfigurations.create({
-      company_id: process.env.WHOP_COMPANY_ID,
-      plan_id: planId, // Use plan_id instead of plan as a string
+      plan_id: planId, // SDK correctly maps this to the API's expectation when company_id is omitted
     } as any);
 
     return { checkoutId: checkoutConfig.id };
