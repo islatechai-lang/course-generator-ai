@@ -161,9 +161,14 @@ async function requireAdmin(req: AuthenticatedRequest, res: Response, next: Next
       }
     }
 
-    // Check for Pro plan access
-    const planAccess = await whop.users.checkAccess(PRO_PLAN_ID, { id: req.whopUserId });
-    req.isPro = planAccess.has_access || false;
+    // Check for Pro plan access - safely
+    try {
+      const planAccess = await whop.users.checkAccess(PRO_PLAN_ID, { id: req.whopUserId });
+      req.isPro = planAccess.has_access || false;
+    } catch (error) {
+      console.error(`[requireAdmin] Pro plan check failed for user ${req.whopUserId}:`, error);
+      req.isPro = false;
+    }
 
     next();
   } catch (error) {
@@ -187,9 +192,14 @@ async function requireExperienceAccess(req: AuthenticatedRequest, res: Response,
 
     req.accessLevel = access.access_level;
 
-    // Check for Pro plan access
-    const planAccess = await whop.users.checkAccess(PRO_PLAN_ID, { id: req.whopUserId });
-    req.isPro = planAccess.has_access || false;
+    // Check for Pro plan access - safely
+    try {
+      const planAccess = await whop.users.checkAccess(PRO_PLAN_ID, { id: req.whopUserId });
+      req.isPro = planAccess.has_access || false;
+    } catch (error) {
+      console.error(`[requireExperienceAccess] Pro plan check failed for user ${req.whopUserId}:`, error);
+      req.isPro = false;
+    }
 
     next();
   } catch {
@@ -480,8 +490,8 @@ export async function registerRoutes(
         earnings,
         generationLimit,
       });
-    } catch {
-
+    } catch (error) {
+      console.error("[GET /api/dashboard] Dashboard load failed:", error);
       res.status(500).json({ error: "Failed to load dashboard" });
     }
   });
