@@ -60,7 +60,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
             onClick={() => onOpenChange(false)}
         >
             <div
-                className="w-full max-w-2xl bg-card border rounded-2xl shadow-xl animate-in zoom-in-95 duration-200 relative max-h-[95vh] overflow-y-auto"
+                className={`w-full max-w-2xl bg-card border rounded-2xl shadow-xl animate-in zoom-in-95 duration-200 relative max-h-[95vh] ${showCheckout ? 'overflow-hidden' : 'overflow-y-auto'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Close Button */}
@@ -76,17 +76,8 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
 
                 {showCheckout && checkoutId ? (
                     <div className="w-full h-[600px] flex flex-col bg-card">
-                        <div className="p-3 border-b flex items-center justify-between bg-muted/30">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setShowCheckout(false)}
-                                className="h-8 text-xs font-medium"
-                            >
-                                ← Back
-                            </Button>
+                        <div className="p-3 border-b flex items-center justify-center bg-muted/30 relative">
                             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Secure Checkout</span>
-                            <div className="w-12" />
                         </div>
                         <div className="flex-1 overflow-auto bg-white">
                             <WhopCheckoutEmbed
