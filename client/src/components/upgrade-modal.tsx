@@ -60,17 +60,18 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
             onClick={() => onOpenChange(false)}
         >
             <div
-                className="w-full max-w-2xl bg-card border rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 relative"
+                className="w-full max-w-2xl bg-card border rounded-2xl shadow-xl animate-in zoom-in-95 duration-200 relative max-h-[90vh] sm:max-h-none overflow-y-auto sm:overflow-visible"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Close Button */}
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute right-3 top-3 text-muted-foreground/50 hover:text-foreground z-10 h-7 w-7 rounded-full hover:bg-muted"
+                    className="absolute right-4 top-4 text-muted-foreground/50 hover:text-foreground z-10 h-8 w-8 rounded-full hover:bg-muted block ml-auto"
                     onClick={() => onOpenChange(false)}
+                    style={{ left: 'auto' }}
                 >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-4 w-4" />
                 </Button>
 
                 {showCheckout && checkoutId ? (
@@ -102,13 +103,13 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                         </div>
                     </div>
                 ) : (
-                    <div className="p-5 md:p-6">
-                        <div className="text-center mb-5">
-                            <div className="inline-flex items-center justify-center p-1.5 bg-primary/10 rounded-lg mb-2">
-                                <Sparkles className="h-4 w-4 text-primary" />
+                    <div className="p-6 md:p-10">
+                        <div className="text-center mb-8">
+                            <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-xl mb-4">
+                                <Sparkles className="h-6 w-6 text-primary" />
                             </div>
-                            <h2 className="text-lg font-bold tracking-tight">Upgrade your plan</h2>
-                            <p className="text-muted-foreground text-[11px] mt-0.5">Choose the plan that's right for you</p>
+                            <h2 className="text-2xl font-bold tracking-tight">Upgrade your plan</h2>
+                            <p className="text-muted-foreground text-sm mt-1.5 font-medium">Choose the plan that's right for you</p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -116,27 +117,27 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                             <div className="flex flex-col p-5 rounded-xl border bg-muted/20">
                                 <div className="mb-4">
                                     <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Free</h3>
-                                    <div className="flex items-baseline gap-1 mt-1">
-                                        <span className="text-2xl font-bold">$0</span>
-                                        <span className="text-muted-foreground text-xs">/month</span>
+                                    <div className="flex items-baseline gap-1.5 mt-1.5">
+                                        <span className="text-3xl font-bold">$0</span>
+                                        <span className="text-muted-foreground text-xs font-medium">/month</span>
                                     </div>
                                 </div>
 
-                                <ul className="flex-1 space-y-2 mb-5">
-                                    <li className="flex items-center gap-2 text-[11px] text-foreground/80">
-                                        <Check className="h-3 w-3 text-primary/60 shrink-0" />
+                                <ul className="flex-1 space-y-3 mb-8">
+                                    <li className="flex items-center gap-2.5 text-xs text-foreground/80 font-medium">
+                                        <Check className="h-4 w-4 text-primary/60 shrink-0" />
                                         1 Published Course
                                     </li>
-                                    <li className="flex items-center gap-2 text-[11px] text-foreground/80">
-                                        <Check className="h-3 w-3 text-primary/60 shrink-0" />
+                                    <li className="flex items-center gap-2.5 text-xs text-foreground/80 font-medium">
+                                        <Check className="h-4 w-4 text-primary/60 shrink-0" />
                                         1 Daily Generation
                                     </li>
-                                    <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                                        <X className="h-3 w-3 shrink-0" />
+                                    <li className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                                        <X className="h-4 w-4 shrink-0" />
                                         Magic AI
                                     </li>
-                                    <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                                        <X className="h-3 w-3 shrink-0" />
+                                    <li className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                                        <X className="h-4 w-4 shrink-0" />
                                         Guided Mode
                                     </li>
                                 </ul>
@@ -153,27 +154,27 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                 </div>
                                 <div className="mb-4 pt-1">
                                     <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Pro</h3>
-                                    <div className="flex items-baseline gap-1 mt-1">
-                                        <span className="text-2xl font-bold">$20</span>
-                                        <span className="text-muted-foreground text-xs">/month</span>
+                                    <div className="flex items-baseline gap-1.5 mt-1.5">
+                                        <span className="text-3xl font-bold">$20</span>
+                                        <span className="text-muted-foreground text-xs font-semibold">/month</span>
                                     </div>
                                 </div>
 
-                                <ul className="flex-1 space-y-2 mb-5">
-                                    <li className="flex items-center gap-2 text-[11px] font-medium">
-                                        <Zap className="h-3 w-3 text-primary shrink-0" />
+                                <ul className="flex-1 space-y-3 mb-8">
+                                    <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
+                                        <Zap className="h-4 w-4 shrink-0" />
                                         10 Published Courses
                                     </li>
-                                    <li className="flex items-center gap-2 text-[11px] font-medium">
-                                        <Check className="h-3 w-3 text-primary shrink-0" />
+                                    <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
+                                        <Check className="h-4 w-4 shrink-0" />
                                         2 Daily Course Generation
                                     </li>
-                                    <li className="flex items-center gap-2 text-[11px] font-medium">
-                                        <Cpu className="h-3 w-3 text-primary shrink-0" />
+                                    <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
+                                        <Cpu className="h-4 w-4 shrink-0" />
                                         Magic AI
                                     </li>
-                                    <li className="flex items-center gap-2 text-[11px] font-medium">
-                                        <MousePointer2 className="h-3 w-3 text-primary shrink-0" />
+                                    <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
+                                        <MousePointer2 className="h-4 w-4 shrink-0" />
                                         Guided
                                     </li>
                                 </ul>
@@ -188,8 +189,8 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                             </div>
                         </div>
 
-                        <p className="text-center text-[9px] text-muted-foreground mt-4 px-10 leading-relaxed">
-                            Securely processed by Whop. Cancel anytime.
+                        <p className="text-center text-[10px] text-muted-foreground mt-8 px-10 leading-relaxed font-medium">
+                            Securely processed by Whop. Cancel anytime.<br />
                             Unlocks advanced AI features across your workspace.
                         </p>
                     </div>
