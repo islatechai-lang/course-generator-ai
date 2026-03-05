@@ -129,6 +129,7 @@ export async function createCheckoutConfiguration(
 export async function createProCheckoutSession(planId: string): Promise<{ checkoutId: string } | null> {
   try {
     const checkoutConfig = await whop.checkoutConfigurations.create({
+      company_id: process.env.WHOP_COMPANY_ID,
       plan: planId,
     } as any);
 

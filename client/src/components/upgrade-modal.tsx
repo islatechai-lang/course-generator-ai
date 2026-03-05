@@ -90,7 +90,8 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                         </div>
                         <div className="flex-1 overflow-auto bg-white">
                             <WhopCheckoutEmbed
-                                checkoutId={checkoutId}
+                                sessionId={checkoutId}
+                                returnUrl={window.location.href}
                                 onComplete={() => {
                                     toast({
                                         title: "Success!",
