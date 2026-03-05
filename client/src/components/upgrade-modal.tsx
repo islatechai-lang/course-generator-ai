@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Check, X, Shield, Zap, Layout, Globe } from "lucide-react";
+import { Sparkles, Check, X, Shield, Zap, Globe } from "lucide-react";
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -20,11 +19,19 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
     useEffect(() => {
         console.log("[UpgradeModal] Prop 'open' changed to:", open);
         if (open) {
-            console.log("[UpgradeModal] Modal is officially OPEN");
-            // alert("DEBUG: UpgradeModal is OPEN"); // Commented out but ready if needed
+            console.log("[UpgradeModal] Modal is officially OPEN (No-Portal Mode)");
             setShowCheckout(false); // Reset to comparison view when opened
         }
     }, [open]);
+
+    // Handle ESC key to close
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === "Escape" && open) onOpenChange(false);
+        };
+        window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [open, onOpenChange]);
 
     const handleStartCheckout = async () => {
         console.log("[UpgradeModal] Starting checkout process...");
@@ -51,10 +58,27 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
     if (!open) return null;
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl p-0 overflow-hidden border-none bg-white sm:rounded-2xl shadow-2xl z-[9999]">
+        <div
+            className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300"
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+            onClick={() => onOpenChange(false)}
+        >
+            <div
+                className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 relative"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Close Button */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 z-10"
+                    onClick={() => onOpenChange(false)}
+                >
+                    <X className="h-5 w-5" />
+                </Button>
+
                 {showCheckout && checkoutId ? (
-                    <div className="w-full h-[600px] flex flex-col bg-white">
+                    <div className="w-full h-[650px] flex flex-col bg-white">
                         <div className="p-4 border-b flex items-center justify-between bg-slate-50">
                             <Button
                                 variant="ghost"
@@ -82,7 +106,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                         </div>
                     </div>
                 ) : (
-                    <div className="flex flex-col md:flex-row min-h-[500px]">
+                    <div className="flex flex-col md:flex-row min-h-[550px]">
                         {/* Comparison Sidebar / Info */}
                         <div className="md:w-1/3 bg-slate-900 p-8 text-white flex flex-col justify-between">
                             <div>
@@ -97,19 +121,19 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3 text-sm">
                                         <div className="h-5 w-5 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
-                                            <Shield className="h-3 w-3 text-indigo-400" />
+                                            <Shield className="h-3.5 w-3.5 text-indigo-400" />
                                         </div>
                                         <span>Unlimited Potential</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-sm">
                                         <div className="h-5 w-5 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
-                                            <Zap className="h-3 w-3 text-indigo-400" />
+                                            <Zap className="h-3.5 w-3.5 text-indigo-400" />
                                         </div>
                                         <span>Instant Activation</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-sm">
                                         <div className="h-5 w-5 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
-                                            <Globe className="h-3 w-3 text-indigo-400" />
+                                            <Globe className="h-3.5 w-3.5 text-indigo-400" />
                                         </div>
                                         <span>Global Reaching</span>
                                     </div>
@@ -124,8 +148,8 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                         </div>
 
                         {/* Main Comparison Area */}
-                        <div className="md:w-2/3 p-8 bg-white">
-                            <div className="grid grid-cols-2 gap-8 mb-8">
+                        <div className="md:w-2/3 p-8 md:p-12 bg-white flex flex-col justify-center">
+                            <div className="grid grid-cols-2 gap-8 mb-10">
                                 {/* Free Plan */}
                                 <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
                                     <h3 className="font-bold text-slate-900 mb-1">Free Plan</h3>
@@ -199,7 +223,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                         </div>
                     </div>
                 )}
-            </DialogContent>
-        </Dialog>
+            </div>
+        </div>
     );
 }
