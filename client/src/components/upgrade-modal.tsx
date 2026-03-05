@@ -17,25 +17,30 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
     const [step, setStep] = useState<"intro" | "checkout">("intro");
     const { toast } = useToast();
 
+    console.log("[UpgradeModal] Rendered. open=", open);
+
     useEffect(() => {
         // Reset step when modal opens
         if (open) {
+            console.log("[UpgradeModal] Modal opened. Resetting step to intro.");
             setStep("intro");
         }
     }, [open]);
 
     const handleStartUpgrade = async () => {
+        console.log("[UpgradeModal] handleStartUpgrade clicked.");
         setStep("checkout");
         if (!checkoutId) {
+            console.log("[UpgradeModal] No checkoutId, fetching one...");
             setIsLoading(true);
             try {
-                const response = await apiRequest("POST", "/api/pro/checkout");
-                const data = await response.json();
+                const data = await apiRequest("POST", "/api/pro/checkout");
+                console.log("[UpgradeModal] Checkout data received:", data);
                 if (data.checkoutId) {
                     setCheckoutId(data.checkoutId);
                 }
             } catch (error) {
-                console.error("Failed to get checkout ID:", error);
+                console.error("[UpgradeModal] Failed to get checkout ID:", error);
                 toast({
                     title: "Upgrade Error",
                     description: "Failed to prepare checkout. Please try again later.",

@@ -52,13 +52,15 @@ async function getGenerationLimit(userId: string, isPro: boolean = false) {
   // Free users: 1 generation per day, Pro users: 2 generations per day
   const limit = isPro ? DAILY_GENERATION_LIMIT : 1;
 
-  return {
+  const result = {
     limit,
     used,
     remaining: Math.max(0, limit - used),
     resetAt: resetAt.toISOString(),
     isPro,
   };
+  console.log(`[Backend] getGenerationLimit for user ${userId}:`, result);
+  return result;
 }
 
 async function authenticateWhop(req: AuthenticatedRequest, res: Response, next: NextFunction) {
@@ -75,6 +77,10 @@ async function authenticateWhop(req: AuthenticatedRequest, res: Response, next: 
     }
 
     req.whopUserId = result.userId;
+
+    const isPro = await checkPlanAccess(result.userId, PRO_PLAN_ID);
+    req.isPro = isPro;
+    console.log(`[Backend] authenticateWhop: user ${result.userId}, isPro=${isPro}`);
 
     let user = await storage.getUserByWhopId(result.userId);
 
@@ -951,6 +957,7 @@ export async function registerRoutes(
         const maxPublished = req.isPro ? 10 : 1;
 
         if (publishedCount >= maxPublished) {
+          console.log(`[PATCH Course] Publishing limit reached for user ${req.user?.id}: ${publishedCount}/${maxPublished}. needsUpgrade: ${!req.isPro}`);
           return res.status(403).json({
             error: `Publishing limit reached. ${req.isPro ? "Pro" : "Free"} plan allows up to ${maxPublished} published courses.`,
             needsUpgrade: !req.isPro
@@ -1761,6 +1768,7 @@ export async function registerRoutes(
         const limit = req.isPro ? 10 : 1;
 
         if (publishedCount >= limit) {
+          console.log(`[PATCH Experience Course] Publishing limit reached for user ${req.user?.id}: ${publishedCount}/${limit}. needsUpgrade: ${!req.isPro}`);
           return res.status(403).json({
             error: `Publishing limit reached. ${req.isPro ? "Pro" : "Free"} users can publish up to ${limit} course${limit > 1 ? "s" : ""}.`,
             needsUpgrade: !req.isPro

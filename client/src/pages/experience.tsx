@@ -94,6 +94,12 @@ export default function ExperiencePage() {
     },
   });
 
+  useEffect(() => {
+    if (data) {
+      console.log("[Frontend] Experience data received:", data);
+    }
+  }, [data]);
+
   const grantAccessMutation = useMutation({
     mutationFn: async ({ courseId, courseName }: { courseId: string; courseName: string }) => {
       const result = await apiRequest("POST", `/api/experiences/${experienceId}/courses/${courseId}/access`, {});
@@ -239,8 +245,11 @@ export default function ExperiencePage() {
       });
     },
     onError: (err: any) => {
+      console.log("togglePublishMutation error:", err);
+      console.log("err.data:", err.data);
       setPublishingCourseId(null);
       if (err.data?.needsUpgrade) {
+        console.log("Triggering upgrade modal because needsUpgrade is true");
         setShowUpgradeModal(true);
       } else {
         toast({ title: "Error", description: err.message || "Failed to update course.", variant: "destructive" });
@@ -700,6 +709,10 @@ export default function ExperiencePage() {
           </div>
         </DialogContent>
       </Dialog>
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+      />
     </div>
   );
 }
@@ -1079,7 +1092,6 @@ function StudentCourseCard({ course, experienceId, hasAccess, onRequestAccess, i
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <UpgradeModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
     </>
   );
 }

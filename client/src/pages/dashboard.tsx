@@ -54,6 +54,12 @@ export default function DashboardPage() {
     },
   });
 
+  useEffect(() => {
+    if (data) {
+      console.log("[Frontend] Dashboard data received:", data);
+    }
+  }, [data]);
+
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [publishingCourseId, setPublishingCourseId] = useState<string | null>(null);
   const createTabRef = useRef<HTMLDivElement>(null);
@@ -219,7 +225,9 @@ export default function DashboardPage() {
         const response = await apiRequest("PATCH", `/api/dashboard/${companyId}/courses/${courseId}`, { published });
         return response;
       } catch (err: any) {
+        console.log("[Frontend] togglePublishMutation error data:", err.data);
         if (err.data?.needsUpgrade) {
+          console.log("[Frontend] Setting showUpgradeModal to true");
           setShowUpgradeModal(true);
           throw new Error("upgrade_required");
         }

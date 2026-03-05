@@ -424,7 +424,10 @@ export default function CourseEditPage() {
       toast({ title: "Changes saved", description: "Your course has been updated." });
     },
     onError: (err: any) => {
+      console.log("updateCourseMutation error in course-edit:", err);
+      console.log("err.data:", err.data);
       if (err.data?.needsUpgrade) {
+        console.log("Triggering upgrade modal (course-edit) because needsUpgrade is true");
         setShowUpgradeModal(true);
       } else {
         toast({ title: "Error", description: err.message || "Failed to update course.", variant: "destructive" });

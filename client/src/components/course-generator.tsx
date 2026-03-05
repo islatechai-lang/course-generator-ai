@@ -149,7 +149,9 @@ export function CourseGenerator({
   };
 
   const handleGenerate = async () => {
+    console.log("[Frontend] handleGenerate: starts. mode=", mode, "isPro=", generationLimit?.isPro);
     if ((mode === "magic" || mode === "guided") && !generationLimit?.isPro) {
+      console.log("[Frontend] handleGenerate: Triggering Upgrade Modal (not Pro)");
       onUpgrade?.();
       return;
     }
@@ -300,7 +302,9 @@ export function CourseGenerator({
         <GenerationProgress topic={topic} isComplete={isGenerationComplete} />
       ) : (
         <Tabs value={mode} onValueChange={(v: any) => {
+          console.log("[Frontend] Tab change attempt to:", v, "isPro=", generationLimit?.isPro);
           if ((v === "magic" || v === "guided") && !generationLimit?.isPro) {
+            console.log("[Frontend] Tab change: Triggering Upgrade Modal (not Pro)");
             onUpgrade?.();
             return;
           }

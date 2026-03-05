@@ -57,7 +57,9 @@ export async function checkPlanAccess(
         plan_ids: [planId],
         statuses: ['active', 'trialing'],
       });
-      return response.data.length > 0;
+      const hasPro = response.data.length > 0;
+      console.log(`[Whop SDK] checkPlanAccess for user ${userId} on plan ${planId}: hasPro=${hasPro}, membershipCount=${response.data.length}`);
+      return hasPro;
     }
 
     const access = await checkAccess(planId, userId);
