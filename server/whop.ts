@@ -56,6 +56,9 @@ export async function checkPlanAccess(
         user_ids: [userId],
         plan_ids: [planId],
         statuses: ['active', 'trialing'],
+      }).catch((err: any) => {
+        console.error(`[Whop SDK] memberships.list error for user ${userId}:`, err.message);
+        return { data: [] };
       });
       const hasPro = response.data.length > 0;
       console.log(`[Whop SDK] checkPlanAccess for user ${userId} on plan ${planId}: hasPro=${hasPro}, membershipCount=${response.data.length}`);
@@ -130,7 +133,7 @@ export async function createProCheckoutSession(planId: string): Promise<{ checko
   try {
     const checkoutConfig = await whop.checkoutConfigurations.create({
       company_id: process.env.WHOP_COMPANY_ID,
-      plan: planId,
+      plan_id: planId, // Use plan_id instead of plan as a string
     } as any);
 
     return { checkoutId: checkoutConfig.id };
