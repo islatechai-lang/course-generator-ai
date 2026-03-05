@@ -61,9 +61,10 @@ export async function checkPlanAccess(
   try {
     if (planId.startsWith("plan_")) {
       const response = await whop.memberships.list({
+        company_id: process.env.WHOP_COMPANY_ID,
         user_ids: [userId],
         plan_ids: [planId],
-        statuses: ['active', 'trialing'],
+        statuses: ['active', 'trialing', 'completed'],
       }).catch((err: any) => {
         // Silently handle expected authorization errors
         if (err.status !== 400 && err.status !== 403) {
@@ -71,14 +72,15 @@ export async function checkPlanAccess(
         }
         return { data: [] };
       });
-      const hasPro = response.data.length > 0;
-      console.log(`[Whop SDK] checkPlanAccess for user ${userId} on plan ${planId}: hasPro=${hasPro}, membershipCount=${response.data.length}`);
+      const hasPro = (response.data?.length || 0) > 0;
+      console.log(`[Whop SDK] checkPlanAccess for user ${userId} on plan ${planId}: hasPro=${hasPro}, membershipCount=${response.data?.length || 0}`);
 
       return hasPro;
     }
 
     const access = await checkAccess(planId, userId);
-    return access.has_access;
+    // Allow admins of the company/resource to be treated as Pro
+    return access.has_access || access.access_level === "admin";
   } catch (error) {
     return false;
   }
