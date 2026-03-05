@@ -60,7 +60,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
             onClick={() => onOpenChange(false)}
         >
             <div
-                className="w-full max-w-2xl bg-card border rounded-2xl shadow-xl animate-in zoom-in-95 duration-200 relative max-h-[90vh] sm:max-h-none overflow-y-auto sm:overflow-visible"
+                className="w-full max-w-2xl bg-card border rounded-2xl shadow-xl animate-in zoom-in-95 duration-200 relative max-h-[95vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Close Button */}
@@ -190,8 +190,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                         </div>
 
                         <p className="text-center text-[10px] text-muted-foreground mt-8 px-10 leading-relaxed font-medium">
-                            Securely processed by Whop. Cancel anytime.<br />
-                            Unlocks advanced AI features across your workspace.
+                            Securely processed by Whop. Cancel anytime.
                         </p>
                     </div>
                 )}
