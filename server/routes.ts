@@ -2037,8 +2037,8 @@ export async function registerRoutes(
 
         // Add creator earnings (55% to creator, 45% platform fee)
         // TODO: Platform fee percentage can be made configurable in the future
-        const CREATOR_PERCENTAGE = 0.55; // Creator gets 55%, platform keeps 45%
-        const PLATFORM_PERCENTAGE = 0.45; // Platform gets 45%
+        const CREATOR_PERCENTAGE = 0.90; // Creator gets 90%, platform keeps 10%
+        const PLATFORM_PERCENTAGE = 0.10; // Platform gets 10%
         const totalAmount = Number(payment.amount);
         const creatorEarnings = totalAmount * CREATOR_PERCENTAGE;
         const platformEarnings = totalAmount * PLATFORM_PERCENTAGE;
@@ -2068,8 +2068,8 @@ export async function registerRoutes(
 
         // Add creator earnings (55% to creator, 45% platform fee)
         // TODO: Platform fee percentage can be made configurable in the future
-        const CREATOR_PERCENTAGE_API = 0.55; // Creator gets 55%, platform keeps 45%
-        const PLATFORM_PERCENTAGE_API = 0.45; // Platform gets 45%
+        const CREATOR_PERCENTAGE_API = 0.90; // Creator gets 90%, platform keeps 10%
+        const PLATFORM_PERCENTAGE_API = 0.10; // Platform gets 10%
         const totalAmountApi = Number(payment.amount);
         const creatorEarningsApi = totalAmountApi * CREATOR_PERCENTAGE_API;
         const platformEarningsApi = totalAmountApi * PLATFORM_PERCENTAGE_API;
