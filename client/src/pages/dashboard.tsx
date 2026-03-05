@@ -18,7 +18,7 @@ import {
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { WhopCheckoutEmbed } from "@whop/checkout";
+import { WhopCheckoutEmbed } from "@whop/checkout/react";
 import { generateCourseImage } from "@/lib/image-generator";
 import type { GeneratedCourse, Course } from "@shared/schema";
 
