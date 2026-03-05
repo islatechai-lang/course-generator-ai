@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { generateCourseImage } from "@/lib/image-generator";
 import confetti from "canvas-confetti";
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
@@ -51,6 +52,7 @@ interface ExperienceData {
 export default function ExperiencePage() {
   const { experienceId } = useParams<{ experienceId: string }>();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("courses");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedCourse, setGeneratedCourse] = useState<GeneratedCourse | null>(null);
