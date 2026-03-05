@@ -67,10 +67,10 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-2 text-muted-foreground hover:text-foreground z-10 h-8 w-8"
+                    className="absolute right-3 top-3 text-muted-foreground/50 hover:text-foreground z-10 h-7 w-7 rounded-full hover:bg-muted"
                     onClick={() => onOpenChange(false)}
                 >
-                    <X className="h-4 w-4" />
+                    <X className="h-3.5 w-3.5" />
                 </Button>
 
                 {showCheckout && checkoutId ? (
@@ -102,13 +102,13 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                         </div>
                     </div>
                 ) : (
-                    <div className="p-6 md:p-8">
-                        <div className="text-center mb-8">
-                            <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-xl mb-3">
-                                <Sparkles className="h-5 w-5 text-primary" />
+                    <div className="p-5 md:p-6">
+                        <div className="text-center mb-5">
+                            <div className="inline-flex items-center justify-center p-1.5 bg-primary/10 rounded-lg mb-2">
+                                <Sparkles className="h-4 w-4 text-primary" />
                             </div>
-                            <h2 className="text-xl font-bold tracking-tight">Upgrade your plan</h2>
-                            <p className="text-muted-foreground text-sm mt-1">Choose the plan that's right for you</p>
+                            <h2 className="text-lg font-bold tracking-tight">Upgrade your plan</h2>
+                            <p className="text-muted-foreground text-[11px] mt-0.5">Choose the plan that's right for you</p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -122,21 +122,21 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     </div>
                                 </div>
 
-                                <ul className="flex-1 space-y-3 mb-6">
-                                    <li className="flex items-center gap-2 text-xs text-foreground/80">
-                                        <Check className="h-3.5 w-3.5 text-primary/60 shrink-0" />
+                                <ul className="flex-1 space-y-2 mb-5">
+                                    <li className="flex items-center gap-2 text-[11px] text-foreground/80">
+                                        <Check className="h-3 w-3 text-primary/60 shrink-0" />
                                         1 Published Course
                                     </li>
-                                    <li className="flex items-center gap-2 text-xs text-foreground/80">
-                                        <Check className="h-3.5 w-3.5 text-primary/60 shrink-0" />
+                                    <li className="flex items-center gap-2 text-[11px] text-foreground/80">
+                                        <Check className="h-3 w-3 text-primary/60 shrink-0" />
                                         1 Daily Generation
                                     </li>
-                                    <li className="flex items-center gap-2 text-xs text-muted-foreground">
-                                        <X className="h-3.5 w-3.5 shrink-0" />
+                                    <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                                        <X className="h-3 w-3 shrink-0" />
                                         Magic AI
                                     </li>
-                                    <li className="flex items-center gap-2 text-xs text-muted-foreground">
-                                        <X className="h-3.5 w-3.5 shrink-0" />
+                                    <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                                        <X className="h-3 w-3 shrink-0" />
                                         Guided Mode
                                     </li>
                                 </ul>
@@ -159,21 +159,21 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     </div>
                                 </div>
 
-                                <ul className="flex-1 space-y-3 mb-6">
-                                    <li className="flex items-center gap-2 text-xs font-medium">
-                                        <Zap className="h-3.5 w-3.5 text-primary shrink-0" />
+                                <ul className="flex-1 space-y-2 mb-5">
+                                    <li className="flex items-center gap-2 text-[11px] font-medium">
+                                        <Zap className="h-3 w-3 text-primary shrink-0" />
                                         10 Published Courses
                                     </li>
-                                    <li className="flex items-center gap-2 text-xs font-medium">
-                                        <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                                    <li className="flex items-center gap-2 text-[11px] font-medium">
+                                        <Check className="h-3 w-3 text-primary shrink-0" />
                                         2 Daily Course Generation
                                     </li>
-                                    <li className="flex items-center gap-2 text-xs font-medium">
-                                        <Cpu className="h-3.5 w-3.5 text-primary shrink-0" />
+                                    <li className="flex items-center gap-2 text-[11px] font-medium">
+                                        <Cpu className="h-3 w-3 text-primary shrink-0" />
                                         Magic AI
                                     </li>
-                                    <li className="flex items-center gap-2 text-xs font-medium">
-                                        <MousePointer2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                                    <li className="flex items-center gap-2 text-[11px] font-medium">
+                                        <MousePointer2 className="h-3 w-3 text-primary shrink-0" />
                                         Guided
                                     </li>
                                 </ul>
@@ -188,7 +188,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                             </div>
                         </div>
 
-                        <p className="text-center text-[10px] text-muted-foreground mt-6 px-10">
+                        <p className="text-center text-[9px] text-muted-foreground mt-4 px-10 leading-relaxed">
                             Securely processed by Whop. Cancel anytime.
                             Unlocks advanced AI features across your workspace.
                         </p>
