@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CourseGenerator, CoursePreview } from "@/components/course-generator";
+import { UpgradeModal } from "@/components/upgrade-modal";
 import { CourseCard } from "@/components/course-card";
 import { WithdrawRequestDialog } from "@/components/withdraw-request-dialog";
 import { UserMenu } from "@/components/user-menu";
@@ -61,6 +62,7 @@ export default function ExperiencePage() {
   const [publishingCourseId, setPublishingCourseId] = useState<string | null>(null);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const createTabRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -236,8 +238,13 @@ export default function ExperiencePage() {
         description: "The course status has been updated.",
       });
     },
-    onError: () => {
+    onError: (err: any) => {
       setPublishingCourseId(null);
+      if (err.data?.needsUpgrade) {
+        setShowUpgradeModal(true);
+      } else {
+        toast({ title: "Error", description: err.message || "Failed to update course.", variant: "destructive" });
+      }
     },
   });
 
@@ -433,6 +440,7 @@ export default function ExperiencePage() {
                     setIsGenerating={setIsGenerating}
                     apiBasePath={`/api/experiences/${experienceId}`}
                     generationLimit={data?.generationLimit}
+                    onUpgrade={() => setShowUpgradeModal(true)}
                   />
                 ) : (
                   <CoursePreview
@@ -1071,6 +1079,7 @@ function StudentCourseCard({ course, experienceId, hasAccess, onRequestAccess, i
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <UpgradeModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
     </>
   );
 }

@@ -96,6 +96,7 @@ import QuizEditor from "@/components/QuizEditor";
 import { MediaDialog } from "@/components/media-dialog";
 import { BlockEditor, BlockEditorToolbar } from "@/components/block-editor";
 import { ILessonBlock } from "@shared/schema";
+import { UpgradeModal } from "@/components/upgrade-modal";
 
 function MobileSidebarTrigger() {
   const { toggleSidebar } = useSidebar();
@@ -314,6 +315,7 @@ export default function CourseEditPage() {
   const [pendingMediaDelete, setPendingMediaDelete] = useState<{ lessonId: string; mediaId: string } | null>(null);
   const [uploadingMediaId, setUploadingMediaId] = useState<string | null>(null);
   const [showMobileScrollButton, setShowMobileScrollButton] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
 
@@ -421,8 +423,12 @@ export default function CourseEditPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId] });
       toast({ title: "Changes saved", description: "Your course has been updated." });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update course.", variant: "destructive" });
+    onError: (err: any) => {
+      if (err.data?.needsUpgrade) {
+        setShowUpgradeModal(true);
+      } else {
+        toast({ title: "Error", description: err.message || "Failed to update course.", variant: "destructive" });
+      }
     },
   });
 
@@ -2239,6 +2245,7 @@ export default function CourseEditPage() {
           </DialogContent>
         </Dialog>
       </div>
+      <UpgradeModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
     </SidebarProvider>
   );
 }
