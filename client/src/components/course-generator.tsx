@@ -299,40 +299,40 @@ export function CourseGenerator({
       {isGenerating && topic ? (
         <GenerationProgress topic={topic} isComplete={isGenerationComplete} />
       ) : (
-        <Tabs value={mode} onValueChange={(v: any) => setMode(v)} className="w-full">
+        <Tabs value={mode} onValueChange={(v: any) => {
+          if ((v === "magic" || v === "guided") && !generationLimit?.isPro) {
+            onUpgrade?.();
+            return;
+          }
+          setMode(v);
+        }} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6 p-1 h-auto bg-muted/50 rounded-xl">
             <TabsTrigger
               value="magic"
               className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm"
-              onClick={(e: React.MouseEvent) => {
-                if (!generationLimit?.isPro) {
-                  e.preventDefault();
-                  onUpgrade?.();
-                }
-              }}
             >
               <Sparkles className="h-4 w-4 mr-2 text-amber-500" />
               Magic AI
-              {!generationLimit?.isPro && <Badge variant="secondary" className="scale-75 origin-right ml-1 h-4 bg-amber-100 text-amber-600 border-amber-200">PRO</Badge>}
+              {!generationLimit?.isPro && (
+                <Badge className="scale-[0.8] origin-left ml-1.5 h-4 px-1.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-500 text-white border-none shadow-[0_0_10px_rgba(245,158,11,0.3)] font-black tracking-widest text-[9px] pt-[2px]">
+                  PRO
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger
               value="guided"
               className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm relative"
-              onClick={(e: React.MouseEvent) => {
-                if (!generationLimit?.isPro) {
-                  e.preventDefault();
-                  onUpgrade?.();
-                }
-              }}
             >
               <span className="flex items-center justify-center">
                 <PenTool className="h-4 w-4 mr-2 text-blue-500" />
                 Guided
               </span>
               {!generationLimit?.isPro ? (
-                <Badge variant="secondary" className="scale-75 origin-right ml-1 h-4 bg-amber-100 text-amber-600 border-amber-200">PRO</Badge>
+                <Badge className="scale-[0.8] origin-left ml-1.5 h-4 px-1.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-500 text-white border-none shadow-[0_0_10px_rgba(245,158,11,0.3)] font-black tracking-widest text-[9px] pt-[2px]">
+                  PRO
+                </Badge>
               ) : (
-                <Badge variant="default" className="absolute top-[-5px] right-[-10px] h-4 px-1 text-[9px] bg-primary hover:bg-primary text-primary-foreground border-none animate-pulse font-bold shadow-sm">NEW</Badge>
+                <Badge variant="default" className="absolute top-[-5px] right-[-10px] h-4 px-1 text-[9px] bg-primary hover:bg-primary text-primary-foreground border-none animate-pulse font-bold shadow-sm pt-[2px]">NEW</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="scratch" className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">

@@ -226,16 +226,16 @@ export default function DashboardPage() {
   const togglePublishMutation = useMutation({
     mutationFn: async ({ courseId, published }: { courseId: string; published: boolean }) => {
       setPublishingCourseId(courseId);
-      const response = await apiRequest("PATCH", `/api/dashboard/${companyId}/courses/${courseId}`, { published });
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (errorData.needsUpgrade) {
+      try {
+        const response = await apiRequest("PATCH", `/api/dashboard/${companyId}/courses/${courseId}`, { published });
+        return response;
+      } catch (err: any) {
+        if (err.data?.needsUpgrade) {
           setShowUpgradeModal(true);
           throw new Error("upgrade_required");
         }
-        throw new Error(errorData.error || "Failed to update course");
+        throw err;
       }
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId] });
