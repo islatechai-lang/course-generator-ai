@@ -335,19 +335,28 @@ export default function ExperiencePage() {
                 <HelpCircle className="h-4 w-4" />
               </Button>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <UserMenu />
+              {!data?.generationLimit?.isPro && (
+                <Button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="h-9 px-3 sm:px-4 gap-1.5 sm:gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-none shrink-0"
+                >
+                  <Sparkles className="h-4 w-4 fill-current" />
+                  <span className="text-xs sm:text-sm font-medium">{isMobile ? "Pro" : "Upgrade to Pro"}</span>
+                </Button>
+              )}
               <Button
                 onClick={() => setShowWithdrawDialog(true)}
                 data-testid="button-withdraw"
-                className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none"
+                className="h-9 px-3 sm:px-4 gap-1.5 sm:gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none shrink-0"
               >
                 <Wallet className="h-4 w-4" />
-                <span>Withdraw</span>
+                <span className="text-xs sm:text-sm font-medium">{isMobile ? "Withdraw" : "Withdraw"}</span>
               </Button>
-              <Button onClick={() => setActiveTab("create")} data-testid="button-create-course">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Course
+              <Button onClick={() => setActiveTab("create")} data-testid="button-create-course" className="h-9 px-3 sm:px-4 shrink-0">
+                <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="text-xs sm:text-sm font-medium">{isMobile ? "Create" : "Create Course"}</span>
               </Button>
             </div>
           </div>
@@ -569,6 +578,10 @@ export default function ExperiencePage() {
           companyId={experienceId || ""}
           availableBalance={stats.availableBalance}
           apiBasePath={`/api/experiences/${experienceId}`}
+        />
+        <UpgradeModal
+          open={showUpgradeModal}
+          onOpenChange={setShowUpgradeModal}
         />
       </div>
     );
