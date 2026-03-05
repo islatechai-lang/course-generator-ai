@@ -48,6 +48,13 @@ export function CourseGenerator({
   const [topic, setTopic] = useState("");
   const [mode, setMode] = useState<"magic" | "guided" | "scratch">("magic");
 
+  // Sync mode with Pro status if it's the first load
+  useState(() => {
+    if (generationLimit && !generationLimit.isPro) {
+      setMode("scratch");
+    }
+  });
+
   // Guided options
   const [tone, setTone] = useState("Professional");
   const [audience, setAudience] = useState("");
@@ -142,6 +149,11 @@ export function CourseGenerator({
   };
 
   const handleGenerate = async () => {
+    if ((mode === "magic" || mode === "guided") && !generationLimit?.isPro) {
+      onUpgrade?.();
+      return;
+    }
+
     if (mode !== "scratch" && !topic.trim()) {
       toast({
         title: "Topic required",

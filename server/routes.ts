@@ -49,8 +49,8 @@ async function getGenerationLimit(userId: string, isPro: boolean = false) {
   const resetAt = new Date();
   resetAt.setUTCHours(24, 0, 0, 0);
 
-  // If not Pro, they can't use AI generation at all
-  const limit = isPro ? DAILY_GENERATION_LIMIT : 0;
+  // Free users: 1 generation per day, Pro users: 2 generations per day
+  const limit = isPro ? DAILY_GENERATION_LIMIT : 1;
 
   return {
     limit,
@@ -948,15 +948,14 @@ export async function registerRoutes(
 
       if (published === true && course.published === false) {
         // Enforce publishing limits
-        const userCourses = await storage.getCoursesByCreator(req.user.id, paramCompanyId);
-        const publishedCount = userCourses.filter(c => c.published).length;
-        const limit = req.isPro ? 10 : 1;
+        const publishedCourses = await storage.getCoursesByCreator(req.user?.id, paramCompanyId);
+        const publishedCount = publishedCourses.filter(c => c.published).length;
+        const maxPublished = req.isPro ? 10 : 1;
 
-        if (publishedCount >= limit) {
+        if (publishedCount >= maxPublished) {
           return res.status(403).json({
-            error: `Limit reached. ${req.isPro ? "Pro" : "Free"} users can only have ${limit} published course(s).`,
-            limit,
-            isPro: req.isPro
+            error: `Publishing limit reached. ${req.isPro ? "Pro" : "Free"} plan allows up to ${maxPublished} published courses.`,
+            needsUpgrade: !req.isPro
           });
         }
       }

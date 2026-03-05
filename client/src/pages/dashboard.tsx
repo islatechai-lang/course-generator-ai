@@ -226,14 +226,30 @@ export default function DashboardPage() {
   const togglePublishMutation = useMutation({
     mutationFn: async ({ courseId, published }: { courseId: string; published: boolean }) => {
       setPublishingCourseId(courseId);
-      return apiRequest("PATCH", `/api/dashboard/${companyId}/courses/${courseId}`, { published });
+      const response = await apiRequest("PATCH", `/api/dashboard/${companyId}/courses/${courseId}`, { published });
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.needsUpgrade) {
+          setShowUpgradeModal(true);
+          throw new Error("upgrade_required");
+        }
+        throw new Error(errorData.error || "Failed to update course");
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId] });
       setPublishingCourseId(null);
     },
-    onError: () => {
+    onError: (err: any) => {
       setPublishingCourseId(null);
+      if (err.message !== "upgrade_required") {
+        toast({
+          title: "Error",
+          description: err.message || "Failed to update course.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
@@ -591,27 +607,84 @@ function UpgradeModal({ open, onOpenChange }: { open: boolean; onOpenChange: (op
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none">
-        <div className="relative bg-white rounded-xl overflow-hidden min-h-[600px] flex flex-col">
-          <div className="p-6 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-white">
-                <Sparkles className="h-6 w-6" />
-                Upgrade to Pro Access
-              </DialogTitle>
-              <DialogDescription className="text-indigo-100 text-lg">
-                Unlock full AI power and publish up to 10 courses.
-              </DialogDescription>
-            </DialogHeader>
+        <div className="relative bg-white rounded-xl overflow-hidden min-h-[600px] flex flex-col md:flex-row">
+          <div className="md:w-1/2 p-10 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white flex flex-col justify-between">
+            <div>
+              <DialogHeader>
+                <DialogTitle className="text-3xl font-bold flex items-center gap-3 text-white mb-4">
+                  <Sparkles className="h-8 w-8 text-yellow-300" />
+                  Upgrade to Pro
+                </DialogTitle>
+                <DialogDescription className="text-indigo-100 text-lg leading-relaxed mb-8">
+                  Get full access to all AI features and scale your course business.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-5 mt-10">
+                <div className="flex items-start gap-3">
+                  <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Publish up to 10 Courses</p>
+                    <p className="text-indigo-100 text-sm">Expand your reach and host more content.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">2 AI Generations Per Day</p>
+                    <p className="text-indigo-100 text-sm">Double your daily course creation capacity.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Magic AI & Guided Mode</p>
+                    <p className="text-indigo-100 text-sm">Professional AI tools for perfect curriculums.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Advanced AI Features</p>
+                    <p className="text-indigo-100 text-sm">Priority access to our latest AI models.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-auto pt-10 border-t border-white/20">
+              <p className="text-2xl font-bold">$35.00 <span className="text-indigo-200 text-lg font-normal">/ month</span></p>
+            </div>
           </div>
 
-          <div className="flex-1 p-0 flex flex-col items-center justify-center bg-white">
+          <div className="md:w-1/2 p-0 flex flex-col items-center justify-center bg-slate-50 relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4 hover:bg-slate-200"
+              onClick={() => onOpenChange(false)}
+            >
+              <LayoutGrid className="h-4 w-4 text-slate-400 rotate-45" />
+            </Button>
+
             {isLoading ? (
               <div className="flex flex-col items-center gap-4">
                 <div className="h-12 w-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
-                <p className="text-slate-500 font-medium">Preparing your secure checkout...</p>
+                <p className="text-slate-500 font-medium">Preparing secure checkout...</p>
               </div>
             ) : checkoutId ? (
-              <div className="w-full">
+              <div className="w-full h-full flex items-center justify-center">
                 <WhopCheckoutEmbed
                   checkoutId={checkoutId}
                   onComplete={() => {
@@ -627,8 +700,10 @@ function UpgradeModal({ open, onOpenChange }: { open: boolean; onOpenChange: (op
               </div>
             ) : (
               <div className="p-8 text-center">
-                <p className="text-red-500 mb-4">Failed to load checkout. Please try again.</p>
-                <Button onClick={() => onOpenChange(false)}>Close</Button>
+                <p className="text-red-500 mb-4 font-medium">Failed to load checkout interface.</p>
+                <Button variant="outline" onClick={() => window.location.reload()}>
+                  Try Refreshing
+                </Button>
               </div>
             )}
           </div>
