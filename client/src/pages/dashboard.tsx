@@ -8,8 +8,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { UpgradeModal } from "@/components/upgrade-modal";
+import { CourseGenerator } from "@/components/course-generator";
 import { generateCourseImage } from "@/lib/image-generator";
 import type { GeneratedCourse, Course } from "@shared/schema";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  BookOpen,
+  HelpCircle,
+  Sparkles,
+  Wallet,
+  Plus,
+  LayoutGrid,
+  DollarSign,
+  TrendingUp,
+  Users,
+  CheckCircle2
+} from "lucide-react";
+import { UserMenu } from "@/components/user-menu";
+import { CourseCard } from "@/components/course-card";
+import { WithdrawRequestDialog } from "@/components/withdraw-request-dialog";
+import { StatCard } from "@/components/stat-card";
 
 interface DashboardData {
   user: { id: string; username: string; email: string };
@@ -39,6 +59,10 @@ export default function DashboardPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    console.log("[Frontend] Dashboard showUpgradeModal changed to:", showUpgradeModal);
+  }, [showUpgradeModal]);
 
   // Check if any courses are still generating to enable polling
   const hasGeneratingCourses = (courses: DashboardData["courses"] | undefined) =>
@@ -299,6 +323,14 @@ export default function DashboardPage() {
       <div className="border-b bg-background shrink-0">
         <div className="flex h-14 items-center justify-between px-3 sm:px-5">
           <div className="flex items-center gap-2">
+            <Button
+              variant="destructive"
+              size="sm"
+              className="h-7 text-[10px]"
+              onClick={() => setShowUpgradeModal(true)}
+            >
+              DEBUG UI
+            </Button>
             {/* Library Icon - now always visible and on the left for mobile */}
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shrink-0">
               <BookOpen className="h-4 w-4 text-primary-foreground" />
@@ -419,7 +451,10 @@ export default function DashboardPage() {
                   isGenerating={isGenerating}
                   setIsGenerating={setIsGenerating}
                   generationLimit={data?.generationLimit}
-                  onUpgrade={() => setShowUpgradeModal(true)}
+                  onUpgrade={() => {
+                    console.log("[Frontend] Dashboard onUpgrade called");
+                    setShowUpgradeModal(true);
+                  }}
                 />
               ) : (
                 <CoursePreview
@@ -534,6 +569,7 @@ export default function DashboardPage() {
         availableBalance={stats.availableBalance}
       />
 
+      {console.log("[Dashboard] Rendering UpgradeModal tag. showUpgradeModal:", showUpgradeModal)}
       <UpgradeModal
         open={showUpgradeModal}
         onOpenChange={setShowUpgradeModal}

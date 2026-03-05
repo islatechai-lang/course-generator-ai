@@ -20,6 +20,11 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
     console.log("[UpgradeModal] Rendered. open=", open);
 
     useEffect(() => {
+        console.log("[UpgradeModal] Component mounted.");
+        return () => console.log("[UpgradeModal] Component unmounted.");
+    }, []);
+
+    useEffect(() => {
         // Reset step when modal opens
         if (open) {
             console.log("[UpgradeModal] Modal opened. Resetting step to intro.");
@@ -55,7 +60,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none">
+            <DialogContent className="max-w-4xl p-0 overflow-hidden border-4 border-red-500 bg-white shadow-2xl z-[9999]">
                 <div className="relative bg-white rounded-xl overflow-hidden min-h-[600px] flex flex-col md:flex-row">
                     <div className="md:w-1/2 p-10 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white flex flex-col justify-between">
                         <div>
