@@ -1762,7 +1762,8 @@ export async function registerRoutes(
 
         if (publishedCount >= limit) {
           return res.status(403).json({
-            error: `Publishing limit reached. ${req.isPro ? "Pro" : "Free"} users can publish up to ${limit} course${limit > 1 ? "s" : ""}.`
+            error: `Publishing limit reached. ${req.isPro ? "Pro" : "Free"} users can publish up to ${limit} course${limit > 1 ? "s" : ""}.`,
+            needsUpgrade: !req.isPro
           });
         }
       }

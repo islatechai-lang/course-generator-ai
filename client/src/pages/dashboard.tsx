@@ -13,7 +13,7 @@ import { WithdrawRequestDialog } from "@/components/withdraw-request-dialog";
 import { UserMenu } from "@/components/user-menu";
 import {
   Plus, BookOpen, Users, TrendingUp,
-  Sparkles, LayoutGrid, DollarSign, HelpCircle, CheckCircle2, Wallet
+  Sparkles, LayoutGrid, DollarSign, HelpCircle, CheckCircle2, Wallet, PenTool
 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -577,32 +577,39 @@ function StatCard({ icon: Icon, label, value, testId, bgColor = "bg-primary/10",
 function UpgradeModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<"intro" | "checkout">("intro");
   const { toast } = useToast();
 
   useEffect(() => {
-    if (open && !checkoutId) {
-      const getCheckoutId = async () => {
-        setIsLoading(true);
-        try {
-          const response = await apiRequest("POST", "/api/pro/checkout");
-          const data = await response.json();
-          if (data.checkoutId) {
-            setCheckoutId(data.checkoutId);
-          }
-        } catch (error) {
-          console.error("Failed to get checkout ID:", error);
-          toast({
-            title: "Upgrade Error",
-            description: "Failed to prepare checkout. Please try again later.",
-            variant: "destructive",
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      getCheckoutId();
+    // Reset step when modal opens
+    if (open) {
+      setStep("intro");
     }
-  }, [open, checkoutId, toast]);
+  }, [open]);
+
+  const handleStartUpgrade = async () => {
+    setStep("checkout");
+    if (!checkoutId) {
+      setIsLoading(true);
+      try {
+        const response = await apiRequest("POST", "/api/pro/checkout");
+        const data = await response.json();
+        if (data.checkoutId) {
+          setCheckoutId(data.checkoutId);
+        }
+      } catch (error) {
+        console.error("Failed to get checkout ID:", error);
+        toast({
+          title: "Upgrade Error",
+          description: "Failed to prepare checkout. Please try again later.",
+          variant: "destructive",
+        });
+        setStep("intro");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -611,60 +618,64 @@ function UpgradeModal({ open, onOpenChange }: { open: boolean; onOpenChange: (op
           <div className="md:w-1/2 p-10 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white flex flex-col justify-between">
             <div>
               <DialogHeader>
-                <DialogTitle className="text-3xl font-bold flex items-center gap-3 text-white mb-4">
-                  <Sparkles className="h-8 w-8 text-yellow-300" />
-                  Upgrade to Pro
+                <DialogTitle className="text-3xl font-bold flex items-center gap-3 text-white mb-4 leading-tight">
+                  <Sparkles className="h-8 w-8 text-yellow-300 animate-pulse" />
+                  Elevate to Pro
                 </DialogTitle>
                 <DialogDescription className="text-indigo-100 text-lg leading-relaxed mb-8">
-                  Get full access to all AI features and scale your course business.
+                  Unlock the full power of AI and scale your curriculum business to the next level.
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-5 mt-10">
-                <div className="flex items-start gap-3">
-                  <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <CheckCircle2 className="h-4 w-4 text-white" />
+              <div className="space-y-6 mt-8">
+                <div className="flex items-start gap-4 transform transition-all hover:translate-x-1">
+                  <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5 backdrop-blur-sm">
+                    <LayoutGrid className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold">Publish up to 10 Courses</p>
-                    <p className="text-indigo-100 text-sm">Expand your reach and host more content.</p>
+                    <p className="font-bold text-lg">Publish 10 Courses</p>
+                    <p className="text-indigo-100 text-sm">Scale from 1 to 10 published courses for your students.</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <CheckCircle2 className="h-4 w-4 text-white" />
+                <div className="flex items-start gap-4 transform transition-all hover:translate-x-1">
+                  <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5 backdrop-blur-sm">
+                    <Sparkles className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold">2 AI Generations Per Day</p>
-                    <p className="text-indigo-100 text-sm">Double your daily course creation capacity.</p>
+                    <p className="font-bold text-lg">2 Daily AI Generations</p>
+                    <p className="text-indigo-100 text-sm">Create more content every day with boosted AI limits.</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <CheckCircle2 className="h-4 w-4 text-white" />
+                <div className="flex items-start gap-4 transform transition-all hover:translate-x-1">
+                  <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5 backdrop-blur-sm">
+                    <PenTool className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold">Magic AI & Guided Mode</p>
-                    <p className="text-indigo-100 text-sm">Professional AI tools for perfect curriculums.</p>
+                    <p className="font-bold text-lg">Magic AI & Guided Access</p>
+                    <p className="text-indigo-100 text-sm">Use our most advanced course generation modes.</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <CheckCircle2 className="h-4 w-4 text-white" />
+                <div className="flex items-start gap-4 transform transition-all hover:translate-x-1">
+                  <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5 backdrop-blur-sm">
+                    <TrendingUp className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold">Advanced AI Features</p>
-                    <p className="text-indigo-100 text-sm">Priority access to our latest AI models.</p>
+                    <p className="font-bold text-lg">Premium AI Models</p>
+                    <p className="text-indigo-100 text-sm">Higher quality outputs with our latest engine updates.</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="mt-auto pt-10 border-t border-white/20">
-              <p className="text-2xl font-bold">$35.00 <span className="text-indigo-200 text-lg font-normal">/ month</span></p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-black">$35.00</span>
+                <span className="text-indigo-200 text-lg font-medium">/ month</span>
+              </div>
+              <p className="text-xs text-indigo-200 mt-2">Cancel anytime. All features unlocked instantly.</p>
             </div>
           </div>
 
@@ -672,37 +683,74 @@ function UpgradeModal({ open, onOpenChange }: { open: boolean; onOpenChange: (op
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-4 top-4 hover:bg-slate-200"
+              className="absolute right-4 top-4 hover:bg-slate-200 z-10"
               onClick={() => onOpenChange(false)}
             >
               <LayoutGrid className="h-4 w-4 text-slate-400 rotate-45" />
             </Button>
 
-            {isLoading ? (
-              <div className="flex flex-col items-center gap-4">
-                <div className="h-12 w-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
-                <p className="text-slate-500 font-medium">Preparing secure checkout...</p>
+            {step === "intro" ? (
+              <div className="p-10 flex flex-col items-center text-center max-w-sm w-full">
+                <div className="h-20 w-20 rounded-3xl bg-indigo-100 flex items-center justify-center mb-8 shadow-inner">
+                  <CheckCircle2 className="h-10 w-10 text-indigo-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">Ready to scale?</h3>
+                <p className="text-slate-600 mb-10 leading-relaxed">
+                  Join other successful creators and unlock your full potential today.
+                </p>
+                <Button
+                  onClick={handleStartUpgrade}
+                  className="w-full h-14 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95 group"
+                >
+                  Get Pro Access
+                  <TrendingUp className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+                <button
+                  onClick={() => onOpenChange(false)}
+                  className="mt-6 text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  Maybe later
+                </button>
+              </div>
+            ) : isLoading ? (
+              <div className="flex flex-col items-center gap-6">
+                <div className="h-14 w-14 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin shadow-lg" />
+                <div className="text-center">
+                  <p className="text-slate-900 font-bold text-lg mb-1">Preparing Checkout</p>
+                  <p className="text-slate-500 text-sm">Securing your custom upgrade link...</p>
+                </div>
               </div>
             ) : checkoutId ? (
-              <div className="w-full h-full flex items-center justify-center">
-                <WhopCheckoutEmbed
-                  checkoutId={checkoutId}
-                  onComplete={() => {
-                    toast({
-                      title: "Upgrade Successful!",
-                      description: "You now have Pro Access. Please refresh the page.",
-                    });
-                    onOpenChange(false);
-                    // Force refresh to update plan status
-                    window.location.reload();
-                  }}
-                />
+              <div className="w-full h-full flex flex-col">
+                <div className="p-4 border-b bg-white flex items-center gap-2">
+                  <button onClick={() => setStep("intro")} className="text-slate-400 hover:text-indigo-600 transition-colors">
+                    <TrendingUp className="h-4 w-4 rotate-180" />
+                  </button>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Secure Checkout</span>
+                </div>
+                <div className="flex-1 overflow-auto flex items-center justify-center">
+                  <WhopCheckoutEmbed
+                    checkoutId={checkoutId}
+                    onComplete={() => {
+                      toast({
+                        title: "Upgrade Successful!",
+                        description: "You now have Pro Access. Please refresh the page.",
+                      });
+                      onOpenChange(false);
+                      window.location.reload();
+                    }}
+                  />
+                </div>
               </div>
             ) : (
-              <div className="p-8 text-center">
-                <p className="text-red-500 mb-4 font-medium">Failed to load checkout interface.</p>
-                <Button variant="outline" onClick={() => window.location.reload()}>
-                  Try Refreshing
+              <div className="p-8 text-center max-w-xs">
+                <div className="h-16 w-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle2 className="h-8 w-8 text-red-500" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Checkout Error</h3>
+                <p className="text-slate-500 mb-8 leading-relaxed">We couldn't initialize your secure checkout. This might be a temporary connection issue.</p>
+                <Button variant="outline" onClick={() => window.location.reload()} className="w-full py-6 font-bold">
+                  Try Refreshing Page
                 </Button>
               </div>
             )}
