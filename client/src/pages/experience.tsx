@@ -321,14 +321,6 @@ export default function ExperiencePage() {
         <header className="border-b bg-background shrink-0">
           <div className="h-14 px-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Button
-                variant="destructive"
-                size="sm"
-                className="h-7 text-[10px]"
-                onClick={() => setShowUpgradeModal(true)}
-              >
-                DEBUG UI
-              </Button>
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <BookOpen className="h-4 w-4 text-primary-foreground" />
               </div>

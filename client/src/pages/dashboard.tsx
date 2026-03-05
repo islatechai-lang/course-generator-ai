@@ -323,14 +323,6 @@ export default function DashboardPage() {
       <div className="border-b bg-background shrink-0">
         <div className="flex h-14 items-center justify-between px-3 sm:px-5">
           <div className="flex items-center gap-2">
-            <Button
-              variant="destructive"
-              size="sm"
-              className="h-7 text-[10px]"
-              onClick={() => setShowUpgradeModal(true)}
-            >
-              DEBUG UI
-            </Button>
             {/* Library Icon - now always visible and on the left for mobile */}
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shrink-0">
               <BookOpen className="h-4 w-4 text-primary-foreground" />
