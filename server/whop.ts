@@ -46,6 +46,19 @@ export async function checkAccess(
   }
 }
 
+export async function checkPlanAccess(
+  userId: string,
+  planId: string
+): Promise<boolean> {
+  try {
+    const access = await checkAccess(planId, userId);
+    return access.has_access;
+  } catch (error) {
+    console.error(`[Whop SDK] checkPlanAccess failed for user ${userId} on plan ${planId}:`, error);
+    return false;
+  }
+}
+
 export async function getUser(userId: string) {
   try {
     const user = await whop.users.retrieve(userId);
@@ -98,6 +111,19 @@ export async function createCheckoutConfiguration(
     return { checkoutId: checkoutConfig.id };
   } catch (error) {
     console.error("Failed to create checkout configuration:", error);
+    return null;
+  }
+}
+
+export async function createProCheckoutSession(planId: string): Promise<{ checkoutId: string } | null> {
+  try {
+    const checkoutConfig = await whop.checkoutConfigurations.create({
+      plan: planId,
+    } as any);
+
+    return { checkoutId: checkoutConfig.id };
+  } catch (error) {
+    console.error("Failed to create Pro checkout configuration:", error);
     return null;
   }
 }

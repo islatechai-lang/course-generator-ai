@@ -18,6 +18,7 @@ import {
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { WhopCheckoutEmbed } from "@whop/checkout";
 import { generateCourseImage } from "@/lib/image-generator";
 import type { GeneratedCourse, Course } from "@shared/schema";
 
@@ -35,6 +36,7 @@ interface DashboardData {
     used: number;
     remaining: number;
     resetAt: string;
+    isPro: boolean;
   };
 }
 
@@ -45,6 +47,7 @@ export default function DashboardPage() {
   const [generatedCourse, setGeneratedCourse] = useState<GeneratedCourse | null>(null);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
@@ -307,6 +310,15 @@ export default function DashboardPage() {
             <div className="hidden sm:block">
               <UserMenu />
             </div>
+            {!data?.generationLimit?.isPro && (
+              <Button
+                onClick={() => setShowUpgradeModal(true)}
+                className="h-9 px-3 sm:px-4 gap-1.5 sm:gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-none shrink-0"
+              >
+                <Sparkles className="h-4 w-4 fill-current" />
+                <span className="text-xs sm:text-sm font-medium">{isMobile ? "Pro" : "Upgrade to Pro"}</span>
+              </Button>
+            )}
             <Button
               onClick={() => setShowWithdrawDialog(true)}
               data-testid="button-withdraw"
@@ -394,6 +406,7 @@ export default function DashboardPage() {
                   isGenerating={isGenerating}
                   setIsGenerating={setIsGenerating}
                   generationLimit={data?.generationLimit}
+                  onUpgrade={() => setShowUpgradeModal(true)}
                 />
               ) : (
                 <CoursePreview
@@ -507,6 +520,11 @@ export default function DashboardPage() {
         companyId={companyId || ""}
         availableBalance={stats.availableBalance}
       />
+
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+      />
     </div>
   );
 }
@@ -537,5 +555,85 @@ function StatCard({ icon: Icon, label, value, testId, bgColor = "bg-primary/10",
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function UpgradeModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const [checkoutId, setCheckoutId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (open && !checkoutId) {
+      const getCheckoutId = async () => {
+        setIsLoading(true);
+        try {
+          const response = await apiRequest("POST", "/api/pro/checkout");
+          const data = await response.json();
+          if (data.checkoutId) {
+            setCheckoutId(data.checkoutId);
+          }
+        } catch (error) {
+          console.error("Failed to get checkout ID:", error);
+          toast({
+            title: "Upgrade Error",
+            description: "Failed to prepare checkout. Please try again later.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      getCheckoutId();
+    }
+  }, [open, checkoutId, toast]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none">
+        <div className="relative bg-white rounded-xl overflow-hidden min-h-[600px] flex flex-col">
+          <div className="p-6 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-white">
+                <Sparkles className="h-6 w-6" />
+                Upgrade to Pro Access
+              </DialogTitle>
+              <DialogDescription className="text-indigo-100 text-lg">
+                Unlock full AI power and publish up to 10 courses.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="flex-1 p-0 flex flex-col items-center justify-center bg-white">
+            {isLoading ? (
+              <div className="flex flex-col items-center gap-4">
+                <div className="h-12 w-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
+                <p className="text-slate-500 font-medium">Preparing your secure checkout...</p>
+              </div>
+            ) : checkoutId ? (
+              <div className="w-full">
+                <WhopCheckoutEmbed
+                  checkoutId={checkoutId}
+                  onComplete={() => {
+                    toast({
+                      title: "Upgrade Successful!",
+                      description: "You now have Pro Access. Please refresh the page.",
+                    });
+                    onOpenChange(false);
+                    // Force refresh to update plan status
+                    window.location.reload();
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="p-8 text-center">
+                <p className="text-red-500 mb-4">Failed to load checkout. Please try again.</p>
+                <Button onClick={() => onOpenChange(false)}>Close</Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

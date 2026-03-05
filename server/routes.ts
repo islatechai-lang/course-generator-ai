@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import fileUpload from "express-fileupload";
 import { PDFParse } from "pdf-parse";
 import { storage } from "./storage";
-import { verifyUserToken, checkAccess, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, getCompanyIdFromExperience } from "./whop";
+import { verifyUserToken, checkAccess, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, getCompanyIdFromExperience, createProCheckoutSession } from "./whop";
 import { generateCourse, regenerateModule, regenerateLesson, generateCourseImage, generateImagePrompt, generateCourseMediaPlan, generateLessonImage, generateQuiz, generateDeepVideoImage, generateVeoVideoSegment, analyzeDocumentMetadata, generateFallbackImagePrompt, generateBlockContent, generateCourseImageWithDeAPI } from "./gemini";
 import { stitchVideos } from "./video-processor";
 import path from "path";
@@ -42,17 +42,22 @@ interface AuthenticatedRequest {
 }
 
 const DAILY_GENERATION_LIMIT = 2;
+const PRO_PLAN_ID = "plan_x0eQCn2WM1qit";
 
-async function getGenerationLimit(userId: string) {
+async function getGenerationLimit(userId: string, isPro: boolean = false) {
   const used = await storage.getCoursesGeneratedToday(userId);
   const resetAt = new Date();
   resetAt.setUTCHours(24, 0, 0, 0);
 
+  // If not Pro, they can't use AI generation at all
+  const limit = isPro ? DAILY_GENERATION_LIMIT : 0;
+
   return {
-    limit: DAILY_GENERATION_LIMIT,
+    limit,
     used,
-    remaining: Math.max(0, DAILY_GENERATION_LIMIT - used),
+    remaining: Math.max(0, limit - used),
     resetAt: resetAt.toISOString(),
+    isPro,
   };
 }
 
@@ -156,8 +161,13 @@ async function requireAdmin(req: AuthenticatedRequest, res: Response, next: Next
       }
     }
 
+    // Check for Pro plan access
+    const planAccess = await whop.users.checkAccess(PRO_PLAN_ID, { id: req.whopUserId });
+    req.isPro = planAccess.has_access || false;
+
     next();
-  } catch {
+  } catch (error) {
+    console.error(`[requireAdmin] Access check failed for user ${req.whopUserId} on company ${companyId}:`, error);
     return res.status(403).json({ error: "Access denied" });
   }
 }
@@ -176,6 +186,11 @@ async function requireExperienceAccess(req: AuthenticatedRequest, res: Response,
     }
 
     req.accessLevel = access.access_level;
+
+    // Check for Pro plan access
+    const planAccess = await whop.users.checkAccess(PRO_PLAN_ID, { id: req.whopUserId });
+    req.isPro = planAccess.has_access || false;
+
     next();
   } catch {
     return res.status(403).json({ error: "Access denied" });
@@ -358,6 +373,7 @@ export async function registerRoutes(
     res.json(req.user);
   });
 
+
   // Middleware for file uploads
   app.use(fileUpload());
 
@@ -455,7 +471,7 @@ export async function registerRoutes(
         };
       }
 
-      const generationLimit = await getGenerationLimit(req.user.id);
+      const generationLimit = await getGenerationLimit(req.user.id, req.isPro);
 
       res.json({
         user: req.user,
@@ -547,8 +563,14 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Topic is required" });
       }
 
-      const { remaining, resetAt } = await getGenerationLimit(req.user.id);
+      const { remaining, resetAt } = await getGenerationLimit(req.user.id, req.isPro);
       if (remaining <= 0) {
+        if (!req.isPro) {
+          return res.status(403).json({
+            error: "Free users can't use AI generation. Please upgrade to Pro!",
+            needsUpgrade: true
+          });
+        }
         return res.status(429).json({
           error: "Daily generation limit reached",
           resetAt
@@ -572,8 +594,14 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Topic is required" });
       }
 
-      const { remaining, resetAt } = await getGenerationLimit(req.user.id);
+      const { remaining, resetAt } = await getGenerationLimit(req.user.id, req.isPro);
       if (remaining <= 0) {
+        if (!req.isPro) {
+          return res.status(403).json({
+            error: "Free users can't use AI generation. Please upgrade to Pro!",
+            needsUpgrade: true
+          });
+        }
         return res.status(429).json({
           error: "Daily generation limit reached",
           resetAt
@@ -907,6 +935,21 @@ export async function registerRoutes(
       }
 
       const { title, description, published, isFree, price, coverImage } = req.body;
+
+      if (published === true && course.published === false) {
+        // Enforce publishing limits
+        const userCourses = await storage.getCoursesByCreator(req.user.id, paramCompanyId);
+        const publishedCount = userCourses.filter(c => c.published).length;
+        const limit = req.isPro ? 10 : 1;
+
+        if (publishedCount >= limit) {
+          return res.status(403).json({
+            error: `Limit reached. ${req.isPro ? "Pro" : "Free"} users can only have ${limit} published course(s).`,
+            limit,
+            isPro: req.isPro
+          });
+        }
+      }
 
       const updated = await storage.updateCourse(course.id, {
         ...(title !== undefined && { title }),
@@ -1339,7 +1382,7 @@ export async function registerRoutes(
           experienceId: req.params.experienceId,
           accessLevel: req.accessLevel,
           earnings,
-          generationLimit: await getGenerationLimit(req.user.id),
+          generationLimit: await getGenerationLimit(req.user.id, req.isPro),
         });
       } else {
         // Customer view - show published courses + unpublished courses user has access to
@@ -1704,6 +1747,19 @@ export async function registerRoutes(
 
       const { title, description, published, isFree, price } = req.body;
 
+      // Enforce publishing limits
+      if (published === true && !course.published) {
+        const allCourses = await storage.getCoursesByCreator(req.user.id, companyId || "");
+        const publishedCount = allCourses.filter(c => c.published).length;
+        const limit = req.isPro ? 10 : 1;
+
+        if (publishedCount >= limit) {
+          return res.status(403).json({
+            error: `Publishing limit reached. ${req.isPro ? "Pro" : "Free"} users can publish up to ${limit} course${limit > 1 ? "s" : ""}.`
+          });
+        }
+      }
+
       const updated = await storage.updateCourse(course.id, {
         ...(title !== undefined && { title }),
         ...(description !== undefined && { description }),
@@ -2012,6 +2068,25 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Payment verification error:", error);
       res.status(500).json({ error: "Failed to verify payment" });
+    }
+  });
+
+  // Pro Plan Checkout
+  app.post("/api/pro/checkout", authenticateWhop, async (req: AuthenticatedRequest, res: any) => {
+    try {
+      if (req.isPro) {
+        return res.status(400).json({ error: "You are already a Pro user" });
+      }
+
+      const checkoutResult = await createProCheckoutSession(PRO_PLAN_ID); // We'll update this to return checkoutId
+      if (!checkoutResult) {
+        return res.status(500).json({ error: "Failed to create checkout session" });
+      }
+
+      res.json(checkoutResult);
+    } catch (error) {
+      console.error("Pro checkout error:", error);
+      res.status(500).json({ error: "Failed to initiate upgrade" });
     }
   });
 

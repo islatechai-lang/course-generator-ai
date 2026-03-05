@@ -24,7 +24,9 @@ interface CourseGeneratorProps {
     used: number;
     remaining: number;
     resetAt: string;
+    isPro: boolean;
   };
+  onUpgrade?: () => void;
 }
 
 const exampleTopics = [
@@ -40,7 +42,8 @@ export function CourseGenerator({
   isGenerating,
   setIsGenerating,
   apiBasePath,
-  generationLimit
+  generationLimit,
+  onUpgrade
 }: CourseGeneratorProps) {
   const [topic, setTopic] = useState("");
   const [mode, setMode] = useState<"magic" | "guided" | "scratch">("magic");
@@ -286,16 +289,39 @@ export function CourseGenerator({
       ) : (
         <Tabs value={mode} onValueChange={(v: any) => setMode(v)} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6 p-1 h-auto bg-muted/50 rounded-xl">
-            <TabsTrigger value="magic" className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <TabsTrigger
+              value="magic"
+              className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              onClick={(e: React.MouseEvent) => {
+                if (!generationLimit?.isPro) {
+                  e.preventDefault();
+                  onUpgrade?.();
+                }
+              }}
+            >
               <Sparkles className="h-4 w-4 mr-2 text-amber-500" />
               Magic AI
+              {!generationLimit?.isPro && <Badge variant="secondary" className="scale-75 origin-right ml-1 h-4 bg-amber-100 text-amber-600 border-amber-200">PRO</Badge>}
             </TabsTrigger>
-            <TabsTrigger value="guided" className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm relative">
+            <TabsTrigger
+              value="guided"
+              className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm relative"
+              onClick={(e: React.MouseEvent) => {
+                if (!generationLimit?.isPro) {
+                  e.preventDefault();
+                  onUpgrade?.();
+                }
+              }}
+            >
               <span className="flex items-center justify-center">
                 <PenTool className="h-4 w-4 mr-2 text-blue-500" />
                 Guided
               </span>
-              <Badge variant="default" className="absolute top-[-5px] right-[-10px] h-4 px-1 text-[9px] bg-primary hover:bg-primary text-primary-foreground border-none animate-pulse font-bold shadow-sm">NEW</Badge>
+              {!generationLimit?.isPro ? (
+                <Badge variant="secondary" className="scale-75 origin-right ml-1 h-4 bg-amber-100 text-amber-600 border-amber-200">PRO</Badge>
+              ) : (
+                <Badge variant="default" className="absolute top-[-5px] right-[-10px] h-4 px-1 text-[9px] bg-primary hover:bg-primary text-primary-foreground border-none animate-pulse font-bold shadow-sm">NEW</Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="scratch" className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
               <Layout className="h-4 w-4 mr-2 text-emerald-500" />
@@ -372,8 +398,8 @@ export function CourseGenerator({
                     {generationLimit && (
                       <div className="w-full sm:w-auto flex justify-center sm:justify-end">
                         <div className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-full border text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm ${generationLimit.remaining > 0
-                            ? "bg-secondary/40 border-secondary/40 text-secondary-foreground"
-                            : "bg-amber-50/80 border-amber-200/50 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400"
+                          ? "bg-secondary/40 border-secondary/40 text-secondary-foreground"
+                          : "bg-amber-50/80 border-amber-200/50 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400"
                           }`}>
                           <span className="whitespace-nowrap italic opacity-80">{generationLimit.remaining} / {generationLimit.limit} Daily Limit</span>
                           {generationLimit.remaining === 0 && (
