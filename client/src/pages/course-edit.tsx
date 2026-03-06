@@ -224,7 +224,7 @@ function CourseSidebar({
                             e.stopPropagation();
                             handleAddModule();
                           }}
-                          className="text-xs text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 font-medium mt-1"
+                          className="text-xs text-indigo-600 hover:text-indigo-700 hover:bg-transparent font-medium mt-1"
                         >
                           <Plus className="h-3.5 w-3.5 mr-1" />
                           <span>Add Module</span>
