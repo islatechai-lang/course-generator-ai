@@ -126,6 +126,7 @@ interface CourseSidebarProps {
   isEditMode: boolean;
   enterEditMode: () => void;
   exitEditMode: (force?: boolean) => void;
+  handleAddModule: () => void;
 }
 
 function CourseSidebar({
@@ -141,6 +142,7 @@ function CourseSidebar({
   isEditMode,
   enterEditMode,
   exitEditMode,
+  handleAddModule,
 }: CourseSidebarProps) {
   const { setOpenMobile } = useSidebar();
 
@@ -215,6 +217,20 @@ function CourseSidebar({
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}
+                    {isEditMode && (
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddModule();
+                          }}
+                          className="text-xs text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 font-medium mt-1"
+                        >
+                          <Plus className="h-3.5 w-3.5 mr-1" />
+                          <span>Add Module</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    )}
                   </SidebarMenuSub>
                 </CollapsibleContent>
               </SidebarMenuItem>
@@ -448,6 +464,22 @@ export default function CourseEditPage() {
       toast({ title: "Error", description: "Failed to delete course.", variant: "destructive" });
     },
   });
+
+  const addModuleMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/dashboard/${companyId}/courses/${courseId}/modules`, {
+        title: `Module ${course?.modules.length ? course.modules.length + 1 : 1}`
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId, "courses", courseId] });
+      toast({ title: "Module added" });
+    },
+  });
+
+  const handleAddModule = () => {
+    addModuleMutation.mutate();
+  };
 
   const updateModuleMutation = useMutation({
     mutationFn: async ({ moduleId, title }: { moduleId: string; title: string }) => {
@@ -1084,6 +1116,7 @@ export default function CourseEditPage() {
             isEditMode={isEditMode}
             enterEditMode={enterEditMode}
             exitEditMode={exitEditMode}
+            handleAddModule={handleAddModule}
           />
 
           {/* Main Content Area */}
