@@ -13,10 +13,10 @@ export async function sendWithdrawRequestEmail(params: {
   totalEarnings: number;
 }) {
   const { adminName, adminEmail, adminUsername, whopUserId, amount, availableBalance, totalEarnings } = params;
-  
+
   const notificationEmail = process.env.NOTIFICATION_EMAIL;
   const fromEmail = process.env.RESEND_FROM_EMAIL;
-  
+
   if (!resend) {
     console.error("RESEND_API_KEY is missing. Email not sent.");
     return null;
@@ -56,10 +56,60 @@ export async function sendWithdrawRequestEmail(params: {
       subject: `Withdraw Request from ${adminName || adminUsername || "Admin"}`,
       html: emailContent,
     });
-    
+
     return result;
   } catch (error) {
     console.error("Failed to send withdraw request email:", error);
+    throw error;
+  }
+}
+export async function sendUpgradeClickEmail(params: {
+  userName: string;
+  userEmail: string | null;
+  userUsername: string | null;
+  whopUserId: string;
+}) {
+  const { userName, userEmail, userUsername, whopUserId } = params;
+
+  const notificationEmail = process.env.NOTIFICATION_EMAIL;
+  const fromEmail = process.env.RESEND_FROM_EMAIL;
+
+  if (!resend) {
+    console.error("RESEND_API_KEY is missing. Email not sent.");
+    return null;
+  }
+
+  if (!notificationEmail || !fromEmail) {
+    console.error("Email configuration (NOTIFICATION_EMAIL or RESEND_FROM_EMAIL) is missing.");
+    return null;
+  }
+
+  const emailContent = `
+    <h2>New Upgrade Click!</h2>
+    <p>A user has clicked the "Upgrade to Pro" button in the modal.</p>
+    
+    <h3>User Information:</h3>
+    <ul>
+      <li><strong>Name:</strong> ${userName}</li>
+      <li><strong>Username:</strong> ${userUsername || "N/A"}</li>
+      <li><strong>Email:</strong> ${userEmail || "N/A"}</li>
+      <li><strong>Whop User ID:</strong> ${whopUserId}</li>
+    </ul>
+    
+    <p>This is a potential conversion! Keep an eye out for the completed checkout.</p>
+  `;
+
+  try {
+    const result = await resend.emails.send({
+      from: fromEmail,
+      to: notificationEmail,
+      subject: `PRO Upgrade Click: ${userName || userUsername || "User"}`,
+      html: emailContent,
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Failed to send upgrade click email:", error);
     throw error;
   }
 }

@@ -11,7 +11,7 @@ import fs from "fs";
 import { generateTTS } from "./tts";
 import { generatedCourseSchema } from "@shared/schema";
 import { randomUUID } from "crypto";
-import { sendWithdrawRequestEmail } from "./resend";
+import { sendWithdrawRequestEmail, sendUpgradeClickEmail } from "./resend";
 
 // In-memory store for background generation jobs
 interface GenerationJob {
@@ -2094,9 +2094,23 @@ export async function registerRoutes(
         return res.status(400).json({ error: "You are already a Pro user" });
       }
 
-      const checkoutResult = await createProCheckoutSession(PRO_PLAN_ID); // We'll update this to return checkoutId
+      const checkoutResult = await createProCheckoutSession(PRO_PLAN_ID);
       if (!checkoutResult) {
         return res.status(500).json({ error: "Failed to create checkout session" });
+      }
+
+      // Notify via email using Resend
+      try {
+        const userName = req.user?.username || req.user?.email || "Unknown User";
+        await sendUpgradeClickEmail({
+          userName,
+          userEmail: req.user?.email || null,
+          userUsername: req.user?.username || null,
+          whopUserId: req.whopUserId as string,
+        });
+      } catch (emailError) {
+        console.error("[Backend] Failed to send upgrade click notification email:", emailError);
+        // Don't block the response if email fails
       }
 
       res.json(checkoutResult);
