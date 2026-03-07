@@ -142,11 +142,11 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
 
                             {/* Pro Plan */}
                             <div
-                                className={`flex flex-col p-5 rounded-2xl border-2 transition-all duration-300 relative group overflow-hidden ${isHovered ? 'border-primary shadow-[0_0_20px_rgba(var(--primary),0.2)] bg-primary/10' : 'border-primary/50 bg-primary/5 shadow-xl'}`}
+                                className={`flex flex-col p-5 rounded-2xl border-2 transition-all duration-300 relative group ${isHovered ? 'border-primary shadow-[0_0_20px_rgba(var(--primary),0.2)] bg-primary/10' : 'border-primary/50 bg-primary/5 shadow-xl'}`}
                                 onMouseEnter={() => setIsHovered(true)}
                                 onMouseLeave={() => setIsHovered(false)}
                             >
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50 pointer-events-none" />
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50 pointer-events-none rounded-2xl" />
                                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
                                     PRO
                                 </div>
