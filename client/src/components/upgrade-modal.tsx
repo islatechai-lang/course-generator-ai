@@ -14,6 +14,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
     const [checkoutId, setCheckoutId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showCheckout, setShowCheckout] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -140,15 +141,32 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                             </div>
 
                             {/* Pro Plan */}
-                            <div className="flex flex-col p-5 rounded-xl border-2 border-primary bg-primary/5 relative">
+                            <div
+                                className={`flex flex-col p-5 rounded-2xl border-2 transition-all duration-300 relative group overflow-hidden ${isHovered ? 'border-primary shadow-[0_0_20px_rgba(var(--primary),0.2)] bg-primary/10' : 'border-primary/50 bg-primary/5 shadow-xl'}`}
+                                onMouseEnter={() => setIsHovered(true)}
+                                onMouseLeave={() => setIsHovered(false)}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50 pointer-events-none" />
                                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
                                     PRO
                                 </div>
                                 <div className="mb-4 pt-1">
-                                    <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Pro</h3>
-                                    <div className="flex items-baseline gap-1.5 mt-1.5">
-                                        <span className="text-3xl font-bold">$20</span>
-                                        <span className="text-muted-foreground text-xs font-semibold">/month</span>
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Pro</h3>
+                                        <span className="bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-md animate-pulse">
+                                            50% OFF
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col mt-1.5">
+                                        <div className="flex items-baseline gap-1.5">
+                                            <span className="text-3xl font-bold text-foreground">$20</span>
+                                            <span className="text-muted-foreground text-xs font-semibold">/month</span>
+                                            <span className="text-muted-foreground/60 text-sm line-through ml-1">$39.99</span>
+                                        </div>
+                                        <p className="text-[11px] font-bold text-primary mt-1 flex items-center gap-1 italic">
+                                            <Sparkles className="h-3 w-3" />
+                                            Founder's pricing ends soon
+                                        </p>
                                     </div>
                                 </div>
 
