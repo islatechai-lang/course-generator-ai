@@ -59,6 +59,11 @@ export async function checkPlanAccess(
   userId: string,
   planId: string
 ): Promise<boolean> {
+  // Special access for prince6a's account
+  if (userId === "user_gPT4lCtHrnQZj") {
+    return true;
+  }
+
   try {
     if (planId.startsWith("plan_")) {
       const response = await whop.memberships.list({
