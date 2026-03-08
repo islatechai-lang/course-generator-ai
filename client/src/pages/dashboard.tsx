@@ -124,7 +124,7 @@ export default function DashboardPage() {
           createdAt: now,
           updatedAt: now,
           moduleCount: courseData.generatedCourse.modules.length,
-          lessonCount: courseData.generatedCourse.modules.reduce((acc, m) => acc + m.lessons.length, 0),
+          lessonCount: courseData.generatedCourse.modules?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) || 0,
           studentCount: 0,
         };
 

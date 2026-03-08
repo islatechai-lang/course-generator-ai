@@ -275,8 +275,14 @@ export async function generateCourse(topic: string, options?: GenerateCourseOpti
       throw new Error("Invalid course structure");
     }
 
-    // ENSURE CONSISTENCY: Check for missing quizzes and generate them if needed
-    // This handles cases where Gemini hits token limits and skips optional fields
+    // ENSURE CONSISTENCY: Repair malformed course structures
+    parsed.modules.forEach((module: any, idx: number) => {
+      if (!module.module_title) module.module_title = `Module ${idx + 1}`;
+      if (!module.lessons) module.lessons = module.lesson ? [module.lesson] : [];
+      if (!Array.isArray(module.lessons)) module.lessons = [module.lessons];
+    });
+
+    // Handle missing quizzes and generate them if needed
     console.log(`🔍 Checking for missing quizzes in ${parsed.modules.length} modules...`);
     for (let i = 0; i < parsed.modules.length; i++) {
       const module = parsed.modules[i] as any;

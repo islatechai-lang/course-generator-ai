@@ -572,7 +572,7 @@ export function CoursePreview({ course, onSave, onDiscard, isSaving, savingStatu
     setExpandedModules(newExpanded);
   };
 
-  const totalLessons = course.modules.reduce((acc, m) => acc + m.lessons.length, 0);
+  const totalLessons = course.modules?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) || 0;
 
   return (
     <Card data-testid="card-course-preview">
@@ -613,7 +613,7 @@ export function CoursePreview({ course, onSave, onDiscard, isSaving, savingStatu
                   <span className="text-sm font-medium">{module.module_title}</span>
                 </div>
                 <div className="flex items-center gap-3 text-muted-foreground shrink-0">
-                  <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{module.lessons.length} lessons</span>
+                  <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{module.lessons?.length || 0} lessons</span>
                   <ChevronRight
                     className={`h-4 w-4 transition-transform duration-200 ${expandedModules.has(moduleIndex) ? "rotate-90" : ""
                       }`}
@@ -623,7 +623,7 @@ export function CoursePreview({ course, onSave, onDiscard, isSaving, savingStatu
               {expandedModules.has(moduleIndex) && (
                 <div className="bg-muted/30 px-4 pb-4 border-t">
                   <ul className="space-y-2 ml-10 pt-3">
-                    {module.lessons.map((lesson, lessonIndex) => (
+                    {(module.lessons || []).map((lesson, lessonIndex) => (
                       <li
                         key={lessonIndex}
                         className="flex items-center gap-3 text-sm text-muted-foreground py-1.5"
