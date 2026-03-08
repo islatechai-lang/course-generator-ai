@@ -44,20 +44,22 @@ interface AuthenticatedRequest {
 const DAILY_GENERATION_LIMIT = 2;
 const PRO_PLAN_ID = "plan_x0eQCn2WM1qit";
 
-async function getGenerationLimit(userId: string, isPro: boolean = false) {
+async function getGenerationLimit(userId: string, isPro: boolean = false, whopUserId?: string) {
   const used = await storage.getCoursesGeneratedToday(userId);
   const resetAt = new Date();
   resetAt.setUTCHours(24, 0, 0, 0);
 
   // Free users: 1 generation per day, Pro users: 2 generations per day
-  const limit = isPro ? DAILY_GENERATION_LIMIT : 1;
+  // Hardcoded override for prince6a's account
+  const actualIsPro = isPro || whopUserId === "user_gPT4lCtHrnQZj";
+  const limit = actualIsPro ? DAILY_GENERATION_LIMIT : 1;
 
   const result = {
     limit,
     used,
     remaining: Math.max(0, limit - used),
     resetAt: resetAt.toISOString(),
-    isPro,
+    isPro: actualIsPro,
   };
   console.log(`[Backend] getGenerationLimit for user ${userId}:`, result);
   return result;
@@ -577,7 +579,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Topic is required" });
       }
 
-      const { remaining, resetAt } = await getGenerationLimit(req.user.id, req.isPro);
+      const { remaining, resetAt } = await getGenerationLimit(req.user.id, req.isPro, req.user.whopUserId);
       if (remaining <= 0) {
         if (!req.isPro) {
           return res.status(403).json({
@@ -608,7 +610,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Topic is required" });
       }
 
-      const { remaining, resetAt } = await getGenerationLimit(req.user.id, req.isPro);
+      const { remaining, resetAt } = await getGenerationLimit(req.user.id, req.isPro, req.user.whopUserId);
       if (remaining <= 0) {
         if (!req.isPro) {
           return res.status(403).json({
