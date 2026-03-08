@@ -487,7 +487,7 @@ export async function registerRoutes(
         };
       }
 
-      const generationLimit = await getGenerationLimit(req.user.id, req.isPro);
+      const generationLimit = await getGenerationLimit(req.user.id, req.isPro, req.user.whopUserId);
 
       res.json({
         user: req.user,
