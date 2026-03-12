@@ -81,8 +81,9 @@ export function CourseGenerator({
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const [isDragging, setIsDragging] = useState(false);
+
+  const processFile = async (file: File) => {
     if (!file) return;
 
     setFileName(file.name);
@@ -145,6 +146,46 @@ export function CourseGenerator({
       });
     } finally {
       setIsExtracting(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await processFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isExtracting) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (isExtracting) return;
+
+    const file = e.dataTransfer.files?.[0];
+    if (file && (file.type === "application/pdf" || file.type === "text/plain" || file.name.endsWith(".pdf") || file.name.endsWith(".txt"))) {
+      await processFile(file);
+    } else if (file) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF or TXT file.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -371,8 +412,13 @@ export function CourseGenerator({
                       />
                       <label
                         htmlFor="file-upload"
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
                         className={`flex flex-col items-center justify-center w-full min-h-[160px] border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300
-                          ${isExtracting ? 'opacity-50 cursor-not-allowed bg-muted' : 'border-muted-foreground/10 bg-muted/20 hover:bg-muted/30 hover:border-primary/30 hover:shadow-inner'}`}
+                          ${isExtracting ? 'opacity-50 cursor-not-allowed bg-muted' : 
+                            isDragging ? 'border-primary bg-primary/5 shadow-lg scale-[1.01]' : 
+                            'border-muted-foreground/10 bg-muted/20 hover:bg-muted/30 hover:border-primary/30 hover:shadow-inner'}`}
                       >
                         {isExtracting ? (
                           <div className="flex flex-col items-center gap-3">
