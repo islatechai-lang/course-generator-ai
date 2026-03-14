@@ -59,8 +59,9 @@ export async function checkPlanAccess(
   userId: string,
   planId: string
 ): Promise<boolean> {
-  // Special access for prince6a's account
-  if (userId === "user_gPT4lCtHrnQZj") {
+  // Special access for hardcoded Pro users
+  const SPECIAL_PRO_USERS = ["user_gPT4lCtHrnQZj", "user_z9RDYAlNQ8ZGg"];
+  if (userId && SPECIAL_PRO_USERS.includes(userId)) {
     return true;
   }
 

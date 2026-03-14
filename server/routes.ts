@@ -50,8 +50,9 @@ async function getGenerationLimit(userId: string, isPro: boolean = false, whopUs
   resetAt.setUTCHours(24, 0, 0, 0);
 
   // Free users: 1 generation per day, Pro users: 2 generations per day
-  // Hardcoded override for prince6a's account
-  const actualIsPro = isPro || whopUserId === "user_gPT4lCtHrnQZj";
+  // Hardcoded override for special Pro users
+  const SPECIAL_PRO_USERS = ["user_gPT4lCtHrnQZj", "user_z9RDYAlNQ8ZGg"];
+  const actualIsPro = isPro || (whopUserId && SPECIAL_PRO_USERS.includes(whopUserId));
   const limit = actualIsPro ? DAILY_GENERATION_LIMIT : 1;
 
   const result = {
