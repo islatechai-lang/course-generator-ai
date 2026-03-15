@@ -340,7 +340,9 @@ export function CourseGenerator({
       )}
 
       {isGenerating && topic ? (
-        <GenerationProgress topic={topic} isComplete={isGenerationComplete} />
+        <div className="animate-in fade-in zoom-in-95 duration-700 ease-out-expo">
+          <GenerationProgress topic={topic} isComplete={isGenerationComplete} />
+        </div>
       ) : (
         <Tabs value={mode} onValueChange={(v: any) => {
           console.log("[Frontend] Tab change attempt to:", v, "isPro=", generationLimit?.isPro);
