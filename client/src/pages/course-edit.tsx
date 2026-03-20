@@ -97,6 +97,7 @@ import { MediaDialog } from "@/components/media-dialog";
 import { BlockEditor, BlockEditorToolbar } from "@/components/block-editor";
 import { ILessonBlock } from "@shared/schema";
 import { UpgradeModal } from "@/components/upgrade-modal";
+import { generateCourseImage } from "@/lib/image-generator";
 
 function MobileSidebarTrigger() {
   const { toggleSidebar } = useSidebar();
