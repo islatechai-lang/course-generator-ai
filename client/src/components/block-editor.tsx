@@ -391,7 +391,7 @@ function InsertionPoint({ onAdd, isFirst = false }: { onAdd: (type: string) => v
             "hover:h-12 hover:my-2"
         )}>
             {/* Context line - always visible but subtle */}
-            <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent scale-x-75 group-hover/insert:scale-x-100 group-hover/insert:via-primary/30 transition-all duration-500" />
+            <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent scale-x-75 group-hover/insert:scale-x-100 group-hover/insert:via-primary/60 transition-all duration-500" />
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -399,9 +399,9 @@ function InsertionPoint({ onAdd, isFirst = false }: { onAdd: (type: string) => v
                         variant="ghost"
                         size="icon"
                         className={cn(
-                            "h-7 w-7 rounded-full bg-background border border-muted-foreground/20 shadow-sm transition-all z-30",
-                            "opacity-40 group-hover/insert:opacity-100 hover:scale-125 hover:border-primary/50 hover:bg-primary/5",
-                            "flex items-center justify-center text-muted-foreground hover:text-primary"
+                            "h-8 w-8 rounded-full bg-primary/5 dark:bg-primary/20 border-2 border-primary/40 shadow-sm transition-all z-30",
+                            "opacity-90 group-hover/insert:opacity-100 hover:scale-110 hover:border-primary hover:bg-primary/15 hover:shadow-primary/20 hover:shadow-lg",
+                            "flex items-center justify-center text-primary"
                         )}
                     >
                         <Plus className="h-4 w-4" />
