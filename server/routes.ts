@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import fileUpload from "express-fileupload";
 import { PDFParse } from "pdf-parse";
 import { storage } from "./storage";
-import { verifyUserToken, checkAccess, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, getCompanyIdFromExperience, createProCheckoutSession, checkPlanAccess } from "./whop";
+import { verifyUserToken, checkAccess, checkIsOwner, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, getCompanyIdFromExperience, createProCheckoutSession, checkPlanAccess } from "./whop";
 import { generateCourse, regenerateModule, regenerateLesson, generateCourseImage, generateImagePrompt, generateCourseMediaPlan, generateLessonImage, generateQuiz, generateDeepVideoImage, generateVeoVideoSegment, analyzeDocumentMetadata, generateFallbackImagePrompt, generateBlockContent, generateCourseImageWithDeAPI } from "./gemini";
 import { stitchVideos } from "./video-processor";
 import path from "path";
@@ -148,6 +148,13 @@ async function requireAdmin(req: AuthenticatedRequest, res: Response, next: Next
       return res.status(403).json({ error: "Admin access required" });
     }
 
+    // Only allow "owner" role to access admin dashboard — all other authorized roles (admin, moderator, etc.) are treated as members
+    const isOwner = await checkIsOwner(companyId, req.whopUserId);
+    if (!isOwner) {
+      console.log(`[requireAdmin] User ${req.whopUserId} has admin access_level but is not owner on company ${companyId} — denying admin access`);
+      return res.status(403).json({ error: "Owner access required" });
+    }
+
     req.accessLevel = access.access_level;
 
     if (req.user) {
@@ -198,7 +205,23 @@ async function requireExperienceAccess(req: AuthenticatedRequest, res: Response,
       return res.status(403).json({ error: "Access denied" });
     }
 
-    req.accessLevel = access.access_level;
+    // If user has admin access_level, verify they are specifically an "owner" — downgrade non-owners to "customer"
+    if (access.access_level === "admin") {
+      const companyId = await getCompanyIdFromExperience(experienceId);
+      if (companyId) {
+        const isOwner = await checkIsOwner(companyId, req.whopUserId);
+        if (!isOwner) {
+          console.log(`[requireExperienceAccess] User ${req.whopUserId} has admin access_level but is not owner — downgrading to customer`);
+          req.accessLevel = "customer";
+        } else {
+          req.accessLevel = access.access_level;
+        }
+      } else {
+        req.accessLevel = access.access_level;
+      }
+    } else {
+      req.accessLevel = access.access_level;
+    }
 
     // Check for Pro plan access - safely
     try {

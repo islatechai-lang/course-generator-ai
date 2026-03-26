@@ -55,6 +55,24 @@ export async function checkAccess(
   }
 }
 
+export async function checkIsOwner(companyId: string, userId: string): Promise<boolean> {
+  try {
+    const response = whop.authorizedUsers.list({
+      company_id: companyId,
+      user_id: userId,
+      role: "owner",
+    });
+    // If we get any results back, the user is an owner
+    for await (const _item of response) {
+      return true; // Found at least one match — user is owner
+    }
+    return false;
+  } catch (error: any) {
+    console.error(`[Whop SDK] checkIsOwner failed for user ${userId} on company ${companyId}:`, error.message);
+    return false;
+  }
+}
+
 export async function checkPlanAccess(
   userId: string,
   planId: string
