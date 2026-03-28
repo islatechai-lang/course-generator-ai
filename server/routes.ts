@@ -44,6 +44,8 @@ interface AuthenticatedRequest {
 const DAILY_GENERATION_LIMIT = 2;
 const PRO_PLAN_ID = "plan_x0eQCn2WM1qit";
 
+const SPECIAL_PRO_USERS = ["user_gPT4lCtHrnQZj", "user_z9RDYAlNQ8ZGg"];
+
 async function getGenerationLimit(userId: string, isPro: boolean = false, whopUserId?: string) {
   const used = await storage.getCoursesGeneratedToday(userId);
   const resetAt = new Date();
@@ -51,7 +53,6 @@ async function getGenerationLimit(userId: string, isPro: boolean = false, whopUs
 
   // Free users: 1 generation per day, Pro users: 2 generations per day
   // Hardcoded override for special Pro users
-  const SPECIAL_PRO_USERS = ["user_gPT4lCtHrnQZj", "user_z9RDYAlNQ8ZGg"];
   const actualIsPro = isPro || (whopUserId && SPECIAL_PRO_USERS.includes(whopUserId));
   const limit = actualIsPro ? DAILY_GENERATION_LIMIT : 1;
 
@@ -980,7 +981,10 @@ export async function registerRoutes(
         // Enforce publishing limits
         const publishedCourses = await storage.getCoursesByCreator(req.user?.id, paramCompanyId);
         const publishedCount = publishedCourses.filter(c => c.published).length;
-        const maxPublished = req.isPro ? 10 : 1;
+        
+        // Special Pro users have unlimited publishing
+        const isSpecialPro = req.whopUserId && SPECIAL_PRO_USERS.includes(req.whopUserId);
+        const maxPublished = isSpecialPro ? Infinity : (req.isPro ? 10 : 1);
 
         if (publishedCount >= maxPublished) {
           console.log(`[PATCH Course] Publishing limit reached for user ${req.user?.id}: ${publishedCount}/${maxPublished}. needsUpgrade: ${!req.isPro}`);
@@ -1791,7 +1795,10 @@ export async function registerRoutes(
       if (published === true && !course.published) {
         const allCourses = await storage.getCoursesByCreator(req.user.id, companyId || "");
         const publishedCount = allCourses.filter(c => c.published).length;
-        const limit = req.isPro ? 10 : 1;
+        
+        // Special Pro users have unlimited publishing
+        const isSpecialPro = req.whopUserId && SPECIAL_PRO_USERS.includes(req.whopUserId);
+        const limit = isSpecialPro ? Infinity : (req.isPro ? 10 : 1);
 
         if (publishedCount >= limit) {
           console.log(`[PATCH Experience Course] Publishing limit reached for user ${req.user?.id}: ${publishedCount}/${limit}. needsUpgrade: ${!req.isPro}`);
