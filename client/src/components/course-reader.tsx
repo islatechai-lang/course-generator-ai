@@ -18,16 +18,28 @@ import {
   CircleCheck,
   CheckCircle2,
   HelpCircle,
+  Plus,
+  Type,
+  Image as ImageIcon,
+  Video,
+  FileText,
+  ChevronUp,
+  ChevronDown,
+  MoreVertical,
+  MousePointer2,
+  MessageSquare,
+  List,
+  Info,
+  AlignLeft,
+  Quote,
+  Play,
+  Sparkles,
+  X,
+  ChevronRight as ChevronRightIcon
 } from "lucide-react";
 import type { CourseWithModules, Lesson, MediaItem, Quiz, ILessonBlock } from "@shared/schema";
 import { cn, getEmbedUrl } from "@/lib/utils";
 import { Link } from "wouter";
-import {
-  Plus, Type, Image as ImageIcon, Video, HelpCircle, FileText,
-  ChevronUp, ChevronDown, CheckCircle2, MoreVertical,
-  MousePointer2, MessageSquare, List, Info, AlignLeft,
-  Quote, Play, Sparkles, X, ChevronRight as ChevronRightIcon
-} from "lucide-react";
 
 interface CourseReaderProps {
   course: CourseWithModules;
@@ -447,7 +459,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
         </SheetContent>
       </Sheet>
 
-      <header className="shrink-0 flex items-center gap-4 px-4 py-3 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="shrink-0 flex items-center gap-2 sm:gap-4 px-2 sm:px-4 py-3 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <Link href={experienceId ? `/experiences/${experienceId}` : "/"}>
           <Button
             variant="ghost"
@@ -468,9 +480,9 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
           <span className="hidden sm:inline">Modules</span>
         </Button>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-medium text-foreground">
+        <div className="flex-1 min-w-0 pr-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs sm:text-sm font-medium text-foreground truncate">
               {currentModule ? `Module ${moduleIndex + 1}: ${currentModule.title}` : course.title}
             </span>
           </div>
@@ -493,7 +505,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="px-5 py-8 sm:px-8 sm:py-10"
+            className="px-4 py-6 sm:px-8 sm:py-10"
           >
             {currentLesson ? (
               <>
@@ -677,9 +689,9 @@ function renderBlockReader(block: ILessonBlock) {
       );
     case 'quote':
       return (
-        <div className="my-10 border-l-4 border-primary/40 pl-8 py-8 bg-primary/5 rounded-r-3xl italic shadow-sm">
+        <div className="my-10 border-l-4 border-primary/40 pl-5 sm:pl-8 py-6 sm:py-8 bg-primary/5 rounded-r-3xl italic shadow-sm">
           <div
-            className="text-xl md:text-2xl text-foreground/90 leading-relaxed font-serif"
+            className="text-lg md:text-2xl text-foreground/90 leading-relaxed font-serif"
             dangerouslySetInnerHTML={{ __html: block.content.text }}
           />
           {block.content.author && (
@@ -694,9 +706,9 @@ function renderBlockReader(block: ILessonBlock) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-10">
           {(block.content.items || []).map((item: any, i: number) => (
             <Card key={i} className="bg-muted/30 border-none shadow-none rounded-[2rem] overflow-hidden hover:bg-muted/40 transition-colors">
-              <CardContent className="p-8 space-y-4">
+              <CardContent className="p-6 sm:p-8 space-y-4">
                 <h3 className="font-bold text-xl text-foreground">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{item.content}</p>
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{item.content}</p>
               </CardContent>
             </Card>
           ))}
@@ -705,13 +717,13 @@ function renderBlockReader(block: ILessonBlock) {
     case 'quiz':
       return (
         <Card className="my-10 bg-primary/5 border-primary/10 rounded-[2.5rem] shadow-none overflow-hidden">
-          <CardContent className="p-10 space-y-8">
+          <CardContent className="p-6 sm:p-10 space-y-8">
             <div className="space-y-4">
-              <h3 className="text-2xl font-black flex items-center gap-4 text-foreground">
-                <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <h3 className="text-xl sm:text-2xl font-black flex items-center gap-4 text-foreground">
+                <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
                   <HelpCircle className="h-6 w-6 text-primary" />
                 </div>
-                {block.content.question}
+                <span className="leading-tight">{block.content.question}</span>
               </h3>
             </div>
             <div className="grid gap-4">
@@ -729,13 +741,13 @@ function renderBlockReader(block: ILessonBlock) {
     case 'banner':
       return (
         <div
-          className="my-10 rounded-[3rem] p-12 md:p-20 text-white relative overflow-hidden shadow-2xl group/banner"
+          className="my-10 rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-12 md:p-20 text-white relative overflow-hidden shadow-2xl group/banner"
           style={{ backgroundColor: block.content.color || "#0f172a" }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
           <div className="relative z-10 space-y-6 max-w-3xl">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">{block.content.title}</h2>
-            <p className="text-xl text-white/90 leading-relaxed font-medium">{block.content.subtitle}</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">{block.content.title}</h2>
+            <p className="text-lg sm:text-xl text-white/90 leading-relaxed font-medium">{block.content.subtitle}</p>
           </div>
         </div>
       );
@@ -758,9 +770,9 @@ function renderBlockReader(block: ILessonBlock) {
               <TabsContent
                 key={i}
                 value={`tab-${i}`}
-                className="mt-8 p-10 border rounded-[2.5rem] bg-muted/20 border-muted-foreground/10 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                className="mt-6 sm:mt-8 p-6 sm:p-10 border rounded-[2rem] sm:rounded-[2.5rem] bg-muted/20 border-muted-foreground/10 animate-in fade-in slide-in-from-bottom-4 duration-500"
               >
-                <p className="text-foreground/90 text-lg leading-relaxed font-medium">{tab.content}</p>
+                <p className="text-foreground/90 text-base sm:text-lg leading-relaxed font-medium">{tab.content}</p>
               </TabsContent>
             ))}
           </Tabs>

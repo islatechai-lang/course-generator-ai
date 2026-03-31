@@ -85,33 +85,33 @@ export function CourseCard({
           )}
         </div>
       </div>
-      <CardHeader className="pb-2 pt-4">
-        <h3 className="font-semibold text-base leading-snug line-clamp-2" data-testid={`text-course-title-${course.id}`}>
+      <CardHeader className="pb-2 pt-3 sm:pt-4 px-4 sm:px-6">
+        <h3 className="font-semibold text-sm sm:text-base leading-snug line-clamp-2" data-testid={`text-course-title-${course.id}`}>
           {course.title}
         </h3>
       </CardHeader>
-      <CardContent className="flex-1 pb-4 pt-0">
+      <CardContent className="flex-1 pb-4 pt-0 px-4 sm:px-6">
         {course.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-3" data-testid={`text-course-description-${course.id}`}>
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3" data-testid={`text-course-description-${course.id}`}>
             {course.description}
           </p>
         )}
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <BookOpen className="h-4 w-4" />
+            <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             {moduleCount} modules
           </span>
           <span>{lessonCount} lessons</span>
         </div>
         {course.generationStatus === "generating" && (
           <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-md p-2 mt-3">
-            <p className="text-xs text-blue-700 dark:text-blue-300">
+            <p className="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300">
               We're still finalizing your course, please check back later. A notification will popup when it's done.
             </p>
           </div>
         )}
       </CardContent>
-      <CardFooter className="pt-0 gap-2 flex-wrap">
+      <CardFooter className="pt-0 pb-4 px-4 sm:px-6 gap-2 flex-wrap">
         {isCreator ? (
           course.generationStatus === "generating" ? null : (
             <>
