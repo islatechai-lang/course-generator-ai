@@ -196,7 +196,7 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
         ))}
         {wordMapping.paragraphWords.map((words, pIdx) => (
           <div key={pIdx}>
-            <p>
+            <p className="tracking-normal" style={{ wordSpacing: '0.12em' }}>
               {words.map((word, wIdx) => {
                 const isCurrent = currentHighlight?.pIdx === pIdx && currentHighlight?.wIdx === wIdx;
                 const isLast = wIdx === words.length - 1;
@@ -212,7 +212,7 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
                         >
                           {word}
                         </span>
-                        {!isLast && <span className="inline-block">&nbsp;</span>}
+                        {!isLast && <span> </span>}
                     </span>
                 );
               })}
@@ -237,14 +237,10 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: pIndex * 0.05, duration: 0.3 }}
-            className="flex flex-wrap items-center"
+            className="tracking-normal break-words"
+            style={{ wordSpacing: '0.12em' }}
           >
-            {paragraph.split(/\s+/).map((word, wIndex, arr) => (
-              <span key={wIndex} className="inline-block">
-                <span>{word}</span>
-                {wIndex < arr.length - 1 && <span className="inline-block">&nbsp;</span>}
-              </span>
-            ))}
+            {paragraph}
           </motion.p>
           {getMediaForPosition(pIndex + 1).map((m) => (
             <InlineMediaImage key={m.id} media={m} />
@@ -489,11 +485,11 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
 
         <div className="flex-1 min-w-0 pr-2">
           <div className="flex items-center gap-2">
-              <h2 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground/80 mb-0.5 truncate flex items-center gap-1.5">
+              <h2 className="text-xs uppercase tracking-normal font-semibold text-muted-foreground/80 mb-0.5 truncate">
                 {currentModule ? (
                   <>
                     <span>Module {moduleIndex + 1}:</span>
-                    <span className="font-bold">&nbsp;{currentModule.title}</span>
+                    <span className="font-bold ml-1">{currentModule.title}</span>
                   </>
                 ) : course.title}
               </h2>
@@ -526,9 +522,9 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
                     <BookOpen className="h-4 w-4" />
                     <span>Lesson {moduleIndex + 1}.{lessonIndexInModule + 1}</span>
                   </div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex flex-wrap items-center gap-2" data-testid="text-lesson-heading">
-                    <span className="opacity-50 font-medium">Lesson {moduleIndex + 1}.{lessonIndexInModule + 1}:</span>
-                    <span>&nbsp;{currentLesson.title}</span>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-normal" data-testid="text-lesson-heading">
+                    <span className="opacity-50 font-medium mr-2">Lesson {moduleIndex + 1}.{lessonIndexInModule + 1}:</span>
+                    <span>{currentLesson.title}</span>
                   </h1>
                 </div>
 
@@ -670,7 +666,8 @@ function renderBlockReader(block: ILessonBlock) {
     case 'text':
       return (
         <div
-          className="prose prose-slate max-w-none dark:prose-invert leading-relaxed text-foreground/85"
+          className="prose prose-slate max-w-none dark:prose-invert leading-relaxed text-foreground/85 tracking-normal"
+          style={{ wordSpacing: '0.08em' }}
           dangerouslySetInnerHTML={{ __html: block.content.text }}
         />
       );
