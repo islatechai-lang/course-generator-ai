@@ -202,18 +202,18 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
                 const isLast = wIdx === words.length - 1;
                 return (
                   <span key={wIdx}>
-                      <span
-                        ref={isCurrent ? highlightRef : null}
-                        className={cn(
-                          "inline transition-all duration-300 rounded px-0.5 -mx-0.5",
-                          isCurrent ? "bg-primary text-primary-foreground font-semibold shadow-sm" : ""
-                        )}
-                        data-word={word}
-                      >
-                        {word}
-                      </span>
-                      {!isLast && <span className="inline-block w-[0.25em]">&nbsp;</span>}
-                  </span>
+                        <span
+                          ref={isCurrent ? highlightRef : null}
+                          className={cn(
+                            "inline transition-all duration-300 rounded px-0.5",
+                            isCurrent ? "bg-primary text-primary-foreground font-semibold shadow-sm" : ""
+                          )}
+                          data-word={word}
+                        >
+                          {word}
+                        </span>
+                        {!isLast && <span className="inline-block">&nbsp;</span>}
+                    </span>
                 );
               })}
             </p>
@@ -237,8 +237,14 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: pIndex * 0.05, duration: 0.3 }}
+            className="flex flex-wrap items-center"
           >
-            {paragraph}
+            {paragraph.split(/\s+/).map((word, wIndex, arr) => (
+              <span key={wIndex} className="inline-block">
+                <span>{word}</span>
+                {wIndex < arr.length - 1 && <span className="inline-block">&nbsp;</span>}
+              </span>
+            ))}
           </motion.p>
           {getMediaForPosition(pIndex + 1).map((m) => (
             <InlineMediaImage key={m.id} media={m} />
@@ -483,9 +489,14 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
 
         <div className="flex-1 min-w-0 pr-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs sm:text-sm font-medium text-foreground truncate">
-              {currentModule ? `Module ${moduleIndex + 1}: ${currentModule.title}` : course.title}
-            </span>
+              <h2 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground/80 mb-0.5 truncate flex items-center gap-1.5">
+                {currentModule ? (
+                  <>
+                    <span>Module {moduleIndex + 1}:</span>
+                    <span className="font-bold">&nbsp;{currentModule.title}</span>
+                  </>
+                ) : course.title}
+              </h2>
           </div>
         </div>
 
@@ -515,8 +526,9 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
                     <BookOpen className="h-4 w-4" />
                     <span>Lesson {moduleIndex + 1}.{lessonIndexInModule + 1}</span>
                   </div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground" data-testid="text-lesson-heading">
-                    {currentLesson.title}
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex flex-wrap items-center gap-2" data-testid="text-lesson-heading">
+                    <span className="opacity-50 font-medium">Lesson {moduleIndex + 1}.{lessonIndexInModule + 1}:</span>
+                    <span>&nbsp;{currentLesson.title}</span>
                   </h1>
                 </div>
 
