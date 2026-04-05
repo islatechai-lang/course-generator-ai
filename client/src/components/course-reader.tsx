@@ -202,16 +202,17 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
                 const isLast = wIdx === words.length - 1;
                 return (
                   <span key={wIdx}>
-                    <span
-                      ref={isCurrent ? highlightRef : null}
-                      className={cn(
-                        "transition-colors duration-75 rounded-sm",
-                        isCurrent ? "bg-primary/25 text-primary" : "bg-transparent"
-                      )}
-                    >
-                      {word}
-                    </span>
-                    {!isLast && ' '}
+                      <span
+                        ref={isCurrent ? highlightRef : null}
+                        className={cn(
+                          "inline transition-all duration-300 rounded px-0.5 -mx-0.5",
+                          isCurrent ? "bg-primary text-primary-foreground font-semibold shadow-sm" : ""
+                        )}
+                        data-word={word}
+                      >
+                        {word}
+                      </span>
+                      {!isLast && <span className="inline-block w-[0.25em]">&nbsp;</span>}
                   </span>
                 );
               })}
@@ -226,7 +227,7 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
   }
 
   return (
-    <div className="text-base leading-[1.8] text-foreground/85 space-y-5">
+    <div className="text-lg leading-[1.8] text-foreground/90 space-y-8">
       {getMediaForPosition(0).map((m) => (
         <InlineMediaImage key={m.id} media={m} />
       ))}
@@ -358,7 +359,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-background">
       <div className="p-5 border-b">
-        <h2 className="font-semibold text-lg leading-snug mb-2" data-testid="text-course-title">
+        <h2 className="font-semibold text-lg mb-2" data-testid="text-course-title">
           {course.title}
         </h2>
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -514,7 +515,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
                     <BookOpen className="h-4 w-4" />
                     <span>Lesson {moduleIndex + 1}.{lessonIndexInModule + 1}</span>
                   </div>
-                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground" data-testid="text-lesson-heading">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground" data-testid="text-lesson-heading">
                     {currentLesson.title}
                   </h1>
                 </div>
@@ -746,7 +747,7 @@ function renderBlockReader(block: ILessonBlock) {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
           <div className="relative z-10 space-y-6 max-w-3xl">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">{block.content.title}</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight">{block.content.title}</h2>
             <p className="text-lg sm:text-xl text-white/90 leading-relaxed font-medium">{block.content.subtitle}</p>
           </div>
         </div>
