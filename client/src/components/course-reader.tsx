@@ -18,28 +18,16 @@ import {
   CircleCheck,
   CheckCircle2,
   HelpCircle,
-  Plus,
-  Type,
-  Image as ImageIcon,
-  Video,
-  FileText,
-  ChevronUp,
-  ChevronDown,
-  MoreVertical,
-  MousePointer2,
-  MessageSquare,
-  List,
-  Info,
-  AlignLeft,
-  Quote,
-  Play,
-  Sparkles,
-  X,
-  ChevronRight as ChevronRightIcon
 } from "lucide-react";
 import type { CourseWithModules, Lesson, MediaItem, Quiz, ILessonBlock } from "@shared/schema";
 import { cn, getEmbedUrl } from "@/lib/utils";
 import { Link } from "wouter";
+import {
+  Plus, Type, Image as ImageIcon, Video, HelpCircle, FileText,
+  ChevronUp, ChevronDown, CheckCircle2, MoreVertical,
+  MousePointer2, MessageSquare, List, Info, AlignLeft,
+  Quote, Play, Sparkles, X, ChevronRight as ChevronRightIcon
+} from "lucide-react";
 
 interface CourseReaderProps {
   course: CourseWithModules;
@@ -196,24 +184,23 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
         ))}
         {wordMapping.paragraphWords.map((words, pIdx) => (
           <div key={pIdx}>
-            <p className="tracking-normal" style={{ wordSpacing: '0.12em' }}>
+            <p>
               {words.map((word, wIdx) => {
                 const isCurrent = currentHighlight?.pIdx === pIdx && currentHighlight?.wIdx === wIdx;
                 const isLast = wIdx === words.length - 1;
                 return (
                   <span key={wIdx}>
-                        <span
-                          ref={isCurrent ? highlightRef : null}
-                          className={cn(
-                            "inline transition-all duration-300 rounded px-0.5",
-                            isCurrent ? "bg-primary text-primary-foreground font-semibold shadow-sm" : ""
-                          )}
-                          data-word={word}
-                        >
-                          {word}
-                        </span>
-                        {!isLast && <span> </span>}
+                    <span
+                      ref={isCurrent ? highlightRef : null}
+                      className={cn(
+                        "transition-colors duration-75 rounded-sm",
+                        isCurrent ? "bg-primary/25 text-primary" : "bg-transparent"
+                      )}
+                    >
+                      {word}
                     </span>
+                    {!isLast && ' '}
+                  </span>
                 );
               })}
             </p>
@@ -227,7 +214,7 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
   }
 
   return (
-    <div className="text-lg leading-[1.8] text-foreground/90 space-y-8">
+    <div className="text-base leading-[1.8] text-foreground/85 space-y-5">
       {getMediaForPosition(0).map((m) => (
         <InlineMediaImage key={m.id} media={m} />
       ))}
@@ -237,8 +224,6 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: pIndex * 0.05, duration: 0.3 }}
-            className="tracking-normal break-words"
-            style={{ wordSpacing: '0.12em' }}
           >
             {paragraph}
           </motion.p>
@@ -361,7 +346,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-background">
       <div className="p-5 border-b">
-        <h2 className="font-semibold text-lg mb-2" data-testid="text-course-title">
+        <h2 className="font-semibold text-lg leading-snug mb-2" data-testid="text-course-title">
           {course.title}
         </h2>
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -462,7 +447,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
         </SheetContent>
       </Sheet>
 
-      <header className="shrink-0 flex items-center gap-2 sm:gap-4 px-2 sm:px-4 py-3 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="shrink-0 flex items-center gap-4 px-4 py-3 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <Link href={experienceId ? `/experiences/${experienceId}` : "/"}>
           <Button
             variant="ghost"
@@ -483,16 +468,11 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
           <span className="hidden sm:inline">Modules</span>
         </Button>
 
-        <div className="flex-1 min-w-0 pr-2">
-          <div className="flex items-center gap-2">
-              <h2 className="text-xs uppercase tracking-normal font-semibold text-muted-foreground/80 mb-0.5 truncate">
-                {currentModule ? (
-                  <>
-                    <span>Module {moduleIndex + 1}:</span>
-                    <span className="font-bold ml-1">{currentModule.title}</span>
-                  </>
-                ) : course.title}
-              </h2>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium text-foreground">
+              {currentModule ? `Module ${moduleIndex + 1}: ${currentModule.title}` : course.title}
+            </span>
           </div>
         </div>
 
@@ -513,7 +493,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="px-4 py-6 sm:px-8 sm:py-10"
+            className="px-5 py-8 sm:px-8 sm:py-10"
           >
             {currentLesson ? (
               <>
@@ -522,9 +502,8 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
                     <BookOpen className="h-4 w-4" />
                     <span>Lesson {moduleIndex + 1}.{lessonIndexInModule + 1}</span>
                   </div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-normal" data-testid="text-lesson-heading">
-                    <span className="opacity-50 font-medium mr-2">Lesson {moduleIndex + 1}.{lessonIndexInModule + 1}:</span>
-                    <span>{currentLesson.title}</span>
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground" data-testid="text-lesson-heading">
+                    {currentLesson.title}
                   </h1>
                 </div>
 
@@ -666,8 +645,7 @@ function renderBlockReader(block: ILessonBlock) {
     case 'text':
       return (
         <div
-          className="prose prose-slate max-w-none dark:prose-invert leading-relaxed text-foreground/85 tracking-normal"
-          style={{ wordSpacing: '0.08em' }}
+          className="prose prose-slate max-w-none dark:prose-invert leading-relaxed text-foreground/85"
           dangerouslySetInnerHTML={{ __html: block.content.text }}
         />
       );
@@ -699,9 +677,9 @@ function renderBlockReader(block: ILessonBlock) {
       );
     case 'quote':
       return (
-        <div className="my-10 border-l-4 border-primary/40 pl-5 sm:pl-8 py-6 sm:py-8 bg-primary/5 rounded-r-3xl italic shadow-sm">
+        <div className="my-10 border-l-4 border-primary/40 pl-8 py-8 bg-primary/5 rounded-r-3xl italic shadow-sm">
           <div
-            className="text-lg md:text-2xl text-foreground/90 leading-relaxed font-serif"
+            className="text-xl md:text-2xl text-foreground/90 leading-relaxed font-serif"
             dangerouslySetInnerHTML={{ __html: block.content.text }}
           />
           {block.content.author && (
@@ -716,9 +694,9 @@ function renderBlockReader(block: ILessonBlock) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-10">
           {(block.content.items || []).map((item: any, i: number) => (
             <Card key={i} className="bg-muted/30 border-none shadow-none rounded-[2rem] overflow-hidden hover:bg-muted/40 transition-colors">
-              <CardContent className="p-6 sm:p-8 space-y-4">
+              <CardContent className="p-8 space-y-4">
                 <h3 className="font-bold text-xl text-foreground">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{item.content}</p>
+                <p className="text-muted-foreground leading-relaxed">{item.content}</p>
               </CardContent>
             </Card>
           ))}
@@ -727,13 +705,13 @@ function renderBlockReader(block: ILessonBlock) {
     case 'quiz':
       return (
         <Card className="my-10 bg-primary/5 border-primary/10 rounded-[2.5rem] shadow-none overflow-hidden">
-          <CardContent className="p-6 sm:p-10 space-y-8">
+          <CardContent className="p-10 space-y-8">
             <div className="space-y-4">
-              <h3 className="text-xl sm:text-2xl font-black flex items-center gap-4 text-foreground">
-                <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+              <h3 className="text-2xl font-black flex items-center gap-4 text-foreground">
+                <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
                   <HelpCircle className="h-6 w-6 text-primary" />
                 </div>
-                <span className="leading-tight">{block.content.question}</span>
+                {block.content.question}
               </h3>
             </div>
             <div className="grid gap-4">
@@ -751,13 +729,13 @@ function renderBlockReader(block: ILessonBlock) {
     case 'banner':
       return (
         <div
-          className="my-10 rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-12 md:p-20 text-white relative overflow-hidden shadow-2xl group/banner"
+          className="my-10 rounded-[3rem] p-12 md:p-20 text-white relative overflow-hidden shadow-2xl group/banner"
           style={{ backgroundColor: block.content.color || "#0f172a" }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
           <div className="relative z-10 space-y-6 max-w-3xl">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight">{block.content.title}</h2>
-            <p className="text-lg sm:text-xl text-white/90 leading-relaxed font-medium">{block.content.subtitle}</p>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">{block.content.title}</h2>
+            <p className="text-xl text-white/90 leading-relaxed font-medium">{block.content.subtitle}</p>
           </div>
         </div>
       );
@@ -780,9 +758,9 @@ function renderBlockReader(block: ILessonBlock) {
               <TabsContent
                 key={i}
                 value={`tab-${i}`}
-                className="mt-6 sm:mt-8 p-6 sm:p-10 border rounded-[2rem] sm:rounded-[2.5rem] bg-muted/20 border-muted-foreground/10 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                className="mt-8 p-10 border rounded-[2.5rem] bg-muted/20 border-muted-foreground/10 animate-in fade-in slide-in-from-bottom-4 duration-500"
               >
-                <p className="text-foreground/90 text-base sm:text-lg leading-relaxed font-medium">{tab.content}</p>
+                <p className="text-foreground/90 text-lg leading-relaxed font-medium">{tab.content}</p>
               </TabsContent>
             ))}
           </Tabs>

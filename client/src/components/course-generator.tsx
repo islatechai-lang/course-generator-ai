@@ -331,7 +331,7 @@ export function CourseGenerator({
             <Sparkles className="h-8 w-8 text-primary" />
           </div>
           <div>
-            <h2 className="text-2xl font-semibold">Create Your Course</h2>
+            <h2 className="text-2xl font-semibold tracking-tight">Create Your Course</h2>
             <p className="text-muted-foreground mt-1 text-sm">
               Choose how you want to build your curriculum
             </p>
