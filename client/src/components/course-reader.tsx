@@ -178,7 +178,7 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
 
   if (shouldHighlight) {
     return (
-      <div className="text-base leading-[1.8] text-foreground/85 space-y-5">
+      <div className="prose prose-slate dark:prose-invert text-base leading-[1.8] text-foreground/85 space-y-5 tracking-normal">
         {getMediaForPosition(0).map((m) => (
           <InlineMediaImage key={m.id} media={m} />
         ))}
@@ -214,7 +214,7 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
   }
 
   return (
-    <div className="text-base leading-[1.8] text-foreground/85 space-y-5">
+    <div className="prose prose-slate dark:prose-invert text-base leading-[1.8] text-foreground/85 space-y-5 tracking-normal">
       {getMediaForPosition(0).map((m) => (
         <InlineMediaImage key={m.id} media={m} />
       ))}
@@ -346,7 +346,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-background">
       <div className="p-5 border-b">
-        <h2 className="font-semibold text-lg leading-snug mb-2" data-testid="text-course-title">
+        <h2 className="font-semibold text-lg leading-snug tracking-normal mb-2" data-testid="text-course-title">
           {course.title}
         </h2>
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -734,7 +734,7 @@ function renderBlockReader(block: ILessonBlock) {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
           <div className="relative z-10 space-y-6 max-w-3xl">
-            <h2 className="text-4xl md:text-5xl font-black tracking-normal leading-tight">{block.content.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-normal leading-tight">{block.content.title}</h2>
             <p className="text-xl text-white/90 leading-relaxed font-medium">{block.content.subtitle}</p>
           </div>
         </div>
