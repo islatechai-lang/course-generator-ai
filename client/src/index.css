@@ -1,5 +1,4 @@
-/* Remove redundant Inter font import as it's already in index.html */
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -368,28 +367,4 @@
     text-decoration: underline;
     cursor: pointer;
   }
-
-  .prose {
-    @apply text-foreground/90;
-    max-width: none;
-    line-height: 1.75;
-  }
 }
-
-/* Global Typography Fix for Content Smudging */
-* {
-  letter-spacing: normal !important;
-}
-
-body {
-  text-rendering: optimizeSpeed; /* Prevents some ligature-related smudging on Windows */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.prose p {
-  margin-top: 1.25em;
-  margin-bottom: 1.25em;
-  white-space: pre-wrap; /* Preserves Gemini's intended formatting without joining words */
-}
-

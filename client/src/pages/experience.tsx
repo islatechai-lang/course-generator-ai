@@ -410,8 +410,8 @@ export default function ExperiencePage() {
             />
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:flex">
               <TabsTrigger value="courses" className="gap-2" data-testid="tab-courses">
                 <LayoutGrid className="h-4 w-4" />
                 Courses
@@ -619,19 +619,19 @@ export default function ExperiencePage() {
       </header>
 
       <main className="flex-1 overflow-auto p-5 space-y-5">
-        <Tabs value={memberTab} onValueChange={setMemberTab}>
-          <TabsList>
+        <Tabs value={memberTab} onValueChange={setMemberTab} className="w-full">
+          <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:flex">
             <TabsTrigger value="all" className="gap-2" data-testid="tab-all-courses">
               <LayoutGrid className="h-4 w-4" />
               Browse
-              <Badge variant="secondary" className="ml-1">
+              <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px]">
                 {availableCourses.length}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="my" className="gap-2" data-testid="tab-my-courses">
               <Unlock className="h-4 w-4" />
               My Courses
-              <Badge variant="secondary" className="ml-1">
+              <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px]">
                 {myCourses.length}
               </Badge>
             </TabsTrigger>
@@ -639,7 +639,7 @@ export default function ExperiencePage() {
 
           <TabsContent value="all" className="mt-5">
             {availableCourses.length > 0 ? (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {availableCourses.map((course) => (
                   <StudentCourseCard
                     key={course.id}
@@ -675,7 +675,7 @@ export default function ExperiencePage() {
 
           <TabsContent value="my" className="mt-5">
             {myCourses.length > 0 ? (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {myCourses.map((course) => (
                   <StudentCourseCard
                     key={course.id}
@@ -761,7 +761,7 @@ function StatCard({ icon: Icon, label, value, testId, isCurrency, bgColor = "bg-
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[10px] uppercase tracking-tighter font-semibold text-muted-foreground/90 truncate mb-0.5">{label}</p>
-            <p className="text-xl font-bold tracking-tight truncate leading-none">{displayValue}</p>
+            <p className="text-lg sm:text-xl font-bold tracking-tight truncate leading-none">{displayValue}</p>
           </div>
         </div>
       </CardContent>
@@ -858,12 +858,12 @@ function StudentCourseCard({ course, experienceId, hasAccess, onRequestAccess, i
             )}
           </div>
         </div>
-        <CardHeader className="pb-2 pt-4">
-          <CardTitle className="text-base font-semibold leading-snug line-clamp-2" data-testid={`text-course-title-${course.id}`}>
+        <CardHeader className="pb-2 pt-3 sm:pt-4 px-4 sm:px-6">
+          <CardTitle className="text-sm sm:text-base font-semibold leading-snug line-clamp-2" data-testid={`text-course-title-${course.id}`}>
             {course.title}
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex-1 pb-4 pt-0">
+        <CardContent className="flex-1 pb-4 pt-0 px-4 sm:px-6">
           {course.description && (
             <CardDescription className="line-clamp-2 text-sm mb-3">
               {course.description}
