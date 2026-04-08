@@ -383,7 +383,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
                       <button
                         onClick={() => goToLesson(lesson)}
                         className={cn(
-                          "w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-left transition-all",
+                          "w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-left transition-all tracking-normal",
                           isActive
                             ? "bg-primary text-primary-foreground shadow-sm font-medium"
                             : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -502,7 +502,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
                     <BookOpen className="h-4 w-4" />
                     <span>Lesson {moduleIndex + 1}.{lessonIndexInModule + 1}</span>
                   </div>
-                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground" data-testid="text-lesson-heading">
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-normal text-foreground" data-testid="text-lesson-heading">
                     {currentLesson.title}
                   </h1>
                 </div>
@@ -734,7 +734,7 @@ function renderBlockReader(block: ILessonBlock) {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
           <div className="relative z-10 space-y-6 max-w-3xl">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">{block.content.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-black tracking-normal leading-tight">{block.content.title}</h2>
             <p className="text-xl text-white/90 leading-relaxed font-medium">{block.content.subtitle}</p>
           </div>
         </div>

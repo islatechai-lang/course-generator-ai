@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Remove redundant Inter font import as it's already in index.html */
+
 
 @tailwind base;
 @tailwind components;
@@ -366,5 +367,10 @@
     color: hsl(var(--primary));
     text-decoration: underline;
     cursor: pointer;
+  }
+
+  .prose {
+    @apply text-foreground/90;
+    letter-spacing: 0.01em !important;
   }
 }
