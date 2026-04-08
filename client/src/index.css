@@ -371,19 +371,25 @@
 
   .prose {
     @apply text-foreground/90;
-    word-spacing: 0.1em !important;
-    letter-spacing: 0.01em !important;
-    white-space: normal !important;
-    font-variant-ligatures: none !important;
-    font-feature-settings: "kern" 1, "liga" 0 !important;
+    max-width: none;
+    line-height: 1.75;
   }
 }
 
 /* Global Typography Fix for Content Smudging */
+* {
+  letter-spacing: normal !important;
+}
+
 body {
-  word-spacing: 0.02em;
-  font-feature-settings: "kern" 1;
+  text-rendering: optimizeSpeed; /* Prevents some ligature-related smudging on Windows */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  white-space: pre-wrap; /* Preserves Gemini's intended formatting without joining words */
 }
 

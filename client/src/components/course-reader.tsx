@@ -176,35 +176,24 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
     return media.filter(m => m.placement === afterParagraphIndex);
   };
 
-  if (shouldHighlight) {
+  // DEFAULT VIEW (When NOT playing)
+  if (!shouldHighlight) {
     return (
-      <div className="prose prose-slate dark:prose-invert text-base leading-[1.8] text-foreground/85 space-y-5 tracking-normal">
+      <div className="prose prose-slate dark:prose-invert">
         {getMediaForPosition(0).map((m) => (
           <InlineMediaImage key={m.id} media={m} />
         ))}
-        {wordMapping.paragraphWords.map((words, pIdx) => (
-          <div key={pIdx}>
-            <p>
-              {words.map((word, wIdx) => {
-                const isCurrent = currentHighlight?.pIdx === pIdx && currentHighlight?.wIdx === wIdx;
-                const isLast = wIdx === words.length - 1;
-                return (
-                  <span key={wIdx}>
-                    <span
-                      ref={isCurrent ? highlightRef : null}
-                      className={cn(
-                        "transition-colors duration-75 rounded-sm",
-                        isCurrent ? "bg-primary/25 text-primary" : "bg-transparent"
-                      )}
-                    >
-                      {word}
-                    </span>
-                    {!isLast && ' '}
-                  </span>
-                );
-              })}
-            </p>
-            {getMediaForPosition(pIdx + 1).map((m) => (
+        {paragraphs.map((paragraph, pIndex) => (
+          <div key={pIndex} className="mb-6 last:mb-0">
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: Math.min(pIndex * 0.05, 0.5), duration: 0.3 }}
+              className="text-foreground/85 leading-relaxed"
+            >
+              {paragraph}
+            </motion.p>
+            {getMediaForPosition(pIndex + 1).map((m) => (
               <InlineMediaImage key={m.id} media={m} />
             ))}
           </div>
@@ -213,27 +202,42 @@ function HighlightedContent({ content, currentWordIndex, isPlaying, serverWords,
     );
   }
 
+  // HIGHLIGHT VIEW (Only when TTS is active)
   return (
-    <div className="prose prose-slate dark:prose-invert text-base leading-[1.8] text-foreground/85 space-y-5 tracking-normal">
+    <div className="prose prose-slate dark:prose-invert">
       {getMediaForPosition(0).map((m) => (
         <InlineMediaImage key={m.id} media={m} />
       ))}
-      {paragraphs.map((paragraph, pIndex) => (
-        <div key={pIndex}>
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: pIndex * 0.05, duration: 0.3 }}
-          >
-            {paragraph}
-          </motion.p>
-          {getMediaForPosition(pIndex + 1).map((m) => (
+      {wordMapping.paragraphWords.map((words, pIdx) => (
+        <div key={pIdx} className="mb-6 last:mb-0">
+          <p className="text-foreground/85 leading-relaxed">
+            {words.map((word, wIdx) => {
+              const isCurrent = currentHighlight?.pIdx === pIdx && currentHighlight?.wIdx === wIdx;
+              const isLast = wIdx === words.length - 1;
+              return (
+                <span key={wIdx}>
+                  <span
+                    ref={isCurrent ? highlightRef : null}
+                    className={cn(
+                      "transition-colors duration-75 rounded-sm",
+                      isCurrent ? "bg-primary/25 text-primary" : "bg-transparent"
+                    )}
+                  >
+                    {word}
+                  </span>
+                  {!isLast && ' '}
+                </span>
+              );
+            })}
+          </p>
+          {getMediaForPosition(pIdx + 1).map((m) => (
             <InlineMediaImage key={m.id} media={m} />
           ))}
         </div>
       ))}
     </div>
   );
+
 }
 
 export function CourseReader({ course, experienceId, initialLessonId }: CourseReaderProps) {
@@ -346,7 +350,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-background">
       <div className="p-5 border-b">
-        <h2 className="font-semibold text-lg leading-snug tracking-normal mb-2" data-testid="text-course-title">
+        <h2 className="font-semibold text-lg leading-snug mb-2" data-testid="text-course-title">
           {course.title}
         </h2>
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -383,7 +387,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
                       <button
                         onClick={() => goToLesson(lesson)}
                         className={cn(
-                          "w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-left transition-all tracking-normal",
+                          "w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-left transition-all",
                           isActive
                             ? "bg-primary text-primary-foreground shadow-sm font-medium"
                             : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -502,7 +506,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
                     <BookOpen className="h-4 w-4" />
                     <span>Lesson {moduleIndex + 1}.{lessonIndexInModule + 1}</span>
                   </div>
-                  <h1 className="text-2xl sm:text-3xl font-bold tracking-normal text-foreground" data-testid="text-lesson-heading">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground" data-testid="text-lesson-heading">
                     {currentLesson.title}
                   </h1>
                 </div>
@@ -734,7 +738,7 @@ function renderBlockReader(block: ILessonBlock) {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
           <div className="relative z-10 space-y-6 max-w-3xl">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-normal leading-tight">{block.content.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold leading-tight">{block.content.title}</h2>
             <p className="text-xl text-white/90 leading-relaxed font-medium">{block.content.subtitle}</p>
           </div>
         </div>
