@@ -31,7 +31,7 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
 
     return (
         <div
-            className={`fixed inset-0 z-[10000] bg-black/85 backdrop-blur-md transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            className={`fixed inset-0 z-[10000] bg-black/90 backdrop-blur-md transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
             style={{
                 position: 'fixed',
                 top: 0, left: 0, right: 0, bottom: 0,
@@ -44,18 +44,20 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
             <div
                 style={{
                     width: '100%',
-                    maxWidth: '640px',
+                    maxWidth: '580px',
                     maxHeight: 'calc(100vh - 48px)',
-                    borderRadius: '16px',
+                    borderRadius: '14px',
                     overflow: 'hidden',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                    boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.7)',
                     display: 'flex',
                     flexDirection: 'column',
+                    backgroundColor: '#111113',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
                 }}
-                className={`bg-card transition-all duration-300 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                className={`transition-all duration-300 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Video Section - takes remaining space */}
+                {/* Video Section */}
                 <div style={{ flex: '1 1 auto', minHeight: 0, backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <video
                         src="/course_generator_demo.mp4"
@@ -71,31 +73,42 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
                     />
                 </div>
 
-                {/* Bottom Section - fixed, never cut off */}
+                {/* Bottom Section */}
                 <div
                     style={{
                         flexShrink: 0,
-                        padding: '20px 24px',
+                        padding: '18px 20px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '14px',
-                        borderTop: '1px solid hsl(var(--border) / 0.5)',
+                        gap: '12px',
+                        borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+                        background: 'linear-gradient(to bottom, #151518, #111113)',
                     }}
                 >
                     <div style={{ textAlign: 'center' }}>
-                        <div className="inline-flex items-center justify-center p-1.5 bg-primary/10 rounded-lg mb-1.5">
-                            <PlayCircle className="h-5 w-5 text-primary" />
+                        <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '5px',
+                            backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                            borderRadius: '8px',
+                            marginBottom: '8px',
+                        }}>
+                            <PlayCircle style={{ height: '18px', width: '18px', color: '#818cf8' }} />
                         </div>
-                        <h2 className="text-lg font-bold tracking-tight">Welcome to Cursai!</h2>
-                        <p className="text-muted-foreground text-xs mt-1 max-w-sm">
+                        <h2 style={{ fontSize: '15px', fontWeight: 700, letterSpacing: '-0.01em', color: '#f0f0f0' }}>
+                            Welcome to Whop Course Generator
+                        </h2>
+                        <p style={{ fontSize: '11px', color: '#71717a', marginTop: '4px', maxWidth: '340px', lineHeight: 1.5 }}>
                             Watch the quick demo above to see how you can create AI-powered courses in minutes.
                         </p>
                     </div>
 
                     <Button
                         size="lg"
-                        className="w-full max-w-xs h-11 text-sm font-bold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                        className="w-full max-w-xs h-10 text-xs font-bold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
                         onClick={handleLetsGo}
                     >
                         Let's go!
