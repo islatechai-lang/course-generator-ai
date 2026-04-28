@@ -84,13 +84,11 @@ export default function DashboardPage() {
     if (data) {
       console.log("[Frontend] Dashboard data received:", data);
       
-      // Show onboarding demo if user has 0 courses and hasn't seen it yet
-      if (data.courses.length === 0) {
-        const hasSeenDemo = localStorage.getItem("hasSeenOnboardingDemo");
-        if (!hasSeenDemo) {
-          console.log("[Frontend] User has 0 courses and hasn't seen demo. Showing onboarding.");
-          setShowOnboarding(true);
-        }
+      // Show onboarding demo if user hasn't seen it yet
+      const hasSeenDemo = localStorage.getItem("hasSeenOnboardingDemo");
+      if (!hasSeenDemo) {
+        console.log("[Frontend] User hasn't seen demo. Showing onboarding.");
+        setShowOnboarding(true);
       }
     }
   }, [data]);
