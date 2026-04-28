@@ -135,8 +135,12 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     </li>
                                 </ul>
 
-                                <Button variant="outline" className="w-full h-10 text-xs font-semibold cursor-default opacity-70 pointer-events-none" disabled>
-                                    Current Plan
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full h-10 text-xs font-medium text-muted-foreground/60 hover:text-muted-foreground hover:bg-muted/50 transition-colors mt-auto"
+                                    onClick={() => onOpenChange(false)}
+                                >
+                                    Choose plan
                                 </Button>
                             </div>
 
@@ -190,11 +194,11 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                 </ul>
 
                                 <Button
-                                    className="w-full h-10 text-xs font-bold shadow-lg shadow-primary/20"
+                                    className="w-full h-11 text-sm font-bold shadow-xl shadow-primary/30 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98] ring-2 ring-primary/20 ring-offset-2 mt-auto"
                                     onClick={handleStartCheckout}
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? "Loading..." : "Upgrade to Pro"}
+                                    {isLoading ? "Loading..." : "Choose plan"}
                                 </Button>
                             </div>
                         </div>

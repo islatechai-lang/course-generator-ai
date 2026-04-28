@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { UpgradeModal } from "@/components/upgrade-modal";
+import { OnboardingDemo } from "@/components/onboarding-demo";
 import { CourseGenerator } from "@/components/course-generator";
 import { generateCourseImage } from "@/lib/image-generator";
 import type { GeneratedCourse, Course } from "@shared/schema";
@@ -57,6 +58,7 @@ export default function DashboardPage() {
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
@@ -81,8 +83,22 @@ export default function DashboardPage() {
   useEffect(() => {
     if (data) {
       console.log("[Frontend] Dashboard data received:", data);
+      
+      // Show onboarding demo if user has 0 courses and hasn't seen it yet
+      if (data.courses.length === 0) {
+        const hasSeenDemo = localStorage.getItem("hasSeenOnboardingDemo");
+        if (!hasSeenDemo) {
+          console.log("[Frontend] User has 0 courses and hasn't seen demo. Showing onboarding.");
+          setShowOnboarding(true);
+        }
+      }
     }
   }, [data]);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("hasSeenOnboardingDemo", "true");
+    setShowUpgradeModal(true);
+  };
 
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [publishingCourseId, setPublishingCourseId] = useState<string | null>(null);
@@ -565,6 +581,12 @@ export default function DashboardPage() {
       <UpgradeModal
         open={showUpgradeModal}
         onOpenChange={setShowUpgradeModal}
+      />
+
+      <OnboardingDemo
+        open={showOnboarding}
+        onOpenChange={setShowOnboarding}
+        onComplete={handleOnboardingComplete}
       />
     </div>
   );
