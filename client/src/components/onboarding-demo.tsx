@@ -33,15 +33,15 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
 
     return (
         <div
-            className={`fixed inset-0 z-[10000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            className={`fixed inset-0 z-[10000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
             style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
         >
             <div
-                className={`w-full max-w-4xl bg-card rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                className={`w-full max-w-4xl bg-card rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 my-auto max-h-[95vh] flex flex-col ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Video Section */}
-                <div className="relative w-full aspect-video bg-black">
+                <div className="relative w-full bg-black flex-shrink-0" style={{ maxHeight: '60vh' }}>
                     <video
                         src="/course_generator_demo.mp4"
                         controls
