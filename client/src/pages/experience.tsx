@@ -18,6 +18,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CourseGenerator, CoursePreview } from "@/components/course-generator";
 import { UpgradeModal } from "@/components/upgrade-modal";
+import { OnboardingDemo } from "@/components/onboarding-demo";
 import { CourseCard } from "@/components/course-card";
 import { WithdrawRequestDialog } from "@/components/withdraw-request-dialog";
 import { UserMenu } from "@/components/user-menu";
@@ -65,6 +66,7 @@ export default function ExperiencePage() {
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const createTabRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -103,8 +105,22 @@ export default function ExperiencePage() {
   useEffect(() => {
     if (data) {
       console.log("[Frontend] Experience data received:", data);
+
+      // Show onboarding demo for admins who haven't seen it yet
+      if (data.accessLevel === "admin") {
+        const hasSeenDemo = localStorage.getItem("hasSeenOnboardingDemo");
+        if (!hasSeenDemo) {
+          console.log("[Frontend] Admin hasn't seen demo. Showing onboarding.");
+          setShowOnboarding(true);
+        }
+      }
     }
   }, [data]);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("hasSeenOnboardingDemo", "true");
+    setShowUpgradeModal(true);
+  };
 
   const grantAccessMutation = useMutation({
     mutationFn: async ({ courseId, courseName }: { courseId: string; courseName: string }) => {
@@ -584,6 +600,12 @@ export default function ExperiencePage() {
         <UpgradeModal
           open={showUpgradeModal}
           onOpenChange={setShowUpgradeModal}
+        />
+
+        <OnboardingDemo
+          open={showOnboarding}
+          onOpenChange={setShowOnboarding}
+          onComplete={handleOnboardingComplete}
         />
       </div>
     );
