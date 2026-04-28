@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { PlayCircle, X } from "lucide-react";
+import { PlayCircle } from "lucide-react";
 
 interface OnboardingDemoProps {
     open: boolean;
@@ -13,7 +13,6 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
 
     useEffect(() => {
         if (open) {
-            // Small delay to trigger the animation
             requestAnimationFrame(() => setIsVisible(true));
         } else {
             setIsVisible(false);
@@ -24,7 +23,6 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
 
     const handleLetsGo = () => {
         setIsVisible(false);
-        // Wait for fade-out animation before calling callbacks
         setTimeout(() => {
             onOpenChange(false);
             onComplete();
@@ -33,42 +31,72 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
 
     return (
         <div
-            className={`fixed inset-0 z-[10000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+            className={`fixed inset-0 z-[10000] bg-black/85 backdrop-blur-md transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
             <div
-                className={`w-full max-w-4xl bg-card rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 my-auto max-h-[95vh] flex flex-col ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                style={{
+                    width: '100%',
+                    maxWidth: '640px',
+                    margin: '16px',
+                    maxHeight: 'calc(100vh - 32px)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                }}
+                className={`bg-card transition-all duration-300 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Video Section */}
-                <div className="relative w-full bg-black flex-shrink-0" style={{ maxHeight: '60vh' }}>
-                    <video
-                        src="/course_generator_demo.mp4"
-                        controls
-                        autoPlay
-                        playsInline
-                        className="w-full h-full object-contain"
-                    />
+                {/* Video Section - scrollable if needed */}
+                <div style={{ flex: '1 1 auto', overflow: 'auto', minHeight: 0 }}>
+                    <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', backgroundColor: '#000' }}>
+                        <video
+                            src="/course_generator_demo.mp4"
+                            controls
+                            autoPlay
+                            playsInline
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                            }}
+                        />
+                    </div>
                 </div>
 
-                {/* Bottom Section */}
-                <div className="p-8 flex flex-col items-center gap-6 border-t border-border/50">
-                    <div className="flex flex-col items-center gap-2 text-center">
-                        <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-xl mb-2">
-                            <PlayCircle className="h-6 w-6 text-primary" />
+                {/* Bottom Section - always visible */}
+                <div
+                    style={{
+                        flexShrink: 0,
+                        padding: '24px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '16px',
+                        borderTop: '1px solid hsl(var(--border) / 0.5)',
+                    }}
+                >
+                    <div style={{ textAlign: 'center' }}>
+                        <div className="inline-flex items-center justify-center p-1.5 bg-primary/10 rounded-lg mb-2">
+                            <PlayCircle className="h-5 w-5 text-primary" />
                         </div>
-                        <h2 className="text-2xl font-bold tracking-tight">Quick Demo</h2>
-                        <p className="text-muted-foreground text-sm max-w-md">
-                            See how easily you can generate high-quality courses with AI. Watch the demo to get started!
+                        <h2 className="text-lg font-bold tracking-tight">Welcome to Cursai!</h2>
+                        <p className="text-muted-foreground text-xs mt-1 max-w-sm">
+                            Watch the quick demo above to see how you can create AI-powered courses in minutes.
                         </p>
                     </div>
 
                     <Button
                         size="lg"
-                        className="w-full max-w-xs h-12 text-sm font-bold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                        className="w-full max-w-xs h-11 text-sm font-bold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
                         onClick={handleLetsGo}
                     >
-                        Lets go!
+                        Let's go!
                     </Button>
                 </div>
             </div>
