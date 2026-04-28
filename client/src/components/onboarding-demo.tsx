@@ -39,9 +39,6 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
                     width: '100%',
                     maxWidth: '640px',
                     margin: '16px',
-                    maxHeight: 'calc(100vh - 32px)',
-                    display: 'flex',
-                    flexDirection: 'column',
                     borderRadius: '16px',
                     overflow: 'hidden',
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
@@ -49,30 +46,28 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
                 className={`bg-card transition-all duration-300 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Video Section - scrollable if needed */}
-                <div style={{ flex: '1 1 auto', overflow: 'auto', minHeight: 0 }}>
-                    <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', backgroundColor: '#000' }}>
-                        <video
-                            src="/course_generator_demo.mp4"
-                            controls
-                            autoPlay
-                            playsInline
-                            style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'contain',
-                            }}
-                        />
-                    </div>
+                {/* Video Section - 16:9 aspect ratio, no scroll */}
+                <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', backgroundColor: '#000' }}>
+                    <video
+                        src="/course_generator_demo.mp4"
+                        controls
+                        autoPlay
+                        muted
+                        playsInline
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                        }}
+                    />
                 </div>
 
-                {/* Bottom Section - always visible */}
+                {/* Bottom Section */}
                 <div
                     style={{
-                        flexShrink: 0,
                         padding: '24px',
                         display: 'flex',
                         flexDirection: 'column',
