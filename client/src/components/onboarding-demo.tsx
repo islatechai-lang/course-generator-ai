@@ -32,22 +32,31 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
     return (
         <div
             className={`fixed inset-0 z-[10000] bg-black/85 backdrop-blur-md transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{
+                position: 'fixed',
+                top: 0, left: 0, right: 0, bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '24px',
+            }}
         >
             <div
                 style={{
                     width: '100%',
                     maxWidth: '640px',
-                    margin: '16px',
+                    maxHeight: 'calc(100vh - 48px)',
                     borderRadius: '16px',
                     overflow: 'hidden',
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    flexDirection: 'column',
                 }}
                 className={`bg-card transition-all duration-300 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Video Section - 16:9 aspect ratio, no scroll */}
-                <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', backgroundColor: '#000' }}>
+                {/* Video Section - takes remaining space */}
+                <div style={{ flex: '1 1 auto', minHeight: 0, backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <video
                         src="/course_generator_demo.mp4"
                         controls
@@ -55,9 +64,6 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
                         muted
                         playsInline
                         style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
                             width: '100%',
                             height: '100%',
                             objectFit: 'contain',
@@ -65,19 +71,20 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
                     />
                 </div>
 
-                {/* Bottom Section */}
+                {/* Bottom Section - fixed, never cut off */}
                 <div
                     style={{
-                        padding: '24px',
+                        flexShrink: 0,
+                        padding: '20px 24px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '16px',
+                        gap: '14px',
                         borderTop: '1px solid hsl(var(--border) / 0.5)',
                     }}
                 >
                     <div style={{ textAlign: 'center' }}>
-                        <div className="inline-flex items-center justify-center p-1.5 bg-primary/10 rounded-lg mb-2">
+                        <div className="inline-flex items-center justify-center p-1.5 bg-primary/10 rounded-lg mb-1.5">
                             <PlayCircle className="h-5 w-5 text-primary" />
                         </div>
                         <h2 className="text-lg font-bold tracking-tight">Welcome to Cursai!</h2>
