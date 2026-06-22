@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Check, X, Zap, Cpu, MousePointer2 } from "lucide-react";
+import { Sparkles, Check, X, Zap, Cpu, MousePointer2, Video } from "lucide-react";
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -134,6 +134,10 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                         <X className="h-4 w-4 shrink-0 text-red-500" />
                                         Guided Mode
                                     </li>
+                                    <li className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                                        <X className="h-4 w-4 shrink-0 text-red-500" />
+                                        Direct Video Upload (Embeds Only)
+                                    </li>
                                 </ul>
 
                                 <Button 
@@ -183,6 +187,10 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     <li className="flex items-center gap-2.5 text-xs text-muted-foreground">
                                         <X className="h-4 w-4 shrink-0 text-red-500" />
                                         Guided Mode
+                                    </li>
+                                    <li className="flex items-center gap-2.5 text-xs font-bold text-blue-500">
+                                        <Video className="h-4 w-4 shrink-0" />
+                                        Direct Video Upload (400MB Storage)
                                     </li>
                                 </ul>
 
@@ -241,6 +249,10 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
                                         <MousePointer2 className="h-4 w-4 shrink-0" />
                                         Guided
+                                    </li>
+                                    <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
+                                        <Video className="h-4 w-4 shrink-0" />
+                                        Direct Video Upload (1.2GB Storage)
                                     </li>
                                 </ul>
 

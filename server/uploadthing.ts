@@ -15,7 +15,7 @@ const LIMITS = {
 };
 
 export const uploadRouter = {
-  courseVideo: f({ video: { maxFileSize: "512MB", maxFilesNum: 1 } })
+  courseVideo: f({ video: { maxFileSize: "512MB", maxFileCount: 1 } })
     .middleware(async ({ req }) => {
       // Authenticate the user
       let token = "";

@@ -1585,11 +1585,19 @@ export default function CourseEditPage() {
                                                     )}
                                                     {block.type === 'video' && (
                                                       <div className="my-10 aspect-video w-full rounded-3xl overflow-hidden bg-black shadow-2xl ring-1 ring-white/10">
-                                                        <iframe
-                                                          src={getEmbedUrl(block.content.url)}
-                                                          className="w-full h-full"
-                                                          allowFullScreen
-                                                        />
+                                                        {block.content.url && (block.content.fileKey || block.content.url.includes("utfs.io") || (!block.content.url.includes("youtube.com") && !block.content.url.includes("youtu.be") && !block.content.url.includes("vimeo.com") && !block.content.url.includes("loom.com"))) ? (
+                                                          <video
+                                                            src={block.content.url}
+                                                            controls
+                                                            className="w-full h-full"
+                                                          />
+                                                        ) : (
+                                                          <iframe
+                                                            src={getEmbedUrl(block.content.url)}
+                                                            className="w-full h-full"
+                                                            allowFullScreen
+                                                          />
+                                                        )}
                                                       </div>
                                                     )}
                                                     {block.type === 'quote' && (

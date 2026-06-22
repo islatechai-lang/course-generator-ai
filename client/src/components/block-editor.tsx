@@ -39,6 +39,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { RichTextEditor } from "./rich-text-editor";
+import { VideoUploader } from "./video-uploader";
 
 interface BlockEditorProps {
     blocks: ILessonBlock[];
@@ -454,6 +455,83 @@ function InsertionPoint({ onAdd, isFirst = false }: { onAdd: (type: string) => v
     );
 }
 
+function VideoBlockEditor({ block, onUpdate }: { block: ILessonBlock, onUpdate: (content: any) => void }) {
+    const isDirect = block.content.fileKey || (block.content.url && (block.content.url.includes("utfs.io") || (!block.content.url.includes("youtube.com") && !block.content.url.includes("youtu.be") && !block.content.url.includes("vimeo.com") && !block.content.url.includes("loom.com"))));
+    const [activeTab, setActiveTab] = useState<string>(isDirect ? "upload" : "embed");
+
+    return (
+        <div className="space-y-4 bg-muted/20 p-4 rounded-xl border border-muted-foreground/10">
+            <div className="flex items-center justify-between border-b pb-2 mb-2">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    <Video className="h-3.5 w-3.5 text-rose-500" />
+                    Video Content
+                </span>
+            </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 bg-muted/40 p-1 rounded-lg mb-3">
+                    <TabsTrigger value="embed" className="rounded-md text-xs">Embed Link</TabsTrigger>
+                    <TabsTrigger value="upload" className="rounded-md text-xs">Direct Upload</TabsTrigger>
+                </TabsList>
+                <TabsContent value="embed" className="space-y-3 mt-0">
+                    <Input
+                        value={activeTab === "embed" ? block.content.url || "" : ""}
+                        onChange={(e) => onUpdate({ ...block.content, url: e.target.value, fileKey: undefined, fileSize: undefined })}
+                        placeholder="Video URL (YouTube, Vimeo, Loom...)"
+                        className="bg-background"
+                    />
+                    {block.content.url && activeTab === "embed" && (
+                        <div className="aspect-video w-full rounded-lg overflow-hidden bg-black/5 border border-muted-foreground/10">
+                            {isDirect ? (
+                                <video src={block.content.url} controls className="w-full h-full" />
+                            ) : (
+                                <iframe
+                                    src={getEmbedUrl(block.content.url)}
+                                    className="w-full h-full"
+                                    allowFullScreen
+                                />
+                            )}
+                        </div>
+                    )}
+                </TabsContent>
+                <TabsContent value="upload" className="space-y-3 mt-0">
+                    {block.content.url && isDirect ? (
+                        <div className="space-y-3">
+                            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-muted-foreground/10">
+                                <video src={block.content.url} controls className="w-full h-full" />
+                            </div>
+                            <div className="flex justify-between items-center bg-muted/40 p-3 rounded-lg border">
+                                <div className="text-xs text-muted-foreground truncate max-w-[70%]">
+                                    <p className="font-semibold text-foreground truncate">{block.content.url.split('/').pop()}</p>
+                                    {block.content.fileSize && <p>{(block.content.fileSize / (1024 * 1024)).toFixed(2)} MB</p>}
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => onUpdate({ ...block.content, url: "", fileKey: undefined, fileSize: undefined })}
+                                    className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs h-8"
+                                >
+                                    Remove Video
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <VideoUploader
+                            onUploadComplete={(data) => {
+                                onUpdate({
+                                    ...block.content,
+                                    url: data.url,
+                                    fileKey: data.fileKey,
+                                    fileSize: data.fileSize
+                                });
+                            }}
+                        />
+                    )}
+                </TabsContent>
+            </Tabs>
+        </div>
+    );
+}
+
 function renderBlock(
     block: ILessonBlock,
     onUpdate: (content: any) => void,
@@ -698,22 +776,7 @@ function renderBlock(
             );
         case 'video':
             return (
-                <div className="space-y-3">
-                    <Input
-                        value={block.content.url}
-                        onChange={(e) => onUpdate({ ...block.content, url: e.target.value })}
-                        placeholder="Video URL (YouTube, Vimeo...)"
-                    />
-                    {block.content.url && (
-                        <div className="aspect-video w-full rounded-lg overflow-hidden bg-black/5 border border-muted-foreground/10">
-                            <iframe
-                                src={getEmbedUrl(block.content.url)}
-                                className="w-full h-full"
-                                allowFullScreen
-                            />
-                        </div>
-                    )}
-                </div>
+                <VideoBlockEditor block={block} onUpdate={onUpdate} />
             );
         case 'quote':
             return (

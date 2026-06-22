@@ -687,14 +687,23 @@ function renderBlockReader(block: ILessonBlock) {
         </figure>
       );
     case 'video':
+      const isDirectVideo = block.content.url && (block.content.fileKey || block.content.url.includes("utfs.io") || (!block.content.url.includes("youtube.com") && !block.content.url.includes("youtu.be") && !block.content.url.includes("vimeo.com") && !block.content.url.includes("loom.com")));
       return (
         <div className="my-10 aspect-video w-full rounded-3xl overflow-hidden bg-black shadow-2xl ring-1 ring-white/10">
-          <iframe
-            src={getEmbedUrl(block.content.url)}
-            className="w-full h-full"
-            allowFullScreen
-            frameBorder="0"
-          />
+          {isDirectVideo ? (
+            <video
+              src={block.content.url}
+              controls
+              className="w-full h-full"
+            />
+          ) : (
+            <iframe
+              src={getEmbedUrl(block.content.url)}
+              className="w-full h-full"
+              allowFullScreen
+              frameBorder="0"
+            />
+          )}
         </div>
       );
     case 'quote':
