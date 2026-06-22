@@ -62,6 +62,8 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
                     <video
                         src="/course_generator_demo.mp4"
                         controls
+                        controlsList="nodownload"
+                        onContextMenu={(e) => e.preventDefault()}
                         autoPlay
                         muted
                         playsInline

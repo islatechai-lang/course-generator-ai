@@ -76,6 +76,8 @@ function InlineMediaImage({ media }: { media: MediaItem }) {
           <video
             src={media.url}
             controls
+            controlsList="nodownload"
+            onContextMenu={(e) => e.preventDefault()}
             className="w-full max-h-[600px] object-contain"
             data-testid={`video-inline-media-${media.id}`}
           >
@@ -693,6 +695,8 @@ function renderBlockReader(block: ILessonBlock) {
           <video
             src={block.content.url}
             controls
+            controlsList="nodownload"
+            onContextMenu={(e) => e.preventDefault()}
             className="w-full max-h-[650px] object-contain"
           />
         </div>

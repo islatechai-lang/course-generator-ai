@@ -1507,6 +1507,8 @@ export default function CourseEditPage() {
                                                 <video
                                                   src={media.url}
                                                   controls
+                                                  controlsList="nodownload"
+                                                  onContextMenu={(e) => e.preventDefault()}
                                                   className={`w-full max-h-[500px] object-contain ${hasCaption ? '' : 'rounded-lg'}`}
                                                   data-testid={`video-lesson-media-${media.id}`}
                                                 />
@@ -1601,6 +1603,8 @@ export default function CourseEditPage() {
                                                           <video
                                                             src={block.content.url}
                                                             controls
+                                                            controlsList="nodownload"
+                                                            onContextMenu={(e) => e.preventDefault()}
                                                             className="w-full max-h-[650px] object-contain"
                                                           />
                                                         </div>

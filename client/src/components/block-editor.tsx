@@ -426,7 +426,7 @@ function InsertionPoint({ onAdd, isFirst = false }: { onAdd: (type: string) => v
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onAdd('video')} className="gap-2 cursor-pointer">
                             <Video className="h-4 w-4 text-rose-500/70" />
-                            <span>Video Embed</span>
+                            <span>Video / Embed</span>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
@@ -482,7 +482,7 @@ function VideoBlockEditor({ block, onUpdate }: { block: ILessonBlock, onUpdate: 
                     {block.content.url && activeTab === "embed" && (
                         isDirect ? (
                             <div className="w-full flex justify-center bg-black/5 border border-muted-foreground/10 rounded-lg overflow-hidden">
-                                <video src={block.content.url} controls className="w-full max-h-[500px] object-contain" />
+                                <video src={block.content.url} controls controlsList="nodownload" onContextMenu={(e) => e.preventDefault()} className="w-full max-h-[500px] object-contain" />
                             </div>
                         ) : (
                             <div className="aspect-video w-full rounded-lg overflow-hidden bg-black/5 border border-muted-foreground/10">
@@ -499,7 +499,7 @@ function VideoBlockEditor({ block, onUpdate }: { block: ILessonBlock, onUpdate: 
                     {block.content.url && isDirect ? (
                         <div className="space-y-3">
                             <div className="w-full flex justify-center bg-black border border-muted-foreground/10 rounded-lg overflow-hidden">
-                                <video src={block.content.url} controls className="w-full max-h-[500px] object-contain" />
+                                <video src={block.content.url} controls controlsList="nodownload" onContextMenu={(e) => e.preventDefault()} className="w-full max-h-[500px] object-contain" />
                             </div>
                             <div className="flex justify-between items-center bg-muted/40 p-3 rounded-lg border">
                                 <div className="text-xs text-muted-foreground truncate max-w-[70%]">
