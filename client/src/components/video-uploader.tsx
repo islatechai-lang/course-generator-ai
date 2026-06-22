@@ -15,7 +15,7 @@ interface VideoUploaderProps {
 const PLAN_LIMITS = {
   free: { name: "Free", maxStorage: 0, maxFileSize: "0MB" },
   basic: { name: "Basic", maxStorage: 400 * 1024 * 1024, maxFileSize: "128MB" },
-  pro: { name: "Pro", maxStorage: 1200 * 1024 * 1024, maxFileSize: "512MB" },
+  pro: { name: "Pro", maxStorage: 1200 * 1024 * 1024, maxFileSize: "256MB" },
 };
 
 export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps) {
@@ -46,7 +46,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
           Direct Video Upload is Locked
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-6">
-          Uploading videos directly is only available on our **Basic** or **Pro** plans. Free plans support video embeds via links.
+          Uploading videos directly is only available on our <strong className="font-semibold text-slate-800 dark:text-slate-200">Basic</strong> or <strong className="font-semibold text-slate-800 dark:text-slate-200">Pro</strong> plans. Free plans support video embeds via links.
         </p>
         <Button 
           onClick={() => {
@@ -55,10 +55,8 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
             if (upgradeBtn instanceof HTMLElement) {
               upgradeBtn.click();
             } else {
-              toast({
-                title: "Upgrade required",
-                description: "Please subscribe to a plan to unlock direct video uploads.",
-              });
+              // Dispatch custom event to trigger the upgrade modal globally
+              window.dispatchEvent(new CustomEvent("trigger-upgrade-modal"));
             }
           }}
           className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-md shadow-indigo-200 dark:shadow-none"
@@ -89,7 +87,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
           className={`h-2 ${storagePercentage >= 90 ? "bg-red-500" : storagePercentage >= 75 ? "bg-amber-500" : "bg-indigo-600"}`}
         />
         <p className="text-[10px] text-slate-400 dark:text-slate-500">
-          Max file size: **{limit.maxFileSize}** per upload. Direct upload uses cloud storage.
+          Max file size: <strong className="font-semibold text-slate-500 dark:text-slate-400">{limit.maxFileSize}</strong> per upload. Direct upload uses cloud storage.
         </p>
       </div>
 
@@ -116,11 +114,12 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
 
           <UploadDropzone
             endpoint="courseVideo"
+            config={{ mode: "auto" }}
             headers={{
               // Uploadthing client component will automatically supply headers if we provide them, 
               // but we rely on cookie session auth or header auth.
               // For safety in iframe/sandbox apps, we attach the user token header.
-              "x-whop-user-token": localStorage.getItem("whop_user_token") || "",
+              "x-whop-user-token": localStorage.getItem("x-whop-user-token") || localStorage.getItem("whop_user_token") || "",
             }}
             onUploadBegin={() => {
               setIsUploading(true);

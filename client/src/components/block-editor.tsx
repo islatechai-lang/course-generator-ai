@@ -480,24 +480,26 @@ function VideoBlockEditor({ block, onUpdate }: { block: ILessonBlock, onUpdate: 
                         className="bg-background"
                     />
                     {block.content.url && activeTab === "embed" && (
-                        <div className="aspect-video w-full rounded-lg overflow-hidden bg-black/5 border border-muted-foreground/10">
-                            {isDirect ? (
-                                <video src={block.content.url} controls className="w-full h-full" />
-                            ) : (
+                        isDirect ? (
+                            <div className="w-full flex justify-center bg-black/5 border border-muted-foreground/10 rounded-lg overflow-hidden">
+                                <video src={block.content.url} controls className="w-full max-h-[500px] object-contain" />
+                            </div>
+                        ) : (
+                            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black/5 border border-muted-foreground/10">
                                 <iframe
                                     src={getEmbedUrl(block.content.url)}
                                     className="w-full h-full"
                                     allowFullScreen
                                 />
-                            )}
-                        </div>
+                            </div>
+                        )
                     )}
                 </TabsContent>
                 <TabsContent value="upload" className="space-y-3 mt-0">
                     {block.content.url && isDirect ? (
                         <div className="space-y-3">
-                            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-muted-foreground/10">
-                                <video src={block.content.url} controls className="w-full h-full" />
+                            <div className="w-full flex justify-center bg-black border border-muted-foreground/10 rounded-lg overflow-hidden">
+                                <video src={block.content.url} controls className="w-full max-h-[500px] object-contain" />
                             </div>
                             <div className="flex justify-between items-center bg-muted/40 p-3 rounded-lg border">
                                 <div className="text-xs text-muted-foreground truncate max-w-[70%]">

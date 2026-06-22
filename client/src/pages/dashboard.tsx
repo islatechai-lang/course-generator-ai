@@ -67,6 +67,17 @@ export default function DashboardPage() {
     console.log("[Frontend] Dashboard showUpgradeModal changed to:", showUpgradeModal);
   }, [showUpgradeModal]);
 
+  useEffect(() => {
+    const handleTriggerUpgrade = () => {
+      console.log("Global upgrade trigger event received in dashboard");
+      setShowUpgradeModal(true);
+    };
+    window.addEventListener("trigger-upgrade-modal", handleTriggerUpgrade);
+    return () => {
+      window.removeEventListener("trigger-upgrade-modal", handleTriggerUpgrade);
+    };
+  }, []);
+
   // Check if any courses are still generating to enable polling
   const hasGeneratingCourses = (courses: DashboardData["courses"] | undefined) =>
     courses?.some(c => c.generationStatus === "generating") ?? false;

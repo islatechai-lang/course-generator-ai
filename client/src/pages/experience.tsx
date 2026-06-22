@@ -77,6 +77,17 @@ export default function ExperiencePage() {
   }, [showUpgradeModal]);
 
   useEffect(() => {
+    const handleTriggerUpgrade = () => {
+      console.log("Global upgrade trigger event received in experience");
+      setShowUpgradeModal(true);
+    };
+    window.addEventListener("trigger-upgrade-modal", handleTriggerUpgrade);
+    return () => {
+      window.removeEventListener("trigger-upgrade-modal", handleTriggerUpgrade);
+    };
+  }, []);
+
+  useEffect(() => {
     if (activeTab === "create" && createTabRef.current) {
       createTabRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }

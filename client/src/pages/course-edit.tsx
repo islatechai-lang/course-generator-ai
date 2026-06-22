@@ -333,6 +333,17 @@ export default function CourseEditPage() {
   const [uploadingMediaId, setUploadingMediaId] = useState<string | null>(null);
   const [showMobileScrollButton, setShowMobileScrollButton] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  useEffect(() => {
+    const handleTriggerUpgrade = () => {
+      console.log("Global upgrade trigger event received in course-edit");
+      setShowUpgradeModal(true);
+    };
+    window.addEventListener("trigger-upgrade-modal", handleTriggerUpgrade);
+    return () => {
+      window.removeEventListener("trigger-upgrade-modal", handleTriggerUpgrade);
+    };
+  }, []);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
 
@@ -1489,14 +1500,14 @@ export default function CourseEditPage() {
                                             </>
                                           ) : (
                                             <div
-                                              className="relative aspect-video bg-black"
+                                              className={`relative bg-black ${media.url.includes("utfs.io") || media.fileKey ? "w-full flex justify-center" : "aspect-video"}`}
                                               data-testid={`container-lesson-media-${media.id}`}
                                             >
                                               {media.url.includes("utfs.io") || media.fileKey ? (
                                                 <video
                                                   src={media.url}
                                                   controls
-                                                  className={`w-full h-full ${hasCaption ? '' : 'rounded-lg'}`}
+                                                  className={`w-full max-h-[500px] object-contain ${hasCaption ? '' : 'rounded-lg'}`}
                                                   data-testid={`video-lesson-media-${media.id}`}
                                                 />
                                               ) : (
@@ -1583,23 +1594,26 @@ export default function CourseEditPage() {
                                                         {block.content.caption && <figcaption className="text-sm text-center mt-4 italic text-muted-foreground">{block.content.caption}</figcaption>}
                                                       </figure>
                                                     )}
-                                                    {block.type === 'video' && (
-                                                      <div className="my-10 aspect-video w-full rounded-3xl overflow-hidden bg-black shadow-2xl ring-1 ring-white/10">
-                                                        {block.content.url && (block.content.fileKey || block.content.url.includes("utfs.io") || (!block.content.url.includes("youtube.com") && !block.content.url.includes("youtu.be") && !block.content.url.includes("vimeo.com") && !block.content.url.includes("loom.com"))) ? (
+                                                    {block.type === 'video' && (() => {
+                                                      const isDirectVideo = block.content.url && (block.content.fileKey || block.content.url.includes("utfs.io") || (!block.content.url.includes("youtube.com") && !block.content.url.includes("youtu.be") && !block.content.url.includes("vimeo.com") && !block.content.url.includes("loom.com")));
+                                                      return isDirectVideo ? (
+                                                        <div className="my-10 w-full flex justify-center bg-black rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10">
                                                           <video
                                                             src={block.content.url}
                                                             controls
-                                                            className="w-full h-full"
+                                                            className="w-full max-h-[650px] object-contain"
                                                           />
-                                                        ) : (
+                                                        </div>
+                                                      ) : (
+                                                        <div className="my-10 aspect-video w-full rounded-3xl overflow-hidden bg-black shadow-2xl ring-1 ring-white/10">
                                                           <iframe
                                                             src={getEmbedUrl(block.content.url)}
                                                             className="w-full h-full"
                                                             allowFullScreen
                                                           />
-                                                        )}
-                                                      </div>
-                                                    )}
+                                                        </div>
+                                                      );
+                                                    })()}
                                                     {block.type === 'quote' && (
                                                       <div className="my-10 border-l-4 border-primary pl-8 py-6 bg-primary/5 rounded-r-3xl italic shadow-sm">
                                                         <div
