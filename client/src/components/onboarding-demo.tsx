@@ -10,18 +10,31 @@ interface OnboardingDemoProps {
 
 export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDemoProps) {
     const [isVisible, setIsVisible] = useState(false);
+    const [countdown, setCountdown] = useState(8);
 
     useEffect(() => {
         if (open) {
             requestAnimationFrame(() => setIsVisible(true));
+            setCountdown(8);
         } else {
             setIsVisible(false);
         }
     }, [open]);
 
+    useEffect(() => {
+        if (!open || countdown <= 0) return;
+
+        const timer = setInterval(() => {
+            setCountdown((prev) => prev - 1);
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [open, countdown]);
+
     if (!open) return null;
 
     const handleLetsGo = () => {
+        if (countdown > 0) return;
         setIsVisible(false);
         setTimeout(() => {
             onOpenChange(false);
@@ -110,10 +123,11 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
 
                     <Button
                         size="lg"
-                        className="w-full max-w-xs h-10 text-xs font-bold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                        className="w-full max-w-xs h-10 text-xs font-bold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:scale-100 disabled:shadow-none"
                         onClick={handleLetsGo}
+                        disabled={countdown > 0}
                     >
-                        Let's go!
+                        {countdown > 0 ? `Let's go! (${countdown}s)` : "Let's go!"}
                     </Button>
                 </div>
             </div>
