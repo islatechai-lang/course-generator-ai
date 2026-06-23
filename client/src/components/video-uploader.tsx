@@ -14,7 +14,7 @@ interface VideoUploaderProps {
 
 const PLAN_LIMITS = {
   free: { name: "Free", maxStorage: 0, maxFileSize: "0MB" },
-  basic: { name: "Basic", maxStorage: 400 * 1024 * 1024, maxFileSize: "128MB" },
+  basic: { name: "Basic", maxStorage: 800 * 1024 * 1024, maxFileSize: "128MB" },
   pro: { name: "Pro", maxStorage: 2000 * 1024 * 1024, maxFileSize: "256MB" },
 };
 

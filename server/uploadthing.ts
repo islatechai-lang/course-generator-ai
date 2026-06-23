@@ -10,7 +10,7 @@ const BASIC_PLAN_ID = "plan_mndBT74OUdiNB";
 // Storage limits
 const LIMITS = {
   free: { maxFileSize: "0MB", maxStorage: 0 },
-  basic: { maxFileSize: "128MB", maxStorage: 400 * 1024 * 1024 }, // 400MB
+  basic: { maxFileSize: "128MB", maxStorage: 800 * 1024 * 1024 }, // 800MB
   pro: { maxFileSize: "256MB", maxStorage: 2000 * 1024 * 1024 }, // 2GB
 };
 
