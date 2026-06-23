@@ -11,7 +11,7 @@ const BASIC_PLAN_ID = "plan_mndBT74OUdiNB";
 const LIMITS = {
   free: { maxFileSize: "0MB", maxStorage: 0 },
   basic: { maxFileSize: "128MB", maxStorage: 400 * 1024 * 1024 }, // 400MB
-  pro: { maxFileSize: "256MB", maxStorage: 1200 * 1024 * 1024 }, // 1.2GB
+  pro: { maxFileSize: "256MB", maxStorage: 2000 * 1024 * 1024 }, // 2GB
 };
 
 export const uploadRouter = {

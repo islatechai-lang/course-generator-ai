@@ -252,7 +252,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     </li>
                                     <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
                                         <Video className="h-4 w-4 shrink-0" />
-                                        Direct Video Upload (1.2GB Storage)
+                                        Direct Video Upload (2GB Storage)
                                     </li>
                                 </ul>
 
