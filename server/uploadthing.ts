@@ -4,7 +4,8 @@ import { storage } from "./storage";
 
 const f = createUploadthing();
 
-const PRO_PLAN_ID = "plan_x0eQCn2WM1qit";
+const PRO_PLAN_ID = "plan_4qB6wAFl9q3sT";
+const OLD_PRO_PLAN_ID = "plan_x0eQCn2WM1qit";
 const BASIC_PLAN_ID = "plan_mndBT74OUdiNB";
 
 // Storage limits
@@ -35,7 +36,7 @@ export const uploadRouter = {
       }
 
       // Check user plan status dynamically from Whop
-      const isPro = await checkPlanAccess(verified.userId, PRO_PLAN_ID);
+      const isPro = (await checkPlanAccess(verified.userId, PRO_PLAN_ID)) || (await checkPlanAccess(verified.userId, OLD_PRO_PLAN_ID));
       const isBasic = !isPro && await checkPlanAccess(verified.userId, BASIC_PLAN_ID);
 
       const plan: "free" | "basic" | "pro" = isPro ? "pro" : (isBasic ? "basic" : "free");
