@@ -329,31 +329,20 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="h-full min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden select-none">
-        {/* Ambient Glow */}
-        <div className="absolute h-96 w-96 rounded-full bg-orange-500/10 blur-[120px] pointer-events-none" />
-
-        <div className="flex flex-col items-center justify-center text-center space-y-6 max-w-sm z-10 animate-in fade-in duration-500">
-          {/* Animated App Logo */}
-          <div className="relative flex items-center justify-center">
-            <div className="absolute -inset-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 opacity-30 blur-md animate-pulse" />
-            <div className="relative h-20 w-20 rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-black/80 flex items-center justify-center">
-              <img src="/app_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-xl font-bold tracking-tight text-foreground">Loading Your Studio</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Preparing your AI course environment and learning workspace...
-            </p>
-          </div>
-
-          {/* Minimalist Spinner */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50 text-xs font-semibold text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
-            <span>Connecting to Whop...</span>
-          </div>
+      <div className="p-5 space-y-5">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-7 w-40" />
+          <Skeleton className="h-9 w-28" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-20" />
+          ))}
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-48" />
+          ))}
         </div>
       </div>
     );
@@ -372,15 +361,15 @@ export default function DashboardPage() {
       <div className="border-b bg-background shrink-0">
         <div className="flex h-14 items-center justify-between px-3 sm:px-5">
           <div className="flex items-center gap-2">
-            {/* New Glowing C App Logo */}
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shadow-md border border-white/10 shrink-0 bg-black">
-              <img src="/app_logo.jpg" alt="Course Generator AI Logo" className="h-full w-full object-cover" />
+            {/* Library Icon - now always visible and on the left for mobile */}
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shrink-0">
+              <BookOpen className="h-4 w-4 text-primary-foreground" />
             </div>
-            {/* User Profile on Left for Mobile */}
+            {/* User Profile on Left for Mobile (now to the right of library icon) */}
             <div className="sm:hidden">
               <UserMenu />
             </div>
-            <h1 className="font-semibold hidden sm:block">Course Generator AI</h1>
+            <h1 className="font-semibold hidden sm:block">Course Builder</h1>
             <Button
               variant="ghost"
               size="icon"
