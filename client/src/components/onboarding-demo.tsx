@@ -34,7 +34,6 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
     if (!open) return null;
 
     const handleLetsGo = () => {
-        if (countdown > 0) return;
         setIsVisible(false);
         setTimeout(() => {
             onOpenChange(false);
@@ -123,11 +122,10 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
 
                     <Button
                         size="lg"
-                        className="w-full max-w-xs h-10 text-xs font-bold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:scale-100 disabled:shadow-none"
+                        className="w-full max-w-xs h-10 text-xs font-bold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
                         onClick={handleLetsGo}
-                        disabled={countdown > 0}
                     >
-                        {countdown > 0 ? `Let's go! (${countdown}s)` : "Let's go!"}
+                        Let's start creating! 🚀
                     </Button>
                 </div>
             </div>

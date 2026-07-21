@@ -420,6 +420,29 @@ export default function ExperiencePage() {
         </header>
 
         <main className="flex-1 overflow-auto p-5 space-y-5">
+          {!data?.generationLimit?.isPro && (
+            <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-foreground">
+                    Free Account: <span className="text-amber-600 dark:text-amber-400 font-bold">{data?.generationLimit?.remaining ?? 1} AI Generation</span> remaining today.
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">Upgrade to Creator Pro to unlock AI video, guided document imports & 10 published courses.</p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => setShowUpgradeModal(true)}
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs h-8 shrink-0 shadow-md border-none"
+              >
+                Get Pro Access ⚡
+              </Button>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <StatCard
               icon={Wallet}
@@ -530,6 +553,7 @@ export default function ExperiencePage() {
                     onSave={handleSaveCourse}
                     onDiscard={() => setGeneratedCourse(null)}
                     isSaving={isGeneratingImage || saveMutation.isPending}
+                    onUpgrade={() => setShowUpgradeModal(true)}
                   />
                 )}
               </div>
