@@ -31,6 +31,7 @@ interface CourseGeneratorProps {
 }
 
 const exampleTopics = [
+  { icon: Cpu, label: "AI & Prompt Engineering", topic: "Generative AI & Prompt Engineering Masterclass" },
   { icon: Code, label: "Python Basics", topic: "Python Programming for Complete Beginners" },
   { icon: Camera, label: "Photography", topic: "Digital Photography Fundamentals" },
   { icon: TrendingUp, label: "Marketing", topic: "Social Media Marketing Strategy" },
@@ -361,10 +362,10 @@ export function CourseGenerator({
           }
           setMode(v);
         }} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6 p-1 h-auto bg-muted/50 rounded-xl">
+          <TabsList className="grid w-full grid-cols-3 mb-6 p-1.5 h-auto bg-muted/80 dark:bg-muted/40 rounded-xl border border-border/50">
             <TabsTrigger
               value="magic"
-              className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              className="py-2.5 rounded-lg font-bold transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:ring-2 data-[state=active]:ring-amber-500/50 data-[state=active]:border-amber-500/30"
             >
               <Sparkles className="h-4 w-4 mr-2 text-amber-500" />
               Magic AI
@@ -376,7 +377,7 @@ export function CourseGenerator({
             </TabsTrigger>
             <TabsTrigger
               value="guided"
-              className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm relative"
+              className="py-2.5 rounded-lg font-bold transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:ring-2 data-[state=active]:ring-blue-500/50 data-[state=active]:border-blue-500/30 relative"
             >
               <span className="flex items-center justify-center">
                 <PenTool className="h-4 w-4 mr-2 text-blue-500" />
@@ -390,7 +391,10 @@ export function CourseGenerator({
                 <Badge variant="default" className="absolute top-[-5px] right-[-10px] h-4 px-1 text-[9px] bg-primary hover:bg-primary text-primary-foreground border-none animate-pulse font-bold shadow-sm pt-[2px]">NEW</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="scratch" className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <TabsTrigger
+              value="scratch"
+              className="py-2.5 rounded-lg font-bold transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:ring-2 data-[state=active]:ring-emerald-500/50 data-[state=active]:border-emerald-500/30"
+            >
               <Layout className="h-4 w-4 mr-2 text-emerald-500" />
               Scratch
             </TabsTrigger>
