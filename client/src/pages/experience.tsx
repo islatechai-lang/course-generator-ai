@@ -325,37 +325,30 @@ export default function ExperiencePage() {
 
   if (isLoading) {
     return (
-      <div className="h-full bg-background flex flex-col relative overflow-hidden">
-        <div className="border-b shrink-0">
-          <div className="h-14 px-5 flex items-center justify-between">
-            <Skeleton className="h-6 w-40" />
-            <Skeleton className="h-9 w-9 rounded-md" />
-          </div>
-        </div>
-        <div className="p-5 space-y-5 filter blur-[2px] opacity-40 select-none pointer-events-none flex-1">
-          <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-20" />
-            ))}
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-56" />
-            ))}
-          </div>
-        </div>
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/40 backdrop-blur-sm p-4 z-50">
-          <div className="bg-card/95 border shadow-2xl rounded-2xl p-8 max-w-sm w-full text-center flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-300">
-            <div className="relative flex items-center justify-center">
-              <div className="absolute h-12 w-12 rounded-full border-4 border-primary/20 animate-pulse" />
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
+      <div className="h-full min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden select-none">
+        {/* Subtle Ambient Glowing Background Effect */}
+        <div className="absolute h-96 w-96 rounded-full bg-orange-500/10 blur-[120px] pointer-events-none" />
+
+        <div className="flex flex-col items-center justify-center text-center space-y-6 max-w-sm z-10 animate-in fade-in duration-500">
+          {/* Animated App Logo Pulse */}
+          <div className="relative flex items-center justify-center animate-bounce duration-1000">
+            <div className="absolute -inset-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 opacity-30 blur-md animate-pulse" />
+            <div className="relative h-20 w-20 rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-black/80 flex items-center justify-center">
+              <img src="/app_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
             </div>
-            <div className="space-y-1.5">
-              <h3 className="text-lg font-semibold tracking-tight">Loading Courses</h3>
-              <p className="text-sm text-muted-foreground leading-normal">
-                Please wait while we prepare your learning experience. This may take a moment.
-              </p>
-            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold tracking-tight text-foreground animate-pulse">Loading Your Studio</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Preparing your AI course environment and learning workspace...
+            </p>
+          </div>
+
+          {/* Minimalist Spinner Bar */}
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50 text-xs font-semibold text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
+            <span>Connecting to Whop...</span>
           </div>
         </div>
       </div>
