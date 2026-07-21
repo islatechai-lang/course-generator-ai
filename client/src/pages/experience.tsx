@@ -371,10 +371,10 @@ export default function ExperiencePage() {
         <header className="border-b bg-background shrink-0">
           <div className="h-14 px-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <BookOpen className="h-4 w-4 text-primary-foreground" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shadow-md border border-white/10 shrink-0 bg-black">
+                <img src="/app_logo.jpg" alt="Course Generator AI Logo" className="h-full w-full object-cover" />
               </div>
-              <h1 className="font-semibold">Course Builder</h1>
+              <h1 className="font-semibold">Course Generator AI</h1>
               <Button
                 variant="ghost"
                 size="icon"
@@ -675,10 +675,10 @@ export default function ExperiencePage() {
       <header className="border-b bg-background shrink-0">
         <div className="h-14 px-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <BookOpen className="h-4 w-4 text-primary-foreground" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shadow-md border border-white/10 shrink-0 bg-black">
+              <img src="/app_logo.jpg" alt="Course Generator AI Logo" className="h-full w-full object-cover" />
             </div>
-            <h1 className="font-semibold">Course Library</h1>
+            <h1 className="font-semibold">Course Generator AI</h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 hidden sm:flex">
