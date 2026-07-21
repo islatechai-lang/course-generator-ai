@@ -26,8 +26,7 @@ import {
   DollarSign,
   TrendingUp,
   Users,
-  CheckCircle2,
-  Loader2
+  CheckCircle2
 } from "lucide-react";
 import { UserMenu } from "@/components/user-menu";
 import { CourseCard } from "@/components/course-card";
