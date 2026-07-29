@@ -66,14 +66,16 @@ export function CourseGenerator({
   const basePath = apiBasePath || `/api/dashboard/${companyId}`;
 
   const formatResetTime = (isoString: string) => {
+    if (!isoString || isoString === "Never") return "Never (Upgrade required)";
     try {
       const date = new Date(isoString);
+      if (isNaN(date.getTime())) return "Never (Upgrade required)";
       return new Intl.DateTimeFormat('default', {
         hour: 'numeric',
         minute: 'numeric',
         hour12: true
       }).format(date);
-    } catch (e) {
+    } catch {
       return "midnight UTC";
     }
   };
@@ -462,12 +464,16 @@ export function CourseGenerator({
                           ? "bg-secondary/40 border-secondary/40 text-secondary-foreground"
                           : "bg-amber-50/80 border-amber-200/50 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400"
                           }`}>
-                          <span className="whitespace-nowrap italic opacity-80">{generationLimit.remaining} / {generationLimit.limit} Daily Limit</span>
+                          <span className="whitespace-nowrap italic opacity-80">
+                            {generationLimit.remaining} / {generationLimit.limit} {!generationLimit.isPro && !generationLimit.isBasic ? "Free Trial" : "Daily Limit"}
+                          </span>
                           {generationLimit.remaining === 0 && (
                             <>
                               <span className="w-px h-3 bg-current/20" />
                               <span className="font-medium normal-case whitespace-nowrap">
-                                Next reset: {formatResetTime(generationLimit.resetAt)}
+                                {!generationLimit.isPro && !generationLimit.isBasic
+                                  ? "No reset (Upgrade to generate more)"
+                                  : `Next reset: ${formatResetTime(generationLimit.resetAt)}`}
                               </span>
                             </>
                           )}
