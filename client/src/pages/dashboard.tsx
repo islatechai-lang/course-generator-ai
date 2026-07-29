@@ -434,7 +434,7 @@ export default function DashboardPage() {
               </div>
               <div className="text-left">
                 <p className="text-xs font-semibold text-foreground">
-                  Free Account: <span className="text-amber-600 dark:text-amber-400 font-bold">{data?.generationLimit?.remaining ?? 1} Free Magic AI Generation</span> remaining today.
+                  Free Account: <span className="text-amber-600 dark:text-amber-400 font-bold">{data?.generationLimit?.remaining ?? 1} Free Trial Generation</span> remaining.
                 </p>
                 <p className="text-[11px] text-muted-foreground">Upgrade to Creator Pro to unlock AI video, guided document imports & 10 published courses.</p>
               </div>

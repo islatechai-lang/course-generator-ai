@@ -205,6 +205,7 @@ export interface IStorage {
   deductAdminEarnings(adminId: string, amount: number): Promise<void>;
 
   getCoursesGeneratedToday(creatorId: string): Promise<number>;
+  getTotalCoursesGeneratedByCreator(creatorId: string): Promise<number>;
   createFullCourseStructure(courseId: string, data: GeneratedCourse): Promise<{ moduleIndex: number; lessonIndex: number; lessonId: string }[]>;
 }
 
@@ -726,6 +727,12 @@ export class DatabaseStorage implements IStorage {
     );
 
     return courses.length;
+  }
+
+  async getTotalCoursesGeneratedByCreator(creatorId: string): Promise<number> {
+    const count = await CourseModel.countDocuments({ creatorId });
+    console.log(`[Limit Debug] Found total ${count} courses lifetime for user ${creatorId}`);
+    return count;
   }
 
   async createFullCourseStructure(courseId: string, data: GeneratedCourse): Promise<{ moduleIndex: number; lessonIndex: number; lessonId: string }[] | any> {

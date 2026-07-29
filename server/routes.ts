@@ -71,25 +71,31 @@ const BASIC_PLAN_ID = "plan_mndBT74OUdiNB";
 const SPECIAL_PRO_USERS = ["user_gPT4lCtHrnQZj", "user_z9RDYAlNQ8ZGg"];
 
 async function getGenerationLimit(userId: string, isPro: boolean = false, whopUserId?: string, isBasic: boolean = false) {
-  const used = await storage.getCoursesGeneratedToday(userId);
-  const resetAt = new Date();
-  resetAt.setUTCHours(24, 0, 0, 0);
-
   // Hardcoded override for special Pro users
   const actualIsPro = isPro || (whopUserId && SPECIAL_PRO_USERS.includes(whopUserId));
   const actualIsBasic = isBasic && !actualIsPro;
-  // Free: 1/day, Basic: 1/day, Pro: 2/day
+  const isFree = !actualIsPro && !actualIsBasic;
+
+  // Free: 1 total lifetime generation (never resets)
+  // Basic: 1 per day (resets daily)
+  // Pro: 2 per day (resets daily)
+  const used = isFree
+    ? await storage.getTotalCoursesGeneratedByCreator(userId)
+    : await storage.getCoursesGeneratedToday(userId);
+
   const limit = actualIsPro ? DAILY_GENERATION_LIMIT : 1;
+  const resetAt = new Date();
+  resetAt.setUTCHours(24, 0, 0, 0);
 
   const result = {
     limit,
     used,
     remaining: Math.max(0, limit - used),
-    resetAt: resetAt.toISOString(),
+    resetAt: isFree ? "Never" : resetAt.toISOString(),
     isPro: actualIsPro,
     isBasic: actualIsBasic,
   };
-  console.log(`[Backend] getGenerationLimit for user ${userId}:`, result);
+  console.log(`[Backend] getGenerationLimit for user ${userId} (isFree=${isFree}):`, result);
   return result;
 }
 
