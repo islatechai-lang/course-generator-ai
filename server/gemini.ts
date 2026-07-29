@@ -4,13 +4,13 @@ import type { GeneratedCourse } from "@shared/schema";
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 const GROUNDING_MODELS = [
-  "gemini-2.5-flash-lite",
-  "gemini-2.5-flash",
+  "gemini-3.5-flash-lite",
+  "gemini-3.5-flash",
 ];
 
 const FALLBACK_MODELS = [
-  "gemini-2.5-flash-lite",
-  "gemini-2.5-flash",
+  "gemini-3.5-flash-lite",
+  "gemini-3.5-flash",
 ];
 
 interface GenerateOptions {
@@ -1014,7 +1014,7 @@ export async function generateDeepVideoImage(
     The prompt MUST describe: A wide-angle, hyper-realistic master shot of a digital presentation screen. "High-end cinematic corporate presentation slide, glassmorphic UI elements, sharp professional typography, 8k resolution, Unreal Engine 5 render style, soft ambient lighting, premium educational aesthetic, no people, purely digital graphics."`;
 
     const designResponse = await ai.models.generateContent({
-      model: "gemini-2.5-flash-lite", // Prompt design
+      model: "gemini-3.5-flash-lite", // Prompt design
       contents: designPrompt,
     });
 
