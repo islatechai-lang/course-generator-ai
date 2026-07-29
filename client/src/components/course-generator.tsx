@@ -188,12 +188,7 @@ export function CourseGenerator({
 
   const handleGenerate = async () => {
     console.log("[Frontend] handleGenerate: starts. mode=", mode, "isPro=", generationLimit?.isPro, "isBasic=", generationLimit?.isBasic);
-    // Magic AI requires Basic or Pro; Guided requires Pro only
-    if (mode === "magic" && !generationLimit?.isPro && !generationLimit?.isBasic) {
-      console.log("[Frontend] handleGenerate: Triggering Upgrade Modal (not Basic or Pro, trying Magic)");
-      onUpgrade?.();
-      return;
-    }
+    // Guided requires Pro only; Magic AI is accessible to all users (including Free tier)
     if (mode === "guided" && !generationLimit?.isPro) {
       console.log("[Frontend] handleGenerate: Triggering Upgrade Modal (not Pro, trying Guided)");
       onUpgrade?.();
@@ -349,12 +344,7 @@ export function CourseGenerator({
       ) : (
         <Tabs value={mode} onValueChange={(v: any) => {
           console.log("[Frontend] Tab change attempt to:", v, "isPro=", generationLimit?.isPro, "isBasic=", generationLimit?.isBasic);
-          // Magic AI requires Basic or Pro; Guided requires Pro only
-          if (v === "magic" && !generationLimit?.isPro && !generationLimit?.isBasic) {
-            console.log("[Frontend] Tab change: Triggering Upgrade Modal (not Basic or Pro, trying Magic)");
-            onUpgrade?.();
-            return;
-          }
+          // Guided requires Pro only; Magic AI is accessible to all users (including Free tier)
           if (v === "guided" && !generationLimit?.isPro) {
             console.log("[Frontend] Tab change: Triggering Upgrade Modal (not Pro, trying Guided)");
             onUpgrade?.();
@@ -369,11 +359,6 @@ export function CourseGenerator({
             >
               <Sparkles className="h-4 w-4 mr-2 text-amber-500" />
               Magic AI
-              {!generationLimit?.isPro && !generationLimit?.isBasic && (
-                <Badge className="scale-[0.8] origin-left ml-1.5 h-4 px-1.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-500 text-white border-none shadow-[0_0_10px_rgba(245,158,11,0.3)] font-black tracking-widest text-[9px] pt-[2px]">
-                  PRO
-                </Badge>
-              )}
             </TabsTrigger>
             <TabsTrigger
               value="guided"
