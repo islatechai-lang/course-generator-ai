@@ -124,11 +124,11 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     </li>
                                     <li className="flex items-center gap-2.5 text-xs text-foreground/80 font-medium">
                                         <Check className="h-4 w-4 text-primary/60 shrink-0" />
-                                        1 Daily Generation
+                                        1 Lifetime Trial Generation
                                     </li>
-                                    <li className="flex items-center gap-2.5 text-xs text-muted-foreground">
-                                        <X className="h-4 w-4 shrink-0 text-red-500" />
-                                        Magic AI
+                                    <li className="flex items-center gap-2.5 text-xs text-foreground/80 font-medium">
+                                        <Check className="h-4 w-4 text-primary/60 shrink-0" />
+                                        Magic AI Access (1 Try)
                                     </li>
                                     <li className="flex items-center gap-2.5 text-xs text-muted-foreground">
                                         <X className="h-4 w-4 shrink-0 text-red-500" />
