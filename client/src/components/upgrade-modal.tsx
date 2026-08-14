@@ -8,9 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 interface UpgradeModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    currentPlan?: "free" | "basic" | "pro";
 }
 
-export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
+export function UpgradeModal({ open, onOpenChange, currentPlan = "free" }: UpgradeModalProps) {
     const [checkoutId, setCheckoutId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<"basic" | "pro" | null>(null);
     const [showCheckout, setShowCheckout] = useState(false);
@@ -140,13 +141,23 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     </li>
                                 </ul>
 
-                                <Button 
-                                    variant="ghost" 
-                                    className="w-full h-10 text-xs font-medium text-muted-foreground/60 hover:text-muted-foreground hover:bg-muted/50 transition-colors mt-auto"
-                                    onClick={() => onOpenChange(false)}
-                                >
-                                    Choose plan
-                                </Button>
+                                {currentPlan === "free" ? (
+                                    <Button 
+                                        variant="outline" 
+                                        className="w-full h-10 text-xs font-bold text-muted-foreground bg-muted/40 border-border cursor-default mt-auto pointer-events-none"
+                                        disabled
+                                    >
+                                        Current Plan
+                                    </Button>
+                                ) : (
+                                    <Button 
+                                        variant="ghost" 
+                                        className="w-full h-10 text-xs font-medium text-muted-foreground/60 hover:text-muted-foreground hover:bg-muted/50 transition-colors mt-auto"
+                                        onClick={() => onOpenChange(false)}
+                                    >
+                                        Choose plan
+                                    </Button>
+                                )}
                             </div>
 
                             {/* Basic Plan */}
@@ -194,13 +205,22 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     </li>
                                 </ul>
 
-                                <Button
-                                    className="w-full h-11 text-sm font-bold shadow-lg shadow-blue-500/20 bg-blue-500 hover:bg-blue-600 transition-all transform hover:scale-[1.02] active:scale-[0.98] ring-2 ring-blue-500/20 ring-offset-2 mt-auto text-white"
-                                    onClick={() => handleStartCheckout("basic")}
-                                    disabled={isLoading !== null}
-                                >
-                                    {isLoading === "basic" ? "Loading..." : "Choose plan"}
-                                </Button>
+                                {currentPlan === "basic" ? (
+                                    <Button
+                                        className="w-full h-11 text-sm font-bold bg-blue-500/20 text-blue-500 border border-blue-500/40 cursor-default mt-auto pointer-events-none"
+                                        disabled
+                                    >
+                                        Current Plan
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        className="w-full h-11 text-sm font-bold shadow-lg shadow-blue-500/20 bg-blue-500 hover:bg-blue-600 transition-all transform hover:scale-[1.02] active:scale-[0.98] ring-2 ring-blue-500/20 ring-offset-2 mt-auto text-white"
+                                        onClick={() => handleStartCheckout("basic")}
+                                        disabled={isLoading !== null}
+                                    >
+                                        {isLoading === "basic" ? "Loading..." : "Choose plan"}
+                                    </Button>
+                                )}
                             </div>
 
                             {/* Pro Plan */}
@@ -217,7 +237,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     <div className="flex items-center gap-2">
                                         <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Pro</h3>
                                         <span className="bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-md animate-pulse">
-                                            50% OFF
+                                             50% OFF
                                         </span>
                                     </div>
                                     <div className="flex flex-col mt-1.5">
@@ -256,13 +276,22 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
                                     </li>
                                 </ul>
 
-                                <Button
-                                    className="w-full h-11 text-sm font-bold shadow-xl shadow-primary/30 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98] ring-2 ring-primary/20 ring-offset-2 mt-auto"
-                                    onClick={() => handleStartCheckout("pro")}
-                                    disabled={isLoading !== null}
-                                >
-                                    {isLoading === "pro" ? "Loading..." : "Choose plan"}
-                                </Button>
+                                {currentPlan === "pro" ? (
+                                    <Button
+                                        className="w-full h-11 text-sm font-bold bg-primary/20 text-primary border border-primary/40 cursor-default mt-auto pointer-events-none"
+                                        disabled
+                                    >
+                                        Current Plan
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        className="w-full h-11 text-sm font-bold shadow-xl shadow-primary/30 bg-primary hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98] ring-2 ring-primary/20 ring-offset-2 mt-auto"
+                                        onClick={() => handleStartCheckout("pro")}
+                                        disabled={isLoading !== null}
+                                    >
+                                        {isLoading === "pro" ? "Loading..." : "Choose plan"}
+                                    </Button>
+                                )}
                             </div>
                         </div>
 

@@ -787,27 +787,6 @@ export function CoursePreview({ course, onSave, onDiscard, isSaving, savingStatu
           </div>
         </div>
 
-        {/* Pro Features Upsell Banner inside Preview */}
-        {onUpgrade && (
-          <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-foreground">Want AI Video, Audio Voiceovers & Unlimited Courses?</h4>
-                <p className="text-[11px] text-muted-foreground">Unlock Creator Pro for instant access to premium AI generation tools.</p>
-              </div>
-            </div>
-            <Button
-              size="sm"
-              onClick={onUpgrade}
-              className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs h-8 shrink-0 shadow-md"
-            >
-              Upgrade to Pro ⚡
-            </Button>
-          </div>
-        )}
 
         <div className="flex gap-3 pt-2">
           <Button

@@ -387,6 +387,17 @@ export default function ExperiencePage() {
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <UserMenu />
+              {data?.generationLimit?.isPro ? (
+                <div className="flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs sm:text-sm shrink-0 shadow-sm">
+                  <span>👑</span>
+                  <span>Pro</span>
+                </div>
+              ) : data?.generationLimit?.isBasic ? (
+                <div className="flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm shrink-0 shadow-sm">
+                  <span>👑</span>
+                  <span>Basic</span>
+                </div>
+              ) : null}
               {!data?.generationLimit?.isPro && (
                 <Button
                   onClick={() => setShowUpgradeModal(true)}
@@ -413,7 +424,7 @@ export default function ExperiencePage() {
         </header>
 
         <main className="flex-1 overflow-auto p-5 space-y-5">
-          {!data?.generationLimit?.isPro && (
+          {!data?.generationLimit?.isPro && !data?.generationLimit?.isBasic && (
             <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
@@ -423,7 +434,7 @@ export default function ExperiencePage() {
                   <p className="text-xs font-semibold text-foreground">
                     Free Account: <span className="text-amber-600 dark:text-amber-400 font-bold">{data?.generationLimit?.remaining ?? 1} Free Trial Generation</span> remaining.
                   </p>
-                  <p className="text-[11px] text-muted-foreground">Upgrade to Creator Pro to unlock AI video, guided document imports & 10 published courses.</p>
+                  <p className="text-[11px] text-muted-foreground">Upgrade to Creator Pro to unlock guided document imports, 2 daily generations & 10 published courses.</p>
                 </div>
               </div>
               <Button
@@ -656,6 +667,7 @@ export default function ExperiencePage() {
         <UpgradeModal
           open={showUpgradeModal}
           onOpenChange={setShowUpgradeModal}
+          currentPlan={data?.generationLimit?.isPro ? "pro" : (data?.generationLimit?.isBasic ? "basic" : "free")}
         />
 
         <OnboardingDemo
@@ -813,6 +825,7 @@ export default function ExperiencePage() {
       <UpgradeModal
         open={showUpgradeModal}
         onOpenChange={setShowUpgradeModal}
+        currentPlan={data?.generationLimit?.isPro ? "pro" : (data?.generationLimit?.isBasic ? "basic" : "free")}
       />
     </div>
   );
