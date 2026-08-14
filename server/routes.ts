@@ -1528,7 +1528,7 @@ export async function registerRoutes(
           experienceId: req.params.experienceId,
           accessLevel: req.accessLevel,
           earnings,
-          generationLimit: await getGenerationLimit(req.user.id, req.isPro, undefined, req.isBasic),
+          generationLimit: await getGenerationLimit(req.user.id, req.isPro, req.user.whopUserId, req.isBasic),
         });
       } else {
         // Customer view - show published courses + unpublished courses user has access to
@@ -1594,7 +1594,7 @@ export async function registerRoutes(
           courses: coursesWithAccess,
           experienceId: req.params.experienceId,
           accessLevel: req.accessLevel,
-          generationLimit: req.user ? await getGenerationLimit(req.user.id) : null,
+          generationLimit: req.user ? await getGenerationLimit(req.user.id, req.isPro, req.user?.whopUserId, req.isBasic) : null,
         });
       }
     } catch {
@@ -1615,7 +1615,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Topic is required" });
       }
 
-      const { remaining, resetAt } = await getGenerationLimit(req.user.id);
+      const { remaining, resetAt } = await getGenerationLimit(req.user.id, req.isPro, req.user.whopUserId, req.isBasic);
       if (remaining <= 0) {
         return res.status(429).json({
           error: "Daily generation limit reached",
@@ -1643,7 +1643,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Topic is required" });
       }
 
-      const { remaining, resetAt } = await getGenerationLimit(req.user.id);
+      const { remaining, resetAt } = await getGenerationLimit(req.user.id, req.isPro, req.user.whopUserId, req.isBasic);
       if (remaining <= 0) {
         return res.status(429).json({
           error: "Daily generation limit reached",
