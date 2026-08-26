@@ -58,6 +58,7 @@ export function CourseGuideTour({
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const modalCardRef = useRef<HTMLDivElement>(null);
   const [popoverPos, setPopoverPos] = useState<{
     top: number;
     left: number;
@@ -304,7 +305,7 @@ export function CourseGuideTour({
 
         const isMobile = window.innerWidth < 640;
         const popoverWidth = isMobile ? Math.min(340, window.innerWidth - 24) : 320;
-        const popoverHeight = isMobile ? 150 : 135;
+        const popoverHeight = modalCardRef.current?.offsetHeight || (isMobile ? 120 : 115);
         const targetCenterX = rect.left + rect.width / 2;
         const targetCenterY = rect.top + rect.height / 2;
 
@@ -317,36 +318,35 @@ export function CourseGuideTour({
 
         let top = 0;
         let left = 0;
-        const popoverGap = placement === "top" ? 36 : 38;
 
         if (placement === "top") {
-          top = rect.top - popoverHeight - popoverGap;
+          top = rect.top - popoverHeight - 34;
           left = targetCenterX - popoverWidth / 2;
           if (top < 10) {
             placement = "bottom";
-            top = rect.bottom + 38;
+            top = rect.bottom + 36;
           }
         } else if (placement === "bottom") {
-          top = rect.bottom + 38;
+          top = rect.bottom + 36;
           left = targetCenterX - popoverWidth / 2;
           if (top + popoverHeight > window.innerHeight - 10) {
             placement = "top";
-            top = rect.top - popoverHeight - 36;
+            top = rect.top - popoverHeight - 34;
           }
         } else if (placement === "right") {
-          left = rect.right + 38;
+          left = rect.right + 36;
           top = targetCenterY - popoverHeight / 2;
           if (left + popoverWidth > window.innerWidth - 10) {
             placement = "bottom";
-            top = rect.bottom + 38;
+            top = rect.bottom + 36;
             left = targetCenterX - popoverWidth / 2;
           }
         } else if (placement === "left") {
-          left = rect.left - popoverWidth - 38;
+          left = rect.left - popoverWidth - 36;
           top = targetCenterY - popoverHeight / 2;
           if (left < 10) {
             placement = "bottom";
-            top = rect.bottom + 38;
+            top = rect.bottom + 36;
             left = targetCenterX - popoverWidth / 2;
           }
         }
@@ -481,7 +481,7 @@ export function CourseGuideTour({
               style={{
                 top:
                   popoverPos.placement === "top"
-                    ? targetRect.top - 32
+                    ? targetRect.top - 30
                     : popoverPos.placement === "bottom"
                     ? targetRect.bottom + 4
                     : targetRect.top + targetRect.height / 2,
@@ -489,7 +489,7 @@ export function CourseGuideTour({
                   popoverPos.placement === "right"
                     ? targetRect.right + 4
                     : popoverPos.placement === "left"
-                    ? targetRect.left - 32
+                    ? targetRect.left - 30
                     : targetRect.left + targetRect.width / 2,
                 transform:
                   popoverPos.placement === "top" || popoverPos.placement === "bottom"
@@ -523,6 +523,7 @@ export function CourseGuideTour({
 
             {/* Attached Interactive Directional Tooltip Card */}
             <motion.div
+              ref={modalCardRef}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
