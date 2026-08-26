@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -22,6 +22,7 @@ export interface TourStep {
   fallbackTarget?: string;
   title: string;
   instruction: string;
+  dropdownInstruction?: string;
   icon: React.ElementType;
   badge?: string;
   preferredPlacement?: "top" | "bottom" | "left" | "right";
@@ -52,6 +53,7 @@ export function CourseGuideTour({
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [popoverPos, setPopoverPos] = useState<{
     top: number;
     left: number;
@@ -64,7 +66,7 @@ export function CourseGuideTour({
       id: "edit-mode",
       target: '[data-tour="edit-mode-toggle"]',
       title: "1. Switch to Edit Mode",
-      instruction: "👉 Click 'Edit Mode' below to start editing",
+      instruction: "👉 Click 'Edit Mode' to start editing",
       icon: Eye,
       badge: "Step 1",
       preferredPlacement: "top",
@@ -78,6 +80,7 @@ export function CourseGuideTour({
       fallbackTarget: '[data-tour="lesson-content-area"]',
       title: "2. Add Content Block (+)",
       instruction: "👉 Click the '+' button to insert text, image or videos blocks",
+      dropdownInstruction: "👉 Choose any block to insert (Text, Image, Video, etc.)",
       icon: PlusCircle,
       badge: "Step 2",
       preferredPlacement: "bottom",
@@ -89,6 +92,7 @@ export function CourseGuideTour({
     {
       id: "settings-pricing",
       target: '[data-tour="sidebar-settings"]',
+      fallbackTarget: '[data-testid="sidebar-toggle"]',
       title: "3. Thumbnail & Pricing",
       instruction: "👉 Click 'Settings' to edit course price, thumbnail etc",
       icon: Settings,
@@ -140,7 +144,6 @@ export function CourseGuideTour({
           setIsMinimized(false);
           setIsOpen(false);
         } else {
-          // Incomplete progress - start the guide immediately!
           setIsOpen(true);
           setIsMinimized(false);
           setIsCompleted(false);
@@ -181,6 +184,43 @@ export function CourseGuideTour({
     }
   }, [activeTab, isOpen, currentStepIndex]);
 
+  // Check for dropdown menu opening in Step 2 to move highlight to options!
+  useEffect(() => {
+    if (!isOpen || currentStepIndex !== 1) return;
+
+    const checkDropdown = () => {
+      const dropdown = document.querySelector('[data-tour="block-dropdown-options"]');
+      if (dropdown && dropdown.getBoundingClientRect().width > 0) {
+        if (!isDropdownOpen) {
+          setIsDropdownOpen(true);
+          updatePosition();
+        }
+      } else {
+        if (isDropdownOpen) {
+          setIsDropdownOpen(false);
+          updatePosition();
+        }
+      }
+    };
+
+    const interval = setInterval(checkDropdown, 200);
+    return () => clearInterval(interval);
+  }, [isOpen, currentStepIndex, isDropdownOpen]);
+
+  // Helper to find visible element among multiple selectors (especially on mobile)
+  const getVisibleElement = (selector: string): Element | null => {
+    const elements = document.querySelectorAll(selector);
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      const rect = el.getBoundingClientRect();
+      // Element is visible if it has width and height and is in DOM flow
+      if (rect.width > 0 && rect.height > 0) {
+        return el;
+      }
+    }
+    return null;
+  };
+
   // Update target rect and compute precise arrow and popover coordinates
   const updatePosition = useCallback(() => {
     if (!isOpen || isMinimized) {
@@ -194,9 +234,22 @@ export function CourseGuideTour({
     currentStep.onEnter?.();
 
     setTimeout(() => {
-      let el = document.querySelector(currentStep.target);
+      let el: Element | null = null;
+
+      // In Step 2, if dropdown is open, highlight the dropdown options menu directly!
+      if (currentStep.id === "content-blocks") {
+        const dropdown = getVisibleElement('[data-tour="block-dropdown-options"]');
+        if (dropdown) {
+          el = dropdown;
+        }
+      }
+
+      if (!el) {
+        el = getVisibleElement(currentStep.target);
+      }
+
       if (!el && currentStep.fallbackTarget) {
-        el = document.querySelector(currentStep.fallbackTarget);
+        el = getVisibleElement(currentStep.fallbackTarget);
       }
 
       if (el) {
@@ -208,51 +261,58 @@ export function CourseGuideTour({
           el.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
 
-        const popoverWidth = Math.min(320, window.innerWidth - 32);
-        const popoverHeight = 140;
+        const isMobile = window.innerWidth < 640;
+        const popoverWidth = Math.min(320, window.innerWidth - 24);
+        const popoverHeight = isMobile ? 150 : 135;
         const targetCenterX = rect.left + rect.width / 2;
         const targetCenterY = rect.top + rect.height / 2;
 
         let placement = currentStep.preferredPlacement || "bottom";
+
+        // On mobile, prefer top or bottom to avoid horizontal clipping
+        if (isMobile && (placement === "left" || placement === "right")) {
+          placement = rect.top > 200 ? "top" : "bottom";
+        }
+
         let top = 0;
         let left = 0;
         let arrowOffset = popoverWidth / 2;
 
         if (placement === "top") {
-          top = rect.top - popoverHeight - 14;
+          top = rect.top - popoverHeight - 12;
           left = targetCenterX - popoverWidth / 2;
           if (top < 10) {
             placement = "bottom";
-            top = rect.bottom + 14;
+            top = rect.bottom + 12;
           }
         } else if (placement === "bottom") {
-          top = rect.bottom + 14;
+          top = rect.bottom + 12;
           left = targetCenterX - popoverWidth / 2;
           if (top + popoverHeight > window.innerHeight - 10) {
             placement = "top";
-            top = rect.top - popoverHeight - 14;
+            top = rect.top - popoverHeight - 12;
           }
         } else if (placement === "right") {
-          left = rect.right + 14;
+          left = rect.right + 12;
           top = targetCenterY - popoverHeight / 2;
           if (left + popoverWidth > window.innerWidth - 10) {
             placement = "bottom";
-            top = rect.bottom + 14;
+            top = rect.bottom + 12;
             left = targetCenterX - popoverWidth / 2;
           }
         } else if (placement === "left") {
-          left = rect.left - popoverWidth - 14;
+          left = rect.left - popoverWidth - 12;
           top = targetCenterY - popoverHeight / 2;
           if (left < 10) {
             placement = "bottom";
-            top = rect.bottom + 14;
+            top = rect.bottom + 12;
             left = targetCenterX - popoverWidth / 2;
           }
         }
 
         // Clamp inside window boundaries
-        const clampedLeft = Math.max(16, Math.min(window.innerWidth - popoverWidth - 16, left));
-        const clampedTop = Math.max(16, Math.min(window.innerHeight - popoverHeight - 16, top));
+        const clampedLeft = Math.max(12, Math.min(window.innerWidth - popoverWidth - 12, left));
+        const clampedTop = Math.max(12, Math.min(window.innerHeight - popoverHeight - 12, top));
 
         // Arrow offset relative to popover so it points directly at the target center
         if (placement === "top" || placement === "bottom") {
@@ -270,7 +330,7 @@ export function CourseGuideTour({
       } else {
         setTargetRect(null);
       }
-    }, 120);
+    }, 100);
   }, [isOpen, isMinimized, currentStepIndex, activeTab, isEditMode]);
 
   useEffect(() => {
@@ -304,7 +364,6 @@ export function CourseGuideTour({
       saveProgress(newCompleted, false);
       setCurrentStepIndex((prev) => prev + 1);
     } else {
-      // Completed all steps - cleanly hide!
       saveProgress(newCompleted, true);
       setIsOpen(false);
       setIsMinimized(false);
@@ -326,6 +385,9 @@ export function CourseGuideTour({
   };
 
   const currentStep = steps[currentStepIndex];
+  const activeInstruction = (currentStep.id === "content-blocks" && isDropdownOpen && currentStep.dropdownInstruction)
+    ? currentStep.dropdownInstruction
+    : currentStep.instruction;
 
   return (
     <>
@@ -356,7 +418,7 @@ export function CourseGuideTour({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="fixed z-[9995] w-[calc(100vw-32px)] sm:w-[320px] bg-slate-950 text-slate-50 border border-indigo-500/50 shadow-2xl rounded-xl p-3.5 backdrop-blur-xl"
+              className="fixed z-[9995] w-[calc(100vw-24px)] sm:w-[320px] bg-slate-950 text-slate-50 border border-indigo-500/50 shadow-2xl rounded-xl p-3 sm:p-3.5 backdrop-blur-xl"
               style={{
                 top: popoverPos.top,
                 left: popoverPos.left,
@@ -430,8 +492,8 @@ export function CourseGuideTour({
               </div>
 
               {/* Short Action Instruction */}
-              <div className="bg-indigo-500/20 border border-indigo-500/30 rounded-lg px-2.5 py-2 text-xs font-semibold text-indigo-200 mb-3 leading-snug">
-                {currentStep.instruction}
+              <div className="bg-indigo-500/20 border border-indigo-500/30 rounded-lg px-2.5 py-2 text-xs font-semibold text-indigo-200 mb-2.5 leading-snug">
+                {activeInstruction}
               </div>
 
               {/* Footer Actions */}
@@ -472,11 +534,11 @@ export function CourseGuideTour({
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="fixed bottom-5 right-5 z-[9999] flex flex-col items-end"
+            className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-[9999] flex flex-col items-end"
           >
             {isChecklistExpanded ? (
               /* Concise Titles-Only Checklist Card */
-              <div className="w-[280px] bg-slate-950 text-slate-50 border border-indigo-500/40 shadow-2xl rounded-2xl p-3.5 backdrop-blur-xl">
+              <div className="w-[calc(100vw-32px)] sm:w-[280px] bg-slate-950 text-slate-50 border border-indigo-500/40 shadow-2xl rounded-2xl p-3.5 backdrop-blur-xl">
                 <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />

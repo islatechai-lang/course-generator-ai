@@ -308,7 +308,7 @@ export function BlockEditorToolbar({ onAddBlock }: { onAddBlock: (type: string) 
                         <Plus className="h-5 w-5 text-primary" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="w-56 mb-4">
+                <DropdownMenuContent align="center" data-tour="block-dropdown-options" className="w-56 mb-4">
                     <DropdownMenuLabel>Magic Tools</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Text Utils</div>
@@ -409,7 +409,7 @@ function InsertionPoint({ onAdd, isFirst = false }: { onAdd: (type: string) => v
                         <Plus className="h-4 w-4" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="w-56 z-[60]">
+                <DropdownMenuContent align="center" data-tour="block-dropdown-options" className="w-56 z-[60]">
                     <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Insert Block</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
