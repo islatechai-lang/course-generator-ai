@@ -316,6 +316,7 @@ export function CourseGuideTour({
         }
 
         let top = 0;
+        let left = 0;
         const popoverGap = placement === "top" ? 36 : 38;
 
         if (placement === "top") {
