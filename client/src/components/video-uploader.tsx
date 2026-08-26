@@ -38,14 +38,14 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
 
   if (plan === "free") {
     return (
-      <div className="flex flex-col items-center justify-center p-4 sm:p-8 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/10 text-center w-full max-w-full overflow-hidden box-border">
+      <div className="flex flex-col items-center justify-center p-3.5 sm:p-8 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/10 text-center w-full min-w-0 max-w-full overflow-hidden box-border">
         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mb-3 sm:mb-4 shrink-0">
           <Lock className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 dark:text-amber-500 animate-pulse" />
         </div>
-        <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-base sm:text-lg mb-1.5 sm:mb-2">
+        <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-base sm:text-lg mb-1.5 sm:mb-2 px-1">
           Direct Video Upload is Locked
         </h3>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-4 sm:mb-6">
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-4 sm:mb-6 px-1">
           Uploading videos directly is only available on our <strong className="font-semibold text-slate-800 dark:text-slate-200">Basic</strong> or <strong className="font-semibold text-slate-800 dark:text-slate-200">Pro</strong> plans. Free plans support video embeds via links.
         </p>
         <Button 
@@ -59,7 +59,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
               window.dispatchEvent(new CustomEvent("trigger-upgrade-modal"));
             }
           }}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-md shadow-indigo-200 dark:shadow-none text-xs sm:text-sm h-9 sm:h-10 px-4"
+          className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-md shadow-indigo-200 dark:shadow-none text-xs sm:text-sm h-9 sm:h-10 px-4 max-w-full"
         >
           View Upgrade Options
         </Button>
@@ -70,15 +70,15 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
   const isStorageFull = usedStorage >= limit.maxStorage;
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 border border-slate-100 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950/20 shadow-sm w-full max-w-full overflow-hidden box-border">
+    <div className="space-y-3.5 sm:space-y-6 p-2.5 sm:p-6 border border-slate-100 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950/20 shadow-sm w-full min-w-0 max-w-full overflow-hidden box-border">
       {/* Storage Meter */}
-      <div className="space-y-2">
+      <div className="space-y-1.5 sm:space-y-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
           <span className="flex items-center gap-1.5">
             <HardDrive className="h-3.5 w-3.5 shrink-0" />
             Storage Capacity ({limit.name} Plan)
           </span>
-          <span className="text-[11px] sm:text-xs">
+          <span className="text-[11px] sm:text-xs font-mono">
             {formatSize(usedStorage)} / {formatSize(limit.maxStorage)}
           </span>
         </div>
@@ -99,7 +99,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
           </AlertDescription>
         </Alert>
       ) : (
-        <div className="relative w-full max-w-full overflow-hidden">
+        <div className="relative w-full min-w-0 max-w-full overflow-hidden">
           {isUploading && (
             <div className="absolute inset-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-[1px] flex flex-col items-center justify-center z-50 rounded-lg p-4 text-center">
               <Loader2 className="h-7 w-7 sm:h-8 sm:w-8 text-indigo-600 animate-spin mb-2" />
@@ -149,15 +149,15 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
               });
             }}
             appearance={{
-              container: "w-full max-w-full border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors p-4 sm:p-6 rounded-lg bg-slate-50/50 dark:bg-slate-900/10 overflow-hidden box-border min-h-[140px] flex flex-col justify-center items-center gap-2",
-              label: "text-indigo-600 hover:text-indigo-500 font-semibold cursor-pointer text-xs sm:text-sm text-center break-words px-2 max-w-full",
-              allowedContent: "text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs text-center break-words px-2",
-              button: "bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-3 sm:px-4 py-2 rounded-lg shadow-sm cursor-pointer mt-2 sm:mt-4 max-w-full",
+              container: "!w-full !max-w-full !min-w-0 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors p-3 sm:p-6 rounded-lg bg-slate-50/50 dark:bg-slate-900/10 overflow-hidden box-border min-h-[120px] flex flex-col justify-center items-center gap-1.5",
+              label: "!text-indigo-600 hover:!text-indigo-500 font-semibold cursor-pointer text-xs sm:text-sm text-center break-words px-1 max-w-full leading-snug",
+              allowedContent: "!text-slate-400 dark:!text-slate-500 text-[10px] sm:text-xs text-center break-words px-1 max-w-full",
+              button: "!bg-indigo-600 hover:!bg-indigo-500 !text-white font-medium text-xs px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-sm cursor-pointer mt-2 max-w-full !w-auto",
             }}
             content={{
               label({ isDragActive }) {
                 if (isDragActive) return "Drop the video here!";
-                return "Drag & drop a video file, or click to browse";
+                return "Drag & drop video, or tap to browse";
               },
               allowedContent() {
                 return `MP4, WebM, or OGG up to ${limit.maxFileSize}`;

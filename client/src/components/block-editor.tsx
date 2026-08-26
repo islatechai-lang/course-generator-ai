@@ -210,8 +210,8 @@ export function BlockEditor({ blocks, onChange, courseTitle, moduleTitle, lesson
                             <div key={block.id}>
                                 <div id={`block-${block.id}`} className="group relative scroll-mt-20">
                                     {/* ... existing block rendering ... */}
-                                    <div className="flex items-start gap-4">
-                                        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity pt-4 z-20">
+                                    <div className="flex items-start gap-0 sm:gap-4 w-full min-w-0">
+                                        <div className="hidden sm:flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity pt-4 z-20 shrink-0">
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button
@@ -243,9 +243,9 @@ export function BlockEditor({ blocks, onChange, courseTitle, moduleTitle, lesson
                                             </Tooltip>
                                         </div>
 
-                                        <Card className="flex-1 shadow-sm border-muted-foreground/10 group-hover:border-primary/20 transition-colors">
-                                            <CardContent className="p-0">
-                                                <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30 rounded-t-xl">
+                                        <Card className="flex-1 min-w-0 max-w-full overflow-hidden shadow-sm border-muted-foreground/10 group-hover:border-primary/20 transition-colors">
+                                            <CardContent className="p-0 min-w-0 overflow-hidden">
+                                                <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b bg-muted/30 rounded-t-xl">
                                                     <div className="flex items-center gap-2">
                                                         {getBlockIcon(block.type)}
                                                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
@@ -266,7 +266,7 @@ export function BlockEditor({ blocks, onChange, courseTitle, moduleTitle, lesson
                                                         <TooltipContent>Delete Block</TooltipContent>
                                                     </Tooltip>
                                                 </div>
-                                                <div className="p-4 relative">
+                                                <div className="p-2 sm:p-4 relative min-w-0 max-w-full overflow-hidden">
                                                     {renderBlock(
                                                         block,
                                                         (content) => updateBlockContent(block.id, content),
