@@ -317,35 +317,36 @@ export function CourseGuideTour({
 
         let top = 0;
         let left = 0;
+        const popoverGap = 48;
 
         if (placement === "top") {
-          top = rect.top - popoverHeight - 14;
+          top = rect.top - popoverHeight - popoverGap;
           left = targetCenterX - popoverWidth / 2;
           if (top < 10) {
             placement = "bottom";
-            top = rect.bottom + 14;
+            top = rect.bottom + popoverGap;
           }
         } else if (placement === "bottom") {
-          top = rect.bottom + 14;
+          top = rect.bottom + popoverGap;
           left = targetCenterX - popoverWidth / 2;
           if (top + popoverHeight > window.innerHeight - 10) {
             placement = "top";
-            top = rect.top - popoverHeight - 14;
+            top = rect.top - popoverHeight - popoverGap;
           }
         } else if (placement === "right") {
-          left = rect.right + 14;
+          left = rect.right + popoverGap;
           top = targetCenterY - popoverHeight / 2;
           if (left + popoverWidth > window.innerWidth - 10) {
             placement = "bottom";
-            top = rect.bottom + 14;
+            top = rect.bottom + popoverGap;
             left = targetCenterX - popoverWidth / 2;
           }
         } else if (placement === "left") {
-          left = rect.left - popoverWidth - 14;
+          left = rect.left - popoverWidth - popoverGap;
           top = targetCenterY - popoverHeight / 2;
           if (left < 10) {
             placement = "bottom";
-            top = rect.bottom + 14;
+            top = rect.bottom + popoverGap;
             left = targetCenterX - popoverWidth / 2;
           }
         }
@@ -379,11 +380,33 @@ export function CourseGuideTour({
     updatePosition();
     window.addEventListener("resize", updatePosition);
     window.addEventListener("scroll", updatePosition, true);
+
+    const interval = setInterval(updatePosition, 300);
+
     return () => {
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
+      clearInterval(interval);
     };
   }, [updatePosition]);
+
+  if (!isOpen && !isMinimized) return null;
+
+  const currentStep = steps[currentStepIndex];
+  if (!currentStep) return null;
+
+  let activeInstruction = currentStep.instruction;
+  if (currentStep.id === "content-blocks") {
+    const isDropdownVisible = !!getVisibleElement('[data-tour="block-dropdown-options"]');
+    if (isDropdownVisible && currentStep.dropdownInstruction) {
+      activeInstruction = currentStep.dropdownInstruction;
+    }
+  } else if (currentStep.id === "settings-pricing") {
+    const isSettingsInDOM = !!getVisibleElement('[data-tour="sidebar-settings"]');
+    if (!isSettingsInDOM && currentStep.menuInstruction) {
+      activeInstruction = currentStep.menuInstruction;
+    }
+  }
 
   const saveProgress = (completed: string[], done: boolean = false) => {
     setCompletedSteps(completed);
@@ -429,19 +452,6 @@ export function CourseGuideTour({
     setIsCompleted(false);
   };
 
-  const currentStep = steps[currentStepIndex];
-
-  // Compute active instruction dynamically based on current UI state
-  let activeInstruction = currentStep.instruction;
-  if (currentStep.id === "content-blocks" && isDropdownOpen && currentStep.dropdownInstruction) {
-    activeInstruction = currentStep.dropdownInstruction;
-  } else if (currentStep.id === "settings-pricing") {
-    const isSettingsInDOM = !!getVisibleElement('[data-tour="sidebar-settings"]');
-    if (!isSettingsInDOM && currentStep.menuInstruction) {
-      activeInstruction = currentStep.menuInstruction;
-    }
-  }
-
   return (
     <>
       {/* 1. Spotlight Outline & Directional Arrow Attached Directly to Target Element */}
@@ -465,21 +475,21 @@ export function CourseGuideTour({
               }}
             />
 
-            {/* Stationary Arrow Pointer pointing directly at the target */}
+            {/* Big Stationary Arrow pointing directly at target element with zero modal overlap */}
             <div
               className="fixed pointer-events-none z-[9996]"
               style={{
                 top:
                   popoverPos.placement === "top"
-                    ? targetRect.top - 28
+                    ? targetRect.top - 36
                     : popoverPos.placement === "bottom"
-                    ? targetRect.bottom + 2
+                    ? targetRect.bottom + 8
                     : targetRect.top + targetRect.height / 2,
                 left:
                   popoverPos.placement === "right"
-                    ? targetRect.right + 2
+                    ? targetRect.right + 8
                     : popoverPos.placement === "left"
-                    ? targetRect.left - 28
+                    ? targetRect.left - 36
                     : targetRect.left + targetRect.width / 2,
                 transform:
                   popoverPos.placement === "top" || popoverPos.placement === "bottom"
@@ -487,24 +497,24 @@ export function CourseGuideTour({
                     : "translateY(-50%)",
               }}
             >
-              <div className="flex items-center justify-center text-amber-400 drop-shadow-[0_0_12px_rgba(245,158,11,0.9)]">
+              <div className="flex items-center justify-center text-amber-400 drop-shadow-[0_0_12px_rgba(245,158,11,0.95)]">
                 {popoverPos.placement === "bottom" && (
-                  <svg className="w-7 h-7 sm:w-8 sm:h-8 fill-current" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
                     <path d="M12 3l-6 7h3.5v11h5v-11h3.5z" />
                   </svg>
                 )}
                 {popoverPos.placement === "top" && (
-                  <svg className="w-7 h-7 sm:w-8 sm:h-8 fill-current" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
                     <path d="M12 21l6-7h-3.5v-11h-5v11h-3.5z" />
                   </svg>
                 )}
                 {popoverPos.placement === "right" && (
-                  <svg className="w-7 h-7 sm:w-8 sm:h-8 fill-current" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
                     <path d="M3 12l7-6v3.5h11v5h-11v3.5z" />
                   </svg>
                 )}
                 {popoverPos.placement === "left" && (
-                  <svg className="w-7 h-7 sm:w-8 sm:h-8 fill-current" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
                     <path d="M21 12l-7 6v-3.5h-11v-5h11v-3.5z" />
                   </svg>
                 )}
@@ -525,52 +535,56 @@ export function CourseGuideTour({
                 maxWidth: "calc(100vw - 24px)",
               }}
             >
-              {/* Exact Pointer Arrow pointing directly to target center */}
+              {/* Exact Pointer Arrow pointing directly to target center from modal border */}
               <div
                 className="absolute pointer-events-none"
                 style={
                   popoverPos.placement === "top"
                     ? {
-                        bottom: "-8px",
+                        bottom: "-10px",
                         left: `${popoverPos.arrowOffset}px`,
                         transform: "translateX(-50%)",
                         width: 0,
                         height: 0,
-                        borderLeft: "8px solid transparent",
-                        borderRight: "8px solid transparent",
-                        borderTop: "8px solid #6366f1",
+                        borderLeft: "10px solid transparent",
+                        borderRight: "10px solid transparent",
+                        borderTop: "10px solid #818cf8",
+                        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.6))",
                       }
                     : popoverPos.placement === "bottom"
                     ? {
-                        top: "-8px",
+                        top: "-10px",
                         left: `${popoverPos.arrowOffset}px`,
                         transform: "translateX(-50%)",
                         width: 0,
                         height: 0,
-                        borderLeft: "8px solid transparent",
-                        borderRight: "8px solid transparent",
-                        borderBottom: "8px solid #6366f1",
+                        borderLeft: "10px solid transparent",
+                        borderRight: "10px solid transparent",
+                        borderBottom: "10px solid #818cf8",
+                        filter: "drop-shadow(0 -2px 4px rgba(0,0,0,0.6))",
                       }
                     : popoverPos.placement === "right"
                     ? {
-                        left: "-8px",
+                        left: "-10px",
                         top: `${popoverPos.arrowOffset}px`,
                         transform: "translateY(-50%)",
                         width: 0,
                         height: 0,
-                        borderTop: "8px solid transparent",
-                        borderBottom: "8px solid transparent",
-                        borderRight: "8px solid #6366f1",
+                        borderTop: "10px solid transparent",
+                        borderBottom: "10px solid transparent",
+                        borderRight: "10px solid #818cf8",
+                        filter: "drop-shadow(-2px 0 4px rgba(0,0,0,0.6))",
                       }
                     : {
-                        right: "-8px",
+                        right: "-10px",
                         top: `${popoverPos.arrowOffset}px`,
                         transform: "translateY(-50%)",
                         width: 0,
                         height: 0,
-                        borderTop: "8px solid transparent",
-                        borderBottom: "8px solid transparent",
-                        borderLeft: "8px solid #6366f1",
+                        borderTop: "10px solid transparent",
+                        borderBottom: "10px solid transparent",
+                        borderLeft: "10px solid #818cf8",
+                        filter: "drop-shadow(2px 0 4px rgba(0,0,0,0.6))",
                       }
                 }
               />
