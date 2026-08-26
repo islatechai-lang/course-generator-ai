@@ -5,6 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Loader2, Sparkles, BookOpen, ChevronRight, Lightbulb, Code, Camera, Palette, TrendingUp, DollarSign, Upload, FileText, User, MessageSquare, Book, PenTool, Layout, Cpu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GenerationProgress } from "@/components/generation-progress";
@@ -16,6 +26,7 @@ import type { GeneratedCourse } from "@shared/schema";
 interface CourseGeneratorProps {
   companyId: string;
   onGenerated: (course: GeneratedCourse) => void;
+  onCreateScratch?: (title: string) => Promise<void> | void;
   isGenerating: boolean;
   setIsGenerating: (generating: boolean) => void;
   apiBasePath?: string;
@@ -207,6 +218,10 @@ export function CourseGenerator({
     }
 
     if (mode === "scratch") {
+      if (onCreateScratch) {
+        onCreateScratch(topic.trim() || "Untitled Course");
+        return;
+      }
       // Direct manual creation bypasses AI
       const emptyCourse: GeneratedCourse = {
         course_title: topic.trim() || "Untitled Course",
@@ -618,8 +633,17 @@ export function CoursePreview({ course, onSave, onDiscard, isSaving, savingStatu
   const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set());
   const [isFree, setIsFree] = useState(false);
   const [price, setPrice] = useState("29.99");
-  const [generateLessonImages, setGenerateLessonImages] = useState(true);
+  const [generateLessonImages, setGenerateLessonImages] = useState(false);
+  const [showImageConfirmDialog, setShowImageConfirmDialog] = useState(false);
   const [generateVideo, setGenerateVideo] = useState(false);
+
+  const handleLessonImagesToggle = (checked: boolean) => {
+    if (checked) {
+      setShowImageConfirmDialog(true);
+    } else {
+      setGenerateLessonImages(false);
+    }
+  };
 
   const toggleModule = (index: number) => {
     const newExpanded = new Set(expandedModules);
@@ -759,14 +783,14 @@ export function CoursePreview({ course, onSave, onDiscard, isSaving, savingStatu
               </Label>
               <p className="text-xs text-muted-foreground">
                 {generateLessonImages
-                  ? "AI will add relevant images to lessons (takes longer)"
-                  : "Skip image generation for faster course creation"}
+                  ? "AI will generate images in background (adds 2-5 min)"
+                  : "Off by default (Instant course creation)"}
               </p>
             </div>
             <Switch
               id="images-toggle"
               checked={generateLessonImages}
-              onCheckedChange={setGenerateLessonImages}
+              onCheckedChange={handleLessonImagesToggle}
               data-testid="switch-generate-images"
             />
           </div>
@@ -793,7 +817,6 @@ export function CoursePreview({ course, onSave, onDiscard, isSaving, savingStatu
             </div>
           </div>
         </div>
-
 
         <div className="flex gap-3 pt-2">
           <Button
@@ -830,6 +853,39 @@ export function CoursePreview({ course, onSave, onDiscard, isSaving, savingStatu
           You can always edit the content, pricing, and settings later.
         </p>
       </CardContent>
+
+      <AlertDialog open={showImageConfirmDialog} onOpenChange={setShowImageConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-amber-500" />
+              Enable AI Lesson Images?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm leading-relaxed space-y-2">
+              <span className="block text-foreground font-medium">
+                Generating custom AI illustrations for every lesson runs in the background and can take 2 to 5 minutes.
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                You can also add or generate images for individual lessons inside the Course Editor at any time.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowImageConfirmDialog(false)}>
+              Keep Off (Recommended)
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setGenerateLessonImages(true);
+                setShowImageConfirmDialog(false);
+              }}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              Yes, Generate Images
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

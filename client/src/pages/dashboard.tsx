@@ -212,6 +212,32 @@ export default function DashboardPage() {
     },
   });
 
+  const handleCreateScratch = async (title: string) => {
+    const scratchData: GeneratedCourse = {
+      course_title: title.trim() || "Untitled Course",
+      description: "Manually created course.",
+      modules: [
+        {
+          module_title: "Module 1",
+          lessons: [
+            {
+              lesson_title: "Lesson 1",
+              content: "Start writing your course content here..."
+            }
+          ]
+        }
+      ]
+    };
+
+    saveMutation.mutate({
+      generatedCourse: scratchData,
+      isFree: true,
+      price: "0",
+      generateLessonImages: false,
+      generateVideo: false,
+    });
+  };
+
   const handleSaveCourse = async (options: { isFree: boolean; price: string; generateLessonImages: boolean; generateVideo: boolean }) => {
     if (!generatedCourse || isGeneratingImage || saveMutation.isPending) return;
 
@@ -523,6 +549,7 @@ export default function DashboardPage() {
                 <CourseGenerator
                   companyId={companyId || ""}
                   onGenerated={setGeneratedCourse}
+                  onCreateScratch={handleCreateScratch}
                   isGenerating={isGenerating}
                   setIsGenerating={setIsGenerating}
                   generationLimit={data?.generationLimit}

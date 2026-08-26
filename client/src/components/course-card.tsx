@@ -59,9 +59,9 @@ export function CourseCard({
         )}
         <div className="absolute top-2 right-2 flex items-center gap-1.5">
           {course.generationStatus === "generating" && (
-            <Badge className="bg-blue-500/90 text-white backdrop-blur-sm animate-pulse" data-testid={`badge-generating-${course.id}`}>
+            <Badge className="bg-amber-500/90 text-white backdrop-blur-sm animate-pulse" data-testid={`badge-generating-${course.id}`}>
               <Clock className="h-3 w-3 mr-1" />
-              Finalizing...
+              Generating Media...
             </Badge>
           )}
           {course.isFree ? (
@@ -73,7 +73,7 @@ export function CourseCard({
               ${parseFloat(course.price || "0").toFixed(2)}
             </Badge>
           )}
-          {isCreator && course.generationStatus !== "generating" && (
+          {isCreator && (
             <Badge
               className={course.published 
                 ? "bg-green-500/90 text-white backdrop-blur-sm" 
@@ -86,7 +86,7 @@ export function CourseCard({
         </div>
       </div>
       <CardHeader className="pb-2 pt-3 sm:pt-4 px-4 sm:px-6">
-        <h3 className="font-semibold text-sm sm:text-base leading-snug line-clamp-2" data-testid={`text-course-title-${course.id}`}>
+        <h3 className="font-semibold text-base sm:text-lg leading-tight line-clamp-1 group-hover:text-primary transition-colors" data-testid={`text-course-title-${course.id}`}>
           {course.title}
         </h3>
       </CardHeader>
@@ -104,51 +104,53 @@ export function CourseCard({
           <span>{lessonCount} lessons</span>
         </div>
         {course.generationStatus === "generating" && (
-          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-md p-2 mt-3">
-            <p className="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300">
-              We're still finalizing your course, please check back later. A notification will popup when it's done.
+          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md p-2 mt-3 flex items-center gap-2">
+            <Loader2 className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 animate-spin shrink-0" />
+            <p className="text-[10px] sm:text-xs text-amber-700 dark:text-amber-300">
+              Generating lesson illustrations in background. You can edit content now.
             </p>
           </div>
         )}
       </CardContent>
       <CardFooter className="pt-0 pb-4 px-4 sm:px-6 gap-2 flex-wrap">
         {isCreator ? (
-          course.generationStatus === "generating" ? null : (
-            <>
-              <Button asChild className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" data-testid={`button-manage-${course.id}`}>
-                <Link href={companyId ? `/dashboard/${companyId}/courses/${course.id}/edit` : `/course/${course.id}/edit`}>
-                  <Settings className="h-4 w-4 mr-2" />
-                  Manage
-                </Link>
-              </Button>
-              {course.published ? (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      className="bg-amber-600 hover:bg-amber-700 text-white"
-                      disabled={isPublishing}
-                      data-testid={`button-toggle-publish-${course.id}`}
+          <>
+            <Button asChild className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" data-testid={`button-manage-${course.id}`}>
+              <Link href={companyId ? `/dashboard/${companyId}/courses/${course.id}/edit` : `/course/${course.id}/edit`}>
+                <Settings className="h-4 w-4 mr-2" />
+                Manage
+              </Link>
+            </Button>
+            {course.published ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    disabled={isPublishing}
+                    data-testid={`button-toggle-publish-${course.id}`}
+                  >
+                    {isPublishing ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <EyeOff className="h-4 w-4 mr-2" />
+                    )}
+                    Unpublish
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Unpublish this course?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will hide the course from new students. Existing students who already have access will still be able to view the course.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onTogglePublish?.(course.id, false)}
+                      className="bg-amber-600 hover:bg-amber-700"
                     >
-                      {isPublishing ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <EyeOff className="h-4 w-4 mr-2" />
-                      )}
                       Unpublish
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Unpublish this course?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will hide the course from new students. Existing students who already have access will still be able to view the course.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => onTogglePublish?.(course.id, false)}
-                        className="bg-amber-600 hover:bg-amber-700"
                       >
                         Unpublish
                       </AlertDialogAction>

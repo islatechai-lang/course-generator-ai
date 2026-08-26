@@ -235,6 +235,48 @@ export default function ExperiencePage() {
     },
   });
 
+  const handleCreateScratch = async (title: string) => {
+    const scratchData: GeneratedCourse = {
+      course_title: title.trim() || "Untitled Course",
+      description: "Manually created course.",
+      modules: [
+        {
+          module_title: "Module 1",
+          lessons: [
+            {
+              lesson_title: "Lesson 1",
+              content: "Start writing your course content here..."
+            }
+          ]
+        }
+      ]
+    };
+
+    try {
+      const newCourse = await apiRequest("POST", `/api/experiences/${experienceId}/courses`, {
+        generatedCourse: scratchData,
+        isFree: true,
+        price: "0",
+        generateLessonImages: false,
+        generateVideo: false,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["/api/experiences", experienceId] });
+
+      if (newCourse && newCourse.id) {
+        window.location.href = `/experiences/${experienceId}/courses/${newCourse.id}/edit`;
+      } else {
+        setActiveTab("courses");
+      }
+    } catch (err: any) {
+      toast({
+        title: "Failed to create course",
+        description: err.message || "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSaveCourse = async (options: { isFree: boolean; price: string; generateLessonImages: boolean; generateVideo: boolean }) => {
     if (!generatedCourse || isGeneratingImage || saveMutation.isPending) return;
 
@@ -542,6 +584,7 @@ export default function ExperiencePage() {
                   <CourseGenerator
                     companyId={experienceId || ""}
                     onGenerated={setGeneratedCourse}
+                    onCreateScratch={handleCreateScratch}
                     isGenerating={isGenerating}
                     setIsGenerating={setIsGenerating}
                     apiBasePath={`/api/experiences/${experienceId}`}

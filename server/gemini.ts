@@ -4,13 +4,15 @@ import type { GeneratedCourse } from "@shared/schema";
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 const GROUNDING_MODELS = [
-  "gemini-3.5-flash-lite",
-  "gemini-3.5-flash",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
 ];
 
 const FALLBACK_MODELS = [
-  "gemini-3.5-flash-lite",
-  "gemini-3.5-flash",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
 ];
 
 interface GenerateOptions {
@@ -163,35 +165,29 @@ export async function generateCourse(topic: string, options?: GenerateCourseOpti
     if (options.referenceText) customInstructions += `\n  REFERENCE MATERIAL (use this as the primary source of truth):\n  ${options.referenceText}`;
   }
 
-  const prompt = `You are an expert course designer with access to the internet. Create a comprehensive, up-to-date online course based on the topic: "${topic}".
+  const prompt = `You are an expert course designer. Create an engaging, up-to-date online course on: "${topic}".
   
   Current Date: ${currentMonth} ${currentYear}
   ${customInstructions}
   
-  RESEARCH REQUIREMENTS:
-  Search the web for the most current ${currentYear} info on "${topic}". Include:
-  - Current tools, frameworks, and industry standards (as of ${currentMonth} ${currentYear}).
-  - Modern best practices and emerging trends.
-  - Practical, actionable advice.
-
-  COURSE STRUCTURE:
-  - 3-5 modules for maximum curriculum depth.
-  - 3-4 lessons per module.
-  - Each lesson: 5-6 paragraphs of DEPTH educational content. Be very detailed, use professional analogies, and provide real-world examples.
-  - At the end of EACH module, include a "quiz" with 3-5 high-quality multiple-choice questions.
+  COURSE REQUIREMENTS:
+  - 3-4 structured modules.
+  - 2-3 focused lessons per module.
+  - Each lesson: 2-4 comprehensive, actionable paragraphs with real-world examples and practical takeaways.
+  - At the end of EACH module, include a quiz with 2-3 high-quality multiple-choice questions.
 
   CRITICAL: You MUST respond ONLY with a single valid JSON object. No explanation or preamble.
   JSON SCHEMA:
   {
     "course_title": "string",
-    "description": "string (3-4 sentences)",
+    "description": "string (2-3 sentences)",
     "modules": [
       {
         "module_title": "string",
         "lessons": [
           {
             "lesson_title": "string",
-            "content": "string (DETAILED multiline content, 5-8 paragraphs)"
+            "content": "string (multiline formatted text with headers and paragraphs)"
           }
         ],
         "quiz": {
@@ -201,13 +197,13 @@ export async function generateCourse(topic: string, options?: GenerateCourseOpti
               "question": "string",
               "options": ["option 1", "option 2", "option 3", "option 4"],
               "correctAnswer": 0,
-              "explanation": "string explaining why the answer is correct"
+              "explanation": "string"
             }
           ]
         }
       }
     ]
-  } `;
+  }`;
 
   try {
     console.log(`\n📚 Generating course for topic: "${topic}"(with web search for latest ${currentYear} info)`);
@@ -1014,7 +1010,7 @@ export async function generateDeepVideoImage(
     The prompt MUST describe: A wide-angle, hyper-realistic master shot of a digital presentation screen. "High-end cinematic corporate presentation slide, glassmorphic UI elements, sharp professional typography, 8k resolution, Unreal Engine 5 render style, soft ambient lighting, premium educational aesthetic, no people, purely digital graphics."`;
 
     const designResponse = await ai.models.generateContent({
-      model: "gemini-3.5-flash-lite", // Prompt design
+      model: "gemini-2.5-flash", // Prompt design
       contents: designPrompt,
     });
 
