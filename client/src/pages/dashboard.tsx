@@ -128,7 +128,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (activeTab === "create" && createTabRef.current) {
-      createTabRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => {
+        createTabRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     }
   }, [activeTab]);
 
