@@ -52,6 +52,7 @@ const exampleTopics = [
 export function CourseGenerator({
   companyId,
   onGenerated,
+  onCreateScratch,
   isGenerating,
   setIsGenerating,
   apiBasePath,
