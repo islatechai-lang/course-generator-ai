@@ -6,7 +6,6 @@ import {
   X,
   CheckCircle2,
   Eye,
-  Layers,
   Settings,
   Send,
   PlusCircle,
@@ -48,6 +47,7 @@ export function CourseGuideTour({
 
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const [isChecklistExpanded, setIsChecklistExpanded] = useState(true);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
@@ -77,7 +77,7 @@ export function CourseGuideTour({
       target: '[data-tour="add-block-button"]',
       fallbackTarget: '[data-tour="lesson-content-area"]',
       title: "2. Add Content Block (+)",
-      instruction: "👉 Click the '+' button to insert images, videos or blocks",
+      instruction: "👉 Click the '+' button to insert text, image or videos blocks",
       icon: PlusCircle,
       badge: "Step 2",
       preferredPlacement: "bottom",
@@ -87,24 +87,12 @@ export function CourseGuideTour({
       },
     },
     {
-      id: "module-quiz",
-      target: '[data-tour="sidebar-modules"]',
-      title: "3. Organize Modules & Quizzes",
-      instruction: "👉 Add modules or attach review quizzes to test students",
-      icon: Layers,
-      badge: "Step 3",
-      preferredPlacement: "right",
-      onEnter: () => {
-        if (activeTab !== "content") setActiveTab("content");
-      },
-    },
-    {
       id: "settings-pricing",
       target: '[data-tour="sidebar-settings"]',
-      title: "4. Thumbnail & Pricing",
+      title: "3. Thumbnail & Pricing",
       instruction: "👉 Click 'Settings' to customize thumbnail, colors & price",
       icon: Settings,
-      badge: "Step 4",
+      badge: "Step 3",
       preferredPlacement: "right",
       onEnter: () => {
         setActiveTab("settings");
@@ -113,10 +101,10 @@ export function CourseGuideTour({
     {
       id: "publish-live",
       target: '[data-tour="publish-button"]',
-      title: "5. Publish Your Course Live",
+      title: "4. Publish Your Course Live",
       instruction: "👉 Click 'Publish' to make your course live for students",
       icon: Send,
-      badge: "Step 5",
+      badge: "Step 4",
       preferredPlacement: "bottom",
       onEnter: () => {
         if (activeTab !== "content") setActiveTab("content");
@@ -131,13 +119,18 @@ export function CourseGuideTour({
       const timer = setTimeout(() => {
         setIsOpen(true);
         setIsMinimized(false);
+        setIsCompleted(false);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       try {
         const parsed = JSON.parse(saved);
         if (parsed.completedSteps) setCompletedSteps(parsed.completedSteps);
-        if (parsed.completedSteps?.length < steps.length) {
+        if (parsed.isCompleted || parsed.completedSteps?.length >= steps.length) {
+          setIsCompleted(true);
+          setIsMinimized(false);
+          setIsOpen(false);
+        } else {
           setIsMinimized(true);
         }
       } catch (e) {
@@ -168,9 +161,9 @@ export function CourseGuideTour({
     return () => window.removeEventListener("tour-block-added", handleBlockAdded);
   }, [isOpen, currentStepIndex]);
 
-  // 3. If at Step 3 ("settings-pricing") and user clicks settings tab, recalculate placement
+  // 3. If at Step 2 ("settings-pricing") and user clicks settings tab, recalculate placement
   useEffect(() => {
-    if (isOpen && currentStepIndex === 3 && activeTab === "settings") {
+    if (isOpen && currentStepIndex === 2 && activeTab === "settings") {
       updatePosition();
     }
   }, [activeTab, isOpen, currentStepIndex]);
@@ -203,7 +196,7 @@ export function CourseGuideTour({
         }
 
         const popoverWidth = Math.min(320, window.innerWidth - 32);
-        const popoverHeight = 140; // compact card height
+        const popoverHeight = 140;
         const targetCenterX = rect.left + rect.width / 2;
         const targetCenterY = rect.top + rect.height / 2;
 
@@ -277,12 +270,14 @@ export function CourseGuideTour({
     };
   }, [updatePosition]);
 
-  const saveProgress = (completed: string[]) => {
+  const saveProgress = (completed: string[], done: boolean = false) => {
     setCompletedSteps(completed);
+    if (done) setIsCompleted(true);
     localStorage.setItem(
       storageKey,
       JSON.stringify({
         completedSteps: completed,
+        isCompleted: done,
         lastUpdated: new Date().toISOString(),
       })
     );
@@ -291,26 +286,30 @@ export function CourseGuideTour({
   const handleNext = () => {
     const currentStep = steps[currentStepIndex];
     const newCompleted = Array.from(new Set([...completedSteps, currentStep.id]));
-    saveProgress(newCompleted);
 
     if (currentStepIndex < steps.length - 1) {
+      saveProgress(newCompleted, false);
       setCurrentStepIndex((prev) => prev + 1);
     } else {
+      // Completed all steps - cleanly hide!
+      saveProgress(newCompleted, true);
       setIsOpen(false);
-      setIsMinimized(true);
+      setIsMinimized(false);
+      setIsCompleted(true);
     }
   };
 
   const handleSkip = () => {
     setIsOpen(false);
     setIsMinimized(true);
-    saveProgress(completedSteps);
+    saveProgress(completedSteps, false);
   };
 
   const handleOpenStep = (index: number) => {
     setCurrentStepIndex(index);
     setIsOpen(true);
     setIsMinimized(false);
+    setIsCompleted(false);
   };
 
   const currentStep = steps[currentStepIndex];
@@ -453,9 +452,9 @@ export function CourseGuideTour({
         )}
       </AnimatePresence>
 
-      {/* 2. Docked Bottom-Right Steps Checklist (Titles Only) */}
+      {/* 2. Docked Bottom-Right Steps Checklist (Titles Only) - Hidden when finished/completed */}
       <AnimatePresence>
-        {isMinimized && (
+        {isMinimized && !isCompleted && completedSteps.length < steps.length && (
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}

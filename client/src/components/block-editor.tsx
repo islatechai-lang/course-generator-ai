@@ -390,12 +390,9 @@ function getInitialContent(type: string) {
 
 function InsertionPoint({ onAdd, isFirst = false }: { onAdd: (type: string) => void, isFirst?: boolean }) {
     return (
-        <div className={cn(
-            "group/insert h-6 relative flex items-center justify-center transition-all duration-300",
-            "hover:h-12 hover:my-2"
-        )}>
+        <div className="h-8 relative flex items-center justify-center my-1">
             {/* Context line - always visible but subtle */}
-            <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent scale-x-75 group-hover/insert:scale-x-100 group-hover/insert:via-primary/60 transition-all duration-500" />
+            <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent scale-x-75 group-hover/insert:scale-x-100 group-hover/insert:via-primary/60 transition-all duration-300" />
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -404,8 +401,8 @@ function InsertionPoint({ onAdd, isFirst = false }: { onAdd: (type: string) => v
                         size="icon"
                         data-tour="add-block-button"
                         className={cn(
-                            "h-8 w-8 rounded-full bg-primary/5 dark:bg-primary/20 border-2 border-primary/40 shadow-sm transition-all z-30",
-                            "opacity-90 group-hover/insert:opacity-100 hover:scale-110 hover:border-primary hover:bg-primary/15 hover:shadow-primary/20 hover:shadow-lg",
+                            "h-7 w-7 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/30 shadow-sm z-30",
+                            "hover:bg-primary/20 hover:border-primary transition-colors",
                             "flex items-center justify-center text-primary"
                         )}
                     >
