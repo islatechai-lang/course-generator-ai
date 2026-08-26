@@ -117,6 +117,7 @@ function MobileSidebarTrigger() {
 
 interface CourseSidebarProps {
   companyId: string;
+  backUrl?: string;
   activeTab: string;
   handleTabChange: (tab: string) => void;
   analytics: any;
@@ -133,6 +134,7 @@ interface CourseSidebarProps {
 
 function CourseSidebar({
   companyId,
+  backUrl,
   activeTab,
   handleTabChange,
   analytics,
@@ -163,7 +165,7 @@ function CourseSidebar({
       {isMobile && (
         <SidebarHeader className="p-4 border-b">
           <Button variant="ghost" size="sm" asChild className="w-full justify-start -ml-2 text-muted-foreground hover:text-foreground">
-            <Link href={`/dashboard/${companyId}`}>
+            <Link href={backUrl || `/dashboard/${companyId}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Link>
@@ -283,7 +285,10 @@ function CourseSidebar({
 }
 
 export default function CourseEditPage() {
-  const { companyId, courseId } = useParams<{ companyId: string; courseId: string }>();
+  const params = useParams<{ companyId?: string; experienceId?: string; courseId: string }>();
+  const companyId = params.companyId || params.experienceId || "";
+  const courseId = params.courseId;
+  const backUrl = params.experienceId ? `/experiences/${params.experienceId}` : `/dashboard/${companyId}`;
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -470,7 +475,7 @@ export default function CourseEditPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId] });
-      navigate(`/dashboard/${companyId}`);
+      navigate(backUrl);
       toast({ title: "Course deleted", description: "The course has been removed." });
     },
     onError: () => {
@@ -732,9 +737,9 @@ export default function CourseEditPage() {
           <h2 className="text-lg font-semibold">Course not found</h2>
           <p className="text-muted-foreground text-sm">The course you're looking for doesn't exist.</p>
           <Button variant="outline" asChild>
-            <Link href={`/dashboard/${companyId}`}>
+            <Link href={backUrl}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
+              Back
             </Link>
           </Button>
         </div>
@@ -1028,9 +1033,9 @@ export default function CourseEditPage() {
           <h2 className="text-lg font-semibold">Course not found</h2>
           <p className="text-muted-foreground text-sm">The course you're looking for doesn't exist.</p>
           <Button variant="outline" asChild>
-            <Link href={`/dashboard/${companyId}`}>
+            <Link href={backUrl}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
+              Back
             </Link>
           </Button>
         </div>
@@ -1050,7 +1055,7 @@ export default function CourseEditPage() {
               ) : (
                 <>
                   <Button variant="ghost" size="icon" asChild className="shrink-0" data-testid="button-back">
-                    <Link href={`/dashboard/${companyId}`}>
+                    <Link href={backUrl}>
                       <ArrowLeft className="h-4 w-4" />
                     </Link>
                   </Button>
@@ -1145,6 +1150,7 @@ export default function CourseEditPage() {
           {/* Left Navigation Sidebar */}
           <CourseSidebar
             companyId={companyId!}
+            backUrl={backUrl}
             activeTab={activeTab}
             handleTabChange={handleTabChange}
             analytics={analytics}

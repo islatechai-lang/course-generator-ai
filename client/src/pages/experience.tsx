@@ -70,6 +70,7 @@ export default function ExperiencePage() {
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const createTabRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -87,11 +88,27 @@ export default function ExperiencePage() {
     };
   }, []);
 
+  const scrollToCreate = useCallback(() => {
+    setActiveTab("create");
+    const performScroll = () => {
+      if (createTabRef.current) {
+        createTabRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      if (scrollContainerRef.current) {
+        const targetTop = createTabRef.current ? Math.max(0, createTabRef.current.offsetTop - 20) : 350;
+        scrollContainerRef.current.scrollTo({ top: targetTop, behavior: "smooth" });
+      }
+      window.scrollTo({ top: 350, behavior: "smooth" });
+    };
+    setTimeout(performScroll, 50);
+    setTimeout(performScroll, 200);
+  }, []);
+
   useEffect(() => {
-    if (activeTab === "create" && createTabRef.current) {
-      createTabRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (activeTab === "create") {
+      scrollToCreate();
     }
-  }, [activeTab]);
+  }, [activeTab, scrollToCreate]);
 
   const triggerConfetti = useCallback(() => {
     confetti({
@@ -457,7 +474,7 @@ export default function ExperiencePage() {
                 <Wallet className="h-4 w-4" />
                 <span className="text-xs sm:text-sm font-medium">{isMobile ? "Withdraw" : "Withdraw"}</span>
               </Button>
-              <Button onClick={() => setActiveTab("create")} data-testid="button-create-course" className="h-9 px-3 sm:px-4 shrink-0">
+              <Button onClick={scrollToCreate} data-testid="button-create-course" className="h-9 px-3 sm:px-4 shrink-0">
                 <Plus className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="text-xs sm:text-sm font-medium">{isMobile ? "Create" : "Create Course"}</span>
               </Button>
@@ -465,7 +482,7 @@ export default function ExperiencePage() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-5 space-y-5">
+        <main className="flex-1 overflow-auto p-5 space-y-5" ref={scrollContainerRef}>
           {!data?.generationLimit?.isPro && !data?.generationLimit?.isBasic && (
             <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
               <div className="flex items-center gap-3">
@@ -569,7 +586,7 @@ export default function ExperiencePage() {
                   title="No courses yet"
                   description="Create your first AI-powered course to get started."
                   action={
-                    <Button onClick={() => setActiveTab("create")} data-testid="button-create-first-course">
+                    <Button onClick={scrollToCreate} data-testid="button-create-first-course">
                       <Sparkles className="h-4 w-4 mr-2" />
                       Create Course
                     </Button>

@@ -24,6 +24,7 @@ function Router() {
       
       <Route path="/experiences/:experienceId" component={ExperiencePage} />
       <Route path="/experiences/:experienceId/courses/:courseId" component={CourseViewPage} />
+      <Route path="/experiences/:experienceId/courses/:courseId/edit" component={CourseEditPage} />
       
       <Route component={NotFound} />
     </Switch>
