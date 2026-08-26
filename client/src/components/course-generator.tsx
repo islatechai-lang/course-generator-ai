@@ -607,6 +607,8 @@ export function CourseGenerator({
 
               <div className="pt-2">
                 <Button
+                  id="main-generate-course-button"
+                  data-testid="button-generate-course"
                   onClick={handleGenerate}
                   disabled={isGenerating || isExtracting || isCreatingScratch || (mode !== "scratch" && (!topic.trim() || (generationLimit && generationLimit.remaining === 0)))}
                   className="w-full h-14 text-lg font-semibold rounded-xl shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99]"

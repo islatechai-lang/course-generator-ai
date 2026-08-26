@@ -461,32 +461,32 @@ function VideoBlockEditor({ block, onUpdate }: { block: ILessonBlock, onUpdate: 
     const [activeTab, setActiveTab] = useState<string>(isDirect ? "upload" : "embed");
 
     return (
-        <div className="space-y-4 bg-muted/20 p-4 rounded-xl border border-muted-foreground/10">
+        <div className="space-y-3 sm:space-y-4 bg-muted/20 p-3 sm:p-4 rounded-xl border border-muted-foreground/10 w-full max-w-full overflow-hidden box-border">
             <div className="flex items-center justify-between border-b pb-2 mb-2">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <Video className="h-3.5 w-3.5 text-rose-500" />
+                    <Video className="h-3.5 w-3.5 text-rose-500 shrink-0" />
                     Video Content
                 </span>
             </div>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-muted/40 p-1 rounded-lg mb-3">
-                    <TabsTrigger value="embed" className="rounded-md text-xs">Embed Link</TabsTrigger>
-                    <TabsTrigger value="upload" className="rounded-md text-xs">Direct Upload</TabsTrigger>
+                    <TabsTrigger value="embed" className="rounded-md text-xs py-1.5">Embed Link</TabsTrigger>
+                    <TabsTrigger value="upload" className="rounded-md text-xs py-1.5">Direct Upload</TabsTrigger>
                 </TabsList>
-                <TabsContent value="embed" className="space-y-3 mt-0">
+                <TabsContent value="embed" className="space-y-3 mt-0 w-full max-w-full">
                     <Input
                         value={activeTab === "embed" ? block.content.url || "" : ""}
                         onChange={(e) => onUpdate({ ...block.content, url: e.target.value, fileKey: undefined, fileSize: undefined })}
                         placeholder="Video URL (YouTube, Vimeo, Loom...)"
-                        className="bg-background"
+                        className="bg-background w-full text-xs sm:text-sm"
                     />
                     {block.content.url && activeTab === "embed" && (
                         isDirect ? (
-                            <div className="w-full flex justify-center bg-black/5 border border-muted-foreground/10 rounded-lg overflow-hidden">
-                                <video src={block.content.url} controls controlsList="nodownload" onContextMenu={(e) => e.preventDefault()} className="w-full max-h-[500px] object-contain" />
+                            <div className="w-full max-w-full flex justify-center bg-black/5 border border-muted-foreground/10 rounded-lg overflow-hidden">
+                                <video src={block.content.url} controls controlsList="nodownload" onContextMenu={(e) => e.preventDefault()} className="w-full max-h-[300px] sm:max-h-[500px] object-contain" />
                             </div>
                         ) : (
-                            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black/5 border border-muted-foreground/10">
+                            <div className="aspect-video w-full max-w-full rounded-lg overflow-hidden bg-black/5 border border-muted-foreground/10">
                                 <iframe
                                     src={getEmbedUrl(block.content.url)}
                                     className="w-full h-full"
@@ -496,38 +496,40 @@ function VideoBlockEditor({ block, onUpdate }: { block: ILessonBlock, onUpdate: 
                         )
                     )}
                 </TabsContent>
-                <TabsContent value="upload" className="space-y-3 mt-0">
+                <TabsContent value="upload" className="space-y-3 mt-0 w-full max-w-full">
                     {block.content.url && isDirect ? (
-                        <div className="space-y-3">
-                            <div className="w-full flex justify-center bg-black border border-muted-foreground/10 rounded-lg overflow-hidden">
-                                <video src={block.content.url} controls controlsList="nodownload" onContextMenu={(e) => e.preventDefault()} className="w-full max-h-[500px] object-contain" />
+                        <div className="space-y-3 w-full max-w-full">
+                            <div className="w-full max-w-full flex justify-center bg-black border border-muted-foreground/10 rounded-lg overflow-hidden">
+                                <video src={block.content.url} controls controlsList="nodownload" onContextMenu={(e) => e.preventDefault()} className="w-full max-h-[300px] sm:max-h-[500px] object-contain" />
                             </div>
-                            <div className="flex justify-between items-center bg-muted/40 p-3 rounded-lg border">
-                                <div className="text-xs text-muted-foreground truncate max-w-[70%]">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 bg-muted/40 p-3 rounded-lg border w-full max-w-full overflow-hidden">
+                                <div className="text-xs text-muted-foreground truncate w-full sm:max-w-[70%]">
                                     <p className="font-semibold text-foreground truncate">{block.content.url.split('/').pop()}</p>
-                                    {block.content.fileSize && <p>{(block.content.fileSize / (1024 * 1024)).toFixed(2)} MB</p>}
+                                    {block.content.fileSize && <p className="text-[11px] text-muted-foreground">{(block.content.fileSize / (1024 * 1024)).toFixed(2)} MB</p>}
                                 </div>
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => onUpdate({ ...block.content, url: "", fileKey: undefined, fileSize: undefined })}
-                                    className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs h-8"
+                                    className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs h-8 w-full sm:w-auto shrink-0"
                                 >
                                     Remove Video
                                 </Button>
                             </div>
                         </div>
                     ) : (
-                        <VideoUploader
-                            onUploadComplete={(data) => {
-                                onUpdate({
-                                    ...block.content,
-                                    url: data.url,
-                                    fileKey: data.fileKey,
-                                    fileSize: data.fileSize
-                                });
-                            }}
-                        />
+                        <div className="w-full max-w-full overflow-hidden">
+                            <VideoUploader
+                                onUploadComplete={(data) => {
+                                    onUpdate({
+                                        ...block.content,
+                                        url: data.url,
+                                        fileKey: data.fileKey,
+                                        fileSize: data.fileSize
+                                    });
+                                }}
+                            />
+                        </div>
                     )}
                 </TabsContent>
             </Tabs>

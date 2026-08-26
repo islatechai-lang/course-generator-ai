@@ -130,17 +130,24 @@ export default function DashboardPage() {
   const scrollToCreate = useCallback(() => {
     setActiveTab("create");
     const performScroll = () => {
+      const generateBtn = document.getElementById("main-generate-course-button") ||
+                          document.querySelector('[data-testid="button-generate-course"]');
+      if (generateBtn) {
+        generateBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
       if (createTabRef.current) {
-        createTabRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        createTabRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
       }
       if (scrollContainerRef.current) {
-        const targetTop = createTabRef.current ? Math.max(0, createTabRef.current.offsetTop - 20) : 350;
-        scrollContainerRef.current.scrollTo({ top: targetTop, behavior: "smooth" });
+        scrollContainerRef.current.scrollTo({ top: scrollContainerRef.current.scrollHeight, behavior: "smooth" });
       }
-      window.scrollTo({ top: 350, behavior: "smooth" });
+      window.scrollTo({ top: document.body.scrollHeight || 1200, behavior: "smooth" });
     };
-    setTimeout(performScroll, 50);
-    setTimeout(performScroll, 200);
+    setTimeout(performScroll, 60);
+    setTimeout(performScroll, 220);
+    setTimeout(performScroll, 450);
   }, []);
 
   useEffect(() => {
