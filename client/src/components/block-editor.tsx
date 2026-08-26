@@ -100,6 +100,9 @@ export function BlockEditor({ blocks, onChange, courseTitle, moduleTitle, lesson
         }
 
         updateBlocks(newBlocks);
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('tour-block-added'));
+        }
 
         // Autofocus/Scroll to new block + Auto-open prompt for images
         if (type === 'image') {
@@ -399,6 +402,7 @@ function InsertionPoint({ onAdd, isFirst = false }: { onAdd: (type: string) => v
                     <Button
                         variant="ghost"
                         size="icon"
+                        data-tour="add-block-button"
                         className={cn(
                             "h-8 w-8 rounded-full bg-primary/5 dark:bg-primary/20 border-2 border-primary/40 shadow-sm transition-all z-30",
                             "opacity-90 group-hover/insert:opacity-100 hover:scale-110 hover:border-primary hover:bg-primary/15 hover:shadow-primary/20 hover:shadow-lg",
