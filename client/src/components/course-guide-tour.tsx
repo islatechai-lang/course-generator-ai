@@ -23,6 +23,7 @@ export interface TourStep {
   title: string;
   instruction: string;
   dropdownInstruction?: string;
+  menuInstruction?: string;
   icon: React.ElementType;
   badge?: string;
   preferredPlacement?: "top" | "bottom" | "left" | "right";
@@ -54,12 +55,14 @@ export function CourseGuideTour({
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const [popoverPos, setPopoverPos] = useState<{
     top: number;
     left: number;
+    width: number;
     arrowOffset: number;
     placement: "top" | "bottom" | "left" | "right";
-  }>({ top: 0, left: 0, arrowOffset: 160, placement: "bottom" });
+  }>({ top: 0, left: 12, width: 320, arrowOffset: 160, placement: "bottom" });
 
   const steps: TourStep[] = [
     {
@@ -92,14 +95,15 @@ export function CourseGuideTour({
     {
       id: "settings-pricing",
       target: '[data-tour="sidebar-settings"]',
-      fallbackTarget: '[data-testid="sidebar-toggle"]',
+      fallbackTarget: '[data-tour="mobile-sidebar-trigger"]',
       title: "3. Thumbnail & Pricing",
       instruction: "👉 Click 'Settings' to edit course price, thumbnail etc",
+      menuInstruction: "👉 Tap the menu button to open sidebar & tap 'Settings'",
       icon: Settings,
       badge: "Step 3",
       preferredPlacement: "right",
       onEnter: () => {
-        setActiveTab("settings");
+        // onEnter
       },
     },
     {
@@ -177,12 +181,28 @@ export function CourseGuideTour({
     return () => window.removeEventListener("tour-block-added", handleBlockAdded);
   }, [isOpen, currentStepIndex]);
 
-  // 3. If at Step 2 ("settings-pricing") and user clicks settings tab, recalculate placement
+  // 3. If at Step 2 ("settings-pricing") and user navigates to settings tab, auto-advance to Step 3!
   useEffect(() => {
     if (isOpen && currentStepIndex === 2 && activeTab === "settings") {
-      updatePosition();
+      const timer = setTimeout(() => {
+        handleNext();
+      }, 350);
+      return () => clearTimeout(timer);
     }
   }, [activeTab, isOpen, currentStepIndex]);
+
+  // Helper to find visible element among multiple selectors (especially on mobile)
+  const getVisibleElement = (selector: string): Element | null => {
+    const elements = document.querySelectorAll(selector);
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        return el;
+      }
+    }
+    return null;
+  };
 
   // Check for dropdown menu opening in Step 2 to move highlight to options!
   useEffect(() => {
@@ -193,33 +213,33 @@ export function CourseGuideTour({
       if (dropdown && dropdown.getBoundingClientRect().width > 0) {
         if (!isDropdownOpen) {
           setIsDropdownOpen(true);
-          updatePosition();
         }
       } else {
         if (isDropdownOpen) {
           setIsDropdownOpen(false);
-          updatePosition();
         }
       }
     };
 
-    const interval = setInterval(checkDropdown, 200);
+    const interval = setInterval(checkDropdown, 150);
     return () => clearInterval(interval);
   }, [isOpen, currentStepIndex, isDropdownOpen]);
 
-  // Helper to find visible element among multiple selectors (especially on mobile)
-  const getVisibleElement = (selector: string): Element | null => {
-    const elements = document.querySelectorAll(selector);
-    for (let i = 0; i < elements.length; i++) {
-      const el = elements[i];
-      const rect = el.getBoundingClientRect();
-      // Element is visible if it has width and height and is in DOM flow
-      if (rect.width > 0 && rect.height > 0) {
-        return el;
+  // Check for mobile sidebar drawer opening in Step 3 to highlight Settings!
+  useEffect(() => {
+    if (!isOpen || currentStepIndex !== 2) return;
+
+    const checkSettings = () => {
+      const settingsEl = getVisibleElement('[data-tour="sidebar-settings"]');
+      const isVisible = !!settingsEl;
+      if (isVisible !== isSettingsVisible) {
+        setIsSettingsVisible(isVisible);
       }
-    }
-    return null;
-  };
+    };
+
+    const interval = setInterval(checkSettings, 150);
+    return () => clearInterval(interval);
+  }, [isOpen, currentStepIndex, isSettingsVisible]);
 
   // Update target rect and compute precise arrow and popover coordinates
   const updatePosition = useCallback(() => {
@@ -244,6 +264,16 @@ export function CourseGuideTour({
         }
       }
 
+      // In Step 3, check if settings item is visible in drawer/sidebar; otherwise target mobile menu button
+      if (currentStep.id === "settings-pricing") {
+        const settingsEl = getVisibleElement('[data-tour="sidebar-settings"]');
+        if (settingsEl) {
+          el = settingsEl;
+        } else {
+          el = getVisibleElement('[data-tour="mobile-sidebar-trigger"]') || getVisibleElement('[data-testid="sidebar-toggle"]');
+        }
+      }
+
       if (!el) {
         el = getVisibleElement(currentStep.target);
       }
@@ -262,7 +292,7 @@ export function CourseGuideTour({
         }
 
         const isMobile = window.innerWidth < 640;
-        const popoverWidth = Math.min(320, window.innerWidth - 24);
+        const popoverWidth = isMobile ? Math.min(340, window.innerWidth - 24) : 320;
         const popoverHeight = isMobile ? 150 : 135;
         const targetCenterX = rect.left + rect.width / 2;
         const targetCenterY = rect.top + rect.height / 2;
@@ -271,12 +301,11 @@ export function CourseGuideTour({
 
         // On mobile, prefer top or bottom to avoid horizontal clipping
         if (isMobile && (placement === "left" || placement === "right")) {
-          placement = rect.top > 200 ? "top" : "bottom";
+          placement = rect.top > 220 ? "top" : "bottom";
         }
 
         let top = 0;
         let left = 0;
-        let arrowOffset = popoverWidth / 2;
 
         if (placement === "top") {
           top = rect.top - popoverHeight - 12;
@@ -310,28 +339,30 @@ export function CourseGuideTour({
           }
         }
 
-        // Clamp inside window boundaries
+        // Clamp inside window boundaries strictly
         const clampedLeft = Math.max(12, Math.min(window.innerWidth - popoverWidth - 12, left));
         const clampedTop = Math.max(12, Math.min(window.innerHeight - popoverHeight - 12, top));
 
         // Arrow offset relative to popover so it points directly at the target center
+        let arrowOffset = popoverWidth / 2;
         if (placement === "top" || placement === "bottom") {
-          arrowOffset = Math.max(20, Math.min(popoverWidth - 20, targetCenterX - clampedLeft));
+          arrowOffset = Math.max(24, Math.min(popoverWidth - 24, targetCenterX - clampedLeft));
         } else {
-          arrowOffset = Math.max(20, Math.min(popoverHeight - 20, targetCenterY - clampedTop));
+          arrowOffset = Math.max(24, Math.min(popoverHeight - 24, targetCenterY - clampedTop));
         }
 
         setPopoverPos({
           top: clampedTop,
           left: clampedLeft,
+          width: popoverWidth,
           arrowOffset,
           placement,
         });
       } else {
         setTargetRect(null);
       }
-    }, 100);
-  }, [isOpen, isMinimized, currentStepIndex, activeTab, isEditMode]);
+    }, 80);
+  }, [isOpen, isMinimized, currentStepIndex, activeTab, isEditMode, isDropdownOpen, isSettingsVisible]);
 
   useEffect(() => {
     updatePosition();
@@ -385,9 +416,17 @@ export function CourseGuideTour({
   };
 
   const currentStep = steps[currentStepIndex];
-  const activeInstruction = (currentStep.id === "content-blocks" && isDropdownOpen && currentStep.dropdownInstruction)
-    ? currentStep.dropdownInstruction
-    : currentStep.instruction;
+
+  // Compute active instruction dynamically based on current UI state
+  let activeInstruction = currentStep.instruction;
+  if (currentStep.id === "content-blocks" && isDropdownOpen && currentStep.dropdownInstruction) {
+    activeInstruction = currentStep.dropdownInstruction;
+  } else if (currentStep.id === "settings-pricing") {
+    const isSettingsInDOM = !!getVisibleElement('[data-tour="sidebar-settings"]');
+    if (!isSettingsInDOM && currentStep.menuInstruction) {
+      activeInstruction = currentStep.menuInstruction;
+    }
+  }
 
   return (
     <>
@@ -402,11 +441,11 @@ export function CourseGuideTour({
               exit={{ opacity: 0, scale: 0.95 }}
               className="fixed pointer-events-none z-[9990] transition-all duration-200 ease-out"
               style={{
-                top: Math.max(0, targetRect.top - 6),
-                left: Math.max(0, targetRect.left - 6),
-                width: targetRect.width + 12,
-                height: targetRect.height + 12,
-                borderRadius: "12px",
+                top: Math.max(0, targetRect.top - 4),
+                left: Math.max(0, targetRect.left - 4),
+                width: targetRect.width + 8,
+                height: targetRect.height + 8,
+                borderRadius: "10px",
                 boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.55), 0 0 25px rgba(99, 102, 241, 0.85)",
                 border: "2px solid #818cf8",
               }}
@@ -418,10 +457,12 @@ export function CourseGuideTour({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="fixed z-[9995] w-[calc(100vw-24px)] sm:w-[320px] bg-slate-950 text-slate-50 border border-indigo-500/50 shadow-2xl rounded-xl p-3 sm:p-3.5 backdrop-blur-xl"
+              className="fixed z-[9995] bg-slate-950 text-slate-50 border border-indigo-500/50 shadow-2xl rounded-xl p-3 sm:p-3.5 backdrop-blur-xl box-border overflow-hidden"
               style={{
                 top: popoverPos.top,
                 left: popoverPos.left,
+                width: popoverPos.width,
+                maxWidth: "calc(100vw - 24px)",
               }}
             >
               {/* Exact Pointer Arrow pointing directly to target center */}
@@ -492,7 +533,7 @@ export function CourseGuideTour({
               </div>
 
               {/* Short Action Instruction */}
-              <div className="bg-indigo-500/20 border border-indigo-500/30 rounded-lg px-2.5 py-2 text-xs font-semibold text-indigo-200 mb-2.5 leading-snug">
+              <div className="bg-indigo-500/20 border border-indigo-500/30 rounded-lg px-2.5 py-2 text-xs font-semibold text-indigo-200 mb-2.5 leading-snug break-words">
                 {activeInstruction}
               </div>
 
@@ -534,17 +575,17 @@ export function CourseGuideTour({
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-[9999] flex flex-col items-end"
+            className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-[9999] flex flex-col items-end max-w-[calc(100vw-32px)]"
           >
             {isChecklistExpanded ? (
               /* Concise Titles-Only Checklist Card */
-              <div className="w-[calc(100vw-32px)] sm:w-[280px] bg-slate-950 text-slate-50 border border-indigo-500/40 shadow-2xl rounded-2xl p-3.5 backdrop-blur-xl">
+              <div className="w-[calc(100vw-32px)] sm:w-[280px] bg-slate-950 text-slate-50 border border-indigo-500/40 shadow-2xl rounded-2xl p-3.5 backdrop-blur-xl box-border">
                 <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
-                    <span className="text-xs font-bold">Course Setup Steps</span>
+                  <div className="flex items-center gap-2 truncate">
+                    <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse shrink-0" />
+                    <span className="text-xs font-bold truncate">Course Setup Steps</span>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 shrink-0">
                     <Badge className="bg-indigo-500/30 text-indigo-300 text-[10px] px-1.5 py-0 border-0">
                       {completedSteps.length}/{steps.length}
                     </Badge>

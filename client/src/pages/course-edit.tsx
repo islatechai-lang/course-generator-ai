@@ -109,6 +109,7 @@ function MobileSidebarTrigger() {
       className="shrink-0 -ml-2"
       onClick={() => toggleSidebar()}
       data-testid="sidebar-toggle"
+      data-tour="mobile-sidebar-trigger"
     >
       <Menu className="h-5 w-5" />
     </Button>
