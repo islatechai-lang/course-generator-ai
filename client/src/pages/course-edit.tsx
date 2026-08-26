@@ -340,6 +340,7 @@ export default function CourseEditPage() {
   const [uploadingMediaId, setUploadingMediaId] = useState<string | null>(null);
   const [showMobileScrollButton, setShowMobileScrollButton] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const handleTriggerUpgrade = () => {
@@ -472,15 +473,18 @@ export default function CourseEditPage() {
 
   const deleteCourseMutation = useMutation({
     mutationFn: async () => {
+      setIsDeleting(true);
       return apiRequest("DELETE", `/api/dashboard/${companyId}/courses/${courseId}`, {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId] });
-      navigate(backUrl);
-      toast({ title: "Course deleted", description: "The course has been removed." });
+      queryClient.removeQueries({ queryKey: ["/api/dashboard", companyId, "courses", courseId] });
+      toast({ title: "Course deleted", description: "Returning to dashboard..." });
+      window.location.href = backUrl;
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to delete course.", variant: "destructive" });
+    onError: (err: any) => {
+      setIsDeleting(false);
+      toast({ title: "Error", description: err.message || "Failed to delete course.", variant: "destructive" });
     },
   });
 
@@ -709,6 +713,15 @@ export default function CourseEditPage() {
       setRegeneratingMediaId(null);
     },
   });
+
+  if (isDeleting) {
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-background gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm font-medium text-muted-foreground">Deleting course and returning to dashboard...</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -2034,12 +2047,23 @@ export default function CourseEditPage() {
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel disabled={isDeleting || deleteCourseMutation.isPending}>Cancel</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => deleteCourseMutation.mutate()}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                deleteCourseMutation.mutate();
+                              }}
+                              disabled={isDeleting || deleteCourseMutation.isPending}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
-                              Yes, delete course
+                              {isDeleting || deleteCourseMutation.isPending ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Deleting...
+                                </>
+                              ) : (
+                                "Yes, delete course"
+                              )}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
