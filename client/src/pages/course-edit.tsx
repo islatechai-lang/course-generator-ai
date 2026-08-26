@@ -1088,13 +1088,20 @@ export default function CourseEditPage() {
                 size="sm"
                 className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium rounded-lg border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
                 onClick={() => {
+                  localStorage.removeItem("cursai_course_tour_completed_global");
                   localStorage.removeItem(`cursai_course_tour_${courseId}`);
                   window.location.reload();
                 }}
                 title="Open Interactive Guide"
               >
-                <Sparkles className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Guide Tour</span>
+                {isMobile ? (
+                  <HelpCircle className="h-3.5 w-3.5" />
+                ) : (
+                  <>
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>Guide Tour</span>
+                  </>
+                )}
               </Button>
               <Badge
                 className={course.published
@@ -2193,13 +2200,15 @@ export default function CourseEditPage() {
               price !== course.price
             ))) && (
                 <motion.div
-                  initial={{ opacity: 0, y: -20 }}
+                  initial={{ opacity: 0, y: isMobile ? 20 : -20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
+                  exit={{ opacity: 0, y: isMobile ? 20 : -20 }}
                   transition={{ duration: 0.2 }}
                   className={cn(
-                    "fixed top-[60px] z-[9998] transition-all duration-300",
-                    isMobile ? "left-4" : "left-1/2 -translate-x-1/2"
+                    "fixed z-[9998] transition-all duration-300",
+                    isMobile
+                      ? "bottom-6 left-1/2 -translate-x-1/2"
+                      : "top-[60px] left-1/2 -translate-x-1/2"
                   )}
                   data-testid="floating-save-button"
                 >

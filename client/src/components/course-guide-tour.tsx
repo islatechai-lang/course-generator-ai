@@ -46,6 +46,7 @@ export function CourseGuideTour({
   activeTab,
   setActiveTab,
 }: CourseGuideTourProps) {
+  const globalStorageKey = "cursai_course_tour_completed_global";
   const storageKey = `cursai_course_tour_${courseId}`;
 
   const [isOpen, setIsOpen] = useState(false);
@@ -111,7 +112,7 @@ export function CourseGuideTour({
       id: "publish-live",
       target: '[data-tour="publish-button"]',
       title: "4. Publish Your Course Live",
-      instruction: "👉 Click 'Publish' when your course is ready, to make it live on Whop",
+      instruction: "👉 When you're ready, click 'Publish' to make your course live for students",
       icon: Send,
       badge: "Step 4",
       preferredPlacement: "bottom",
@@ -125,16 +126,25 @@ export function CourseGuideTour({
   useEffect(() => {
     if (typeof window !== "undefined") {
       (window as any).resetGuide = () => {
+        localStorage.removeItem(globalStorageKey);
         localStorage.removeItem(storageKey);
         console.log("Guide tour reset! Reloading page...");
         window.location.reload();
       };
       (window as any).resetTour = (window as any).resetGuide;
     }
-  }, [storageKey]);
+  }, [storageKey, globalStorageKey]);
 
-  // Initialize on mount
+  // Initialize on mount (checks global completion first so creators aren't prompted repeatedly)
   useEffect(() => {
+    const isGlobalCompleted = localStorage.getItem(globalStorageKey) === "true";
+    if (isGlobalCompleted) {
+      setIsCompleted(true);
+      setIsMinimized(false);
+      setIsOpen(false);
+      return;
+    }
+
     const saved = localStorage.getItem(storageKey);
     if (!saved) {
       setIsOpen(true);
@@ -158,7 +168,7 @@ export function CourseGuideTour({
         setIsMinimized(false);
       }
     }
-  }, [courseId, storageKey]);
+  }, [courseId, storageKey, globalStorageKey]);
 
   // Progressive auto-advancement event listeners
   // 1. If at Step 0 ("edit-mode") and user enters edit mode, auto-advance to Step 1!
@@ -377,7 +387,10 @@ export function CourseGuideTour({
 
   const saveProgress = (completed: string[], done: boolean = false) => {
     setCompletedSteps(completed);
-    if (done) setIsCompleted(true);
+    if (done) {
+      setIsCompleted(true);
+      localStorage.setItem(globalStorageKey, "true");
+    }
     localStorage.setItem(
       storageKey,
       JSON.stringify({
