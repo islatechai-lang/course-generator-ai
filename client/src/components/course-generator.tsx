@@ -61,6 +61,7 @@ export function CourseGenerator({
 }: CourseGeneratorProps) {
   const [topic, setTopic] = useState("");
   const [mode, setMode] = useState<"magic" | "guided" | "scratch">("magic");
+  const [isCreatingScratch, setIsCreatingScratch] = useState(false);
 
   // Default mode is always "magic" so free users experience the AI magic on first run!
 
@@ -220,7 +221,12 @@ export function CourseGenerator({
 
     if (mode === "scratch") {
       if (onCreateScratch) {
-        onCreateScratch(topic.trim() || "Untitled Course");
+        setIsCreatingScratch(true);
+        try {
+          await onCreateScratch(topic.trim() || "Untitled Course");
+        } catch (e) {
+          setIsCreatingScratch(false);
+        }
         return;
       }
       // Direct manual creation bypasses AI
@@ -585,7 +591,7 @@ export function CourseGenerator({
               <div className="pt-2">
                 <Button
                   onClick={handleGenerate}
-                  disabled={isGenerating || isExtracting || (mode !== "scratch" && (!topic.trim() || (generationLimit && generationLimit.remaining === 0)))}
+                  disabled={isGenerating || isExtracting || isCreatingScratch || (mode !== "scratch" && (!topic.trim() || (generationLimit && generationLimit.remaining === 0)))}
                   className="w-full h-14 text-lg font-semibold rounded-xl shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99]"
                   size="lg"
                 >
@@ -593,6 +599,11 @@ export function CourseGenerator({
                     <>
                       <Loader2 className="mr-3 h-6 w-6 animate-spin" />
                       We're building your course...
+                    </>
+                  ) : isCreatingScratch ? (
+                    <>
+                      <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                      Creating your course...
                     </>
                   ) : mode === "scratch" ? (
                     <>

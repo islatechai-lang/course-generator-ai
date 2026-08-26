@@ -98,6 +98,7 @@ import { BlockEditor, BlockEditorToolbar } from "@/components/block-editor";
 import { ILessonBlock } from "@shared/schema";
 import { UpgradeModal } from "@/components/upgrade-modal";
 import { generateCourseImage } from "@/lib/image-generator";
+import { CourseGuideTour } from "@/components/course-guide-tour";
 
 function MobileSidebarTrigger() {
   const { toggleSidebar } = useSidebar();
@@ -189,7 +190,7 @@ function CourseSidebar({
             </SidebarMenuItem>
 
             <Collapsible className="group/collapsible" defaultOpen={activeTab === "content"}>
-              <SidebarMenuItem>
+              <SidebarMenuItem data-tour="sidebar-modules">
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton
                     isActive={activeTab === "content"}
@@ -237,7 +238,7 @@ function CourseSidebar({
               </SidebarMenuItem>
             </Collapsible>
 
-            <SidebarMenuItem>
+            <SidebarMenuItem data-tour="sidebar-settings">
               <SidebarMenuButton
                 isActive={activeTab === "settings"}
                 onClick={() => handleNavClick("settings")}
@@ -252,7 +253,7 @@ function CourseSidebar({
       </SidebarContent>
 
       {!isMobile && activeTab === "content" && (
-        <SidebarFooter className="p-4 border-t mt-auto">
+        <SidebarFooter className="p-4 border-t mt-auto" data-tour="edit-mode-toggle">
           <Button
             variant="default"
             className={cn(
@@ -1055,6 +1056,19 @@ export default function CourseEditPage() {
               </nav>
             </div>
             <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium rounded-lg border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                onClick={() => {
+                  localStorage.removeItem(`cursai_course_tour_${courseId}`);
+                  window.location.reload();
+                }}
+                title="Open Interactive Guide"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Guide Tour</span>
+              </Button>
               <Badge
                 className={course.published
                   ? "bg-green-500/90 text-white"
@@ -1063,57 +1077,59 @@ export default function CourseEditPage() {
                 {course.published ? "Live" : "Draft"}
               </Badge>
               <Separator orientation="vertical" className="h-5" />
-              {course.published ? (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      size="sm"
-                      className="bg-amber-600 hover:bg-amber-700 text-white"
-                      disabled={isSaving}
-                      data-testid="button-toggle-publish"
-                    >
-                      {updateCourseMutation.isPending ? (
-                        <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                      ) : (
-                        <EyeOff className="h-4 w-4 mr-1.5" />
-                      )}
-                      Unpublish
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Unpublish this course?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will hide the course from new students. Existing students who already have access will still be able to view the course.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => updateCourseMutation.mutate({ published: false })}
-                        className="bg-amber-600 hover:bg-amber-700"
+              <div data-tour="publish-button">
+                {course.published ? (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        className="bg-amber-600 hover:bg-amber-700 text-white"
+                        disabled={isSaving}
+                        data-testid="button-toggle-publish"
                       >
+                        {updateCourseMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                        ) : (
+                          <EyeOff className="h-4 w-4 mr-1.5" />
+                        )}
                         Unpublish
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              ) : (
-                <Button
-                  size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => updateCourseMutation.mutate({ published: true })}
-                  disabled={isSaving}
-                  data-testid="button-toggle-publish"
-                >
-                  {updateCourseMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                  ) : (
-                    <Eye className="h-4 w-4 mr-1.5" />
-                  )}
-                  Publish
-                </Button>
-              )}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Unpublish this course?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will hide the course from new students. Existing students who already have access will still be able to view the course.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => updateCourseMutation.mutate({ published: false })}
+                          className="bg-amber-600 hover:bg-amber-700"
+                        >
+                          Unpublish
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => updateCourseMutation.mutate({ published: true })}
+                    disabled={isSaving}
+                    data-testid="button-toggle-publish"
+                  >
+                    {updateCourseMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                    ) : (
+                      <Eye className="h-4 w-4 mr-1.5" />
+                    )}
+                    Publish
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </header>
@@ -1222,7 +1238,7 @@ export default function CourseEditPage() {
                       if (!selectedModule) return null;
 
                       return (
-                        <article className="prose prose-neutral dark:prose-invert max-w-none" data-testid="module-content">
+                        <article className="prose prose-neutral dark:prose-invert max-w-none" data-testid="module-content" data-tour="lesson-content-area">
                           {/* Module Title */}
                           <div className="group flex items-start gap-3 mb-8">
                             <div
@@ -2322,6 +2338,15 @@ export default function CourseEditPage() {
         </Dialog>
       </div>
       <UpgradeModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
+      {course && (
+        <CourseGuideTour
+          courseId={courseId!}
+          isEditMode={isEditMode}
+          enterEditMode={enterEditMode}
+          activeTab={activeTab as any}
+          setActiveTab={setActiveTab as any}
+        />
+      )}
     </SidebarProvider>
   );
 }
