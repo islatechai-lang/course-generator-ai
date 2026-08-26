@@ -151,29 +151,26 @@ export function CourseCard({
                       className="bg-amber-600 hover:bg-amber-700"
                     >
                       Unpublish
-                      >
-                        Unpublish
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              ) : (
-                <Button
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => onTogglePublish?.(course.id, true)}
-                  disabled={isPublishing}
-                  data-testid={`button-toggle-publish-${course.id}`}
-                >
-                  {isPublishing ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Eye className="h-4 w-4 mr-2" />
-                  )}
-                  Publish
-                </Button>
-              )}
-            </>
-          )
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : (
+              <Button
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => onTogglePublish?.(course.id, true)}
+                disabled={isPublishing}
+                data-testid={`button-toggle-publish-${course.id}`}
+              >
+                {isPublishing ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Eye className="h-4 w-4 mr-2" />
+                )}
+                Publish
+              </Button>
+            )}
+          </>
         ) : hasAccess || course.isFree ? (
           <Button className="w-full" asChild data-testid={`button-view-course-${course.id}`}>
             <Link href={`/course/${course.id}`}>
