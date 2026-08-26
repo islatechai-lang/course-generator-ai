@@ -27,7 +27,7 @@ import { generateCourseImage } from "@/lib/image-generator";
 interface CourseGeneratorProps {
   companyId: string;
   onGenerated: (course: GeneratedCourse) => void;
-  onCreateScratch?: (title: string) => Promise<void> | void;
+  onCreateScratch?: (title: string, generateThumbnail?: boolean) => Promise<void> | void;
   isGenerating: boolean;
   setIsGenerating: (generating: boolean) => void;
   apiBasePath?: string;
@@ -63,6 +63,47 @@ export function CourseGenerator({
   const [topic, setTopic] = useState("");
   const [mode, setMode] = useState<"magic" | "guided" | "scratch">("magic");
   const [isCreatingScratch, setIsCreatingScratch] = useState(false);
+  const [showScratchThumbnailModal, setShowScratchThumbnailModal] = useState(false);
+
+  const handleConfirmScratch = async (generateThumbnail: boolean) => {
+    setShowScratchThumbnailModal(false);
+    setIsCreatingScratch(true);
+    try {
+      if (onCreateScratch) {
+        await onCreateScratch(topic.trim() || "Untitled Course", generateThumbnail);
+      } else {
+        let coverImage: string | undefined = undefined;
+        if (generateThumbnail) {
+          try {
+            const img = await generateCourseImage(topic.trim() || "Untitled Course");
+            coverImage = img || undefined;
+          } catch (e) {
+            console.error("Failed to generate scratch cover image:", e);
+          }
+        }
+        const emptyCourse: GeneratedCourse = {
+          course_title: topic.trim() || "Untitled Course",
+          description: "Manually created course.",
+          coverImage,
+          modules: [{
+            module_title: "Module 1",
+            lessons: [{
+              lesson_title: "Lesson 1",
+              content: "Start writing your content here..."
+            }],
+            quiz: {
+              title: "Module 1 Quiz",
+              questions: []
+            }
+          }]
+        };
+        onGenerated(emptyCourse);
+      }
+    } catch (e) {
+      console.error("Scratch course creation error:", e);
+      setIsCreatingScratch(false);
+    }
+  };
 
   // Default mode is always "magic" so free users experience the AI magic on first run!
 
