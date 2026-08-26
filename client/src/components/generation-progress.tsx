@@ -5,6 +5,7 @@ import { Zap, CheckCircle2, Circle, Loader2, Search, Layout, BookOpen, PenTool, 
 interface GenerationProgressProps {
   topic: string;
   isComplete?: boolean;
+  statusText?: string;
 }
 
 const steps = [
@@ -13,39 +14,34 @@ const steps = [
     label: "Analyzing your vision",
     description: "Processing topic and setting AI parameters...",
     icon: Zap,
-    duration: 15,
   },
   {
     id: "research",
     label: "Magic AI Research",
-    description: "Gathering latest insights and cross-referencing...",
+    description: "Gathering latest insights and curriculum structure...",
     icon: Search,
-    duration: 25,
   },
   {
     id: "outline",
     label: "Architecting Course Flow",
-    description: "Designing modules and learning objectives...",
+    description: "Designing modules, lessons, and learning objectives...",
     icon: Layout,
-    duration: 20,
   },
   {
-    id: "content",
-    label: "Crafting Comprehensive Content",
-    description: "Generating detailed lessons and examples...",
-    icon: BookOpen,
-    duration: 30,
+    id: "visuals",
+    label: "Designing Course Visuals",
+    description: "Generating high-converting thumbnail & visual cover...",
+    icon: PenTool,
   },
   {
     id: "final",
     label: "Polishing & Finalizing",
-    description: "Reviewing curriculum for quality and tone...",
+    description: "Finalizing curriculum ready for preview...",
     icon: Sparkles,
-    duration: 10,
   },
 ];
 
-export function GenerationProgress({ topic, isComplete = false }: GenerationProgressProps) {
+export function GenerationProgress({ topic, isComplete = false, statusText }: GenerationProgressProps) {
   const [progress, setProgress] = useState(0);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
@@ -61,22 +57,20 @@ export function GenerationProgress({ topic, isComplete = false }: GenerationProg
         setActiveStepIndex(steps.length - 1);
       } else {
         const seconds = elapsed / 1000;
-        // Exponential approach to 98%
-        newProgress = 100 * (1 - Math.exp(-seconds / 25));
-        newProgress = Math.min(98, newProgress);
+        // Smooth progression: approaches 95% over ~35s
+        newProgress = 100 * (1 - Math.exp(-seconds / 22));
+        newProgress = Math.min(96, newProgress);
       }
       
-      setProgress(newProgress);
+      setProgress((prev) => (isComplete ? 100 : Math.max(prev, newProgress)));
 
-      // Determine active step based on progress
-      // We divide 100% by number of steps for a rough estimate
       const stepThreshold = 100 / steps.length;
       const currentStep = Math.min(
-        Math.floor(newProgress / stepThreshold),
+        Math.floor((isComplete ? 100 : newProgress) / stepThreshold),
         steps.length - 1
       );
-      setActiveStepIndex(currentStep);
-    }, 200);
+      setActiveStepIndex(isComplete ? steps.length - 1 : currentStep);
+    }, 150);
 
     return () => clearInterval(updateInterval);
   }, [isComplete]);

@@ -296,7 +296,9 @@ export default function CourseEditPage() {
 
   const { data: course, isLoading } = useQuery<CourseWithModules>({
     queryKey: ["/api/dashboard", companyId, "courses", courseId],
-    enabled: !!companyId && !!courseId,
+    enabled: !!companyId && !!courseId && !courseId.startsWith("temp-"),
+    retry: 3,
+    retryDelay: 1000,
   });
 
   interface AnalyticsStudent {
@@ -1036,6 +1038,17 @@ export default function CourseEditPage() {
   };
 
 
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-medium text-muted-foreground">Loading course...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!course) {
     return (

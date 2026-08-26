@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import type { GeneratedCourse } from "@shared/schema";
+import { generateCourseImage } from "@/lib/image-generator";
 
 interface CourseGeneratorProps {
   companyId: string;
@@ -326,7 +327,23 @@ export function CourseGenerator({
       };
 
       const generatedCourse = await pollForResult();
+      
+      // Pre-generate thumbnail visual asset during the progress stage so it's already done before preview!
+      try {
+        const coverImage = await generateCourseImage(generatedCourse.course_title);
+        if (coverImage) {
+          (generatedCourse as any).coverImage = coverImage;
+        }
+      } catch (imgErr) {
+        console.warn("Pre-generating cover image failed:", imgErr);
+      }
+
       setIsGenerationComplete(true);
+      
+      // Let the user visually see 100% completion before transitioning
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      setIsGenerating(false);
       onGenerated(generatedCourse);
       toast({
         title: "Course generated!",
@@ -670,7 +687,20 @@ export function CoursePreview({ course, onSave, onDiscard, isSaving, savingStatu
   const totalLessons = course.modules?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) || 0;
 
   return (
-    <Card data-testid="card-course-preview">
+    <Card className="overflow-hidden" data-testid="card-course-preview">
+      {(course as any).coverImage && (
+        <div className="relative aspect-[21/9] sm:aspect-[24/9] w-full overflow-hidden border-b bg-muted">
+          <img
+            src={(course as any).coverImage}
+            alt={course.course_title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md border border-white/10">
+            <Sparkles className="h-3 w-3 text-amber-400" />
+            AI Cover Generated
+          </div>
+        </div>
+      )}
       <CardHeader className="pb-4">
         <div className="space-y-4">
           <div className="flex items-start justify-between gap-4 flex-wrap">

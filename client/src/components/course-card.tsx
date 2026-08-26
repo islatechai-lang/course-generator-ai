@@ -115,12 +115,19 @@ export function CourseCard({
       <CardFooter className="pt-0 pb-4 px-4 sm:px-6 gap-2 flex-wrap">
         {isCreator ? (
           <>
-            <Button asChild className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" data-testid={`button-manage-${course.id}`}>
-              <Link href={companyId ? `/dashboard/${companyId}/courses/${course.id}/edit` : `/course/${course.id}/edit`}>
-                <Settings className="h-4 w-4 mr-2" />
-                Manage
-              </Link>
-            </Button>
+            {course.id.toString().startsWith("temp-") ? (
+              <Button disabled className="flex-1 bg-blue-600/70 text-white" data-testid={`button-manage-${course.id}`}>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Creating...
+              </Button>
+            ) : (
+              <Button asChild className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" data-testid={`button-manage-${course.id}`}>
+                <Link href={companyId ? `/dashboard/${companyId}/courses/${course.id}/edit` : `/course/${course.id}/edit`}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Manage
+                </Link>
+              </Button>
+            )}
             {course.published ? (
               <AlertDialog>
                 <AlertDialogTrigger asChild>

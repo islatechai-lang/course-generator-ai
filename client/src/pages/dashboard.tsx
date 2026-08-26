@@ -288,21 +288,22 @@ export default function DashboardPage() {
 
     // Store the course data before clearing state
     const courseToSave = generatedCourse;
+    let coverImage: string | undefined = (courseToSave as any).coverImage;
 
-    setIsGeneratingImage(true);
     setIsGeneratingImages(options.generateLessonImages);
-    setSavingStatus("Generating cover image...");
 
-    let coverImage: string | undefined;
-    try {
-      const generatedImage = await generateCourseImage(courseToSave.course_title);
-      coverImage = generatedImage || undefined;
-    } catch (error) {
-      console.error("Failed to generate cover image:", error);
+    if (!coverImage) {
+      setIsGeneratingImage(true);
+      setSavingStatus("Generating cover image...");
+      try {
+        const generatedImage = await generateCourseImage(courseToSave.course_title);
+        coverImage = generatedImage || undefined;
+      } catch (error) {
+        console.error("Failed to generate cover image:", error);
+      }
+      setIsGeneratingImage(false);
+      setSavingStatus("");
     }
-
-    setIsGeneratingImage(false);
-    setSavingStatus("");
 
     // Show toast immediately
     toast({

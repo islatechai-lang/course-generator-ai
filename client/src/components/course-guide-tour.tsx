@@ -112,7 +112,7 @@ export function CourseGuideTour({
       id: "publish-live",
       target: '[data-tour="publish-button"]',
       title: "4. Publish Your Course Live",
-      instruction: "👉 When you're ready, click 'Publish' to make your course live for students",
+      instruction: "👉 When you're ready, hit 'Publish' to make your course live on Whop",
       icon: Send,
       badge: "Step 4",
       preferredPlacement: "bottom",

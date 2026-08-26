@@ -235,8 +235,17 @@ export default function ExperiencePage() {
 
       return { previousData };
     },
-    onSuccess: () => {
+    onSuccess: (newCourse: Course & { moduleCount: number; lessonCount: number; studentCount: number; hasAccess?: boolean }) => {
+      queryClient.setQueryData(["/api/experiences", experienceId], (old: ExperienceData | undefined) => {
+        if (!old) return old;
+        return {
+          ...old,
+          courses: [newCourse, ...old.courses.filter(c => !c.id.toString().startsWith("temp-"))]
+        };
+      });
       queryClient.invalidateQueries({ queryKey: ["/api/experiences", experienceId] });
+      setIsGeneratingImage(false);
+      setGeneratedCourse(null);
     },
     onError: (error: any, __, context) => {
       console.error("[Frontend Save] Error saving course:", error);
@@ -244,6 +253,7 @@ export default function ExperiencePage() {
       if (context?.previousData) {
         queryClient.setQueryData(["/api/experiences", experienceId], context.previousData);
       }
+      setIsGeneratingImage(false);
       toast({
         title: "Failed to save",
         description: "There was an error saving your course. Please try again.",
@@ -299,21 +309,23 @@ export default function ExperiencePage() {
 
     // Store the course data before clearing state
     const courseToSave = generatedCourse;
+    let coverImage: string | undefined = (courseToSave as any).coverImage;
 
-    setIsGeneratingImage(true);
-
-    let coverImage: string | undefined;
-    try {
-      const generatedImage = await generateCourseImage(courseToSave.course_title);
-      coverImage = generatedImage || undefined;
-    } catch (error) {
-      console.error("Failed to generate cover image:", error);
+    // Only generate image if not already generated in previous stage
+    if (!coverImage) {
+      setIsGeneratingImage(true);
+      try {
+        const generatedImage = await generateCourseImage(courseToSave.course_title);
+        coverImage = generatedImage || undefined;
+      } catch (error) {
+        console.error("Failed to generate cover image:", error);
+      }
+      setIsGeneratingImage(false);
     }
 
     // Use flushSync to force synchronous state updates BEFORE mutation
     // This ensures CoursePreview unmounts and tab switches before mutation enters pending state
     flushSync(() => {
-      setIsGeneratingImage(false);
       setGeneratedCourse(null);
       setActiveTab("courses");
     });
