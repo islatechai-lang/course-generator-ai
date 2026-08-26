@@ -11,7 +11,8 @@ import {
   PlusCircle,
   ChevronUp,
   ChevronDown,
-  Play
+  Play,
+  MousePointerClick
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -97,8 +98,8 @@ export function CourseGuideTour({
       target: '[data-tour="sidebar-settings"]',
       fallbackTarget: '[data-tour="mobile-sidebar-trigger"]',
       title: "3. Thumbnail & Pricing",
-      instruction: "👉 Click 'Settings' to edit course price, thumbnail etc",
-      menuInstruction: "👉 Tap the menu button to open sidebar & tap 'Settings'",
+      instruction: "👉 Go to Settings to edit pricing, course details etc",
+      menuInstruction: "👉 Open menu & tap 'Settings' to edit pricing, course details etc",
       icon: Settings,
       badge: "Step 3",
       preferredPlacement: "right",
@@ -110,7 +111,7 @@ export function CourseGuideTour({
       id: "publish-live",
       target: '[data-tour="publish-button"]',
       title: "4. Publish Your Course Live",
-      instruction: "👉 Click 'Publish' to make your course live for students",
+      instruction: "👉 Click 'Publish' when your course is ready, to make it live on Whop",
       icon: Send,
       badge: "Step 4",
       preferredPlacement: "bottom",
@@ -308,33 +309,33 @@ export function CourseGuideTour({
         let left = 0;
 
         if (placement === "top") {
-          top = rect.top - popoverHeight - 12;
+          top = rect.top - popoverHeight - 14;
           left = targetCenterX - popoverWidth / 2;
           if (top < 10) {
             placement = "bottom";
-            top = rect.bottom + 12;
+            top = rect.bottom + 14;
           }
         } else if (placement === "bottom") {
-          top = rect.bottom + 12;
+          top = rect.bottom + 14;
           left = targetCenterX - popoverWidth / 2;
           if (top + popoverHeight > window.innerHeight - 10) {
             placement = "top";
-            top = rect.top - popoverHeight - 12;
+            top = rect.top - popoverHeight - 14;
           }
         } else if (placement === "right") {
-          left = rect.right + 12;
+          left = rect.right + 14;
           top = targetCenterY - popoverHeight / 2;
           if (left + popoverWidth > window.innerWidth - 10) {
             placement = "bottom";
-            top = rect.bottom + 12;
+            top = rect.bottom + 14;
             left = targetCenterX - popoverWidth / 2;
           }
         } else if (placement === "left") {
-          left = rect.left - popoverWidth - 12;
+          left = rect.left - popoverWidth - 14;
           top = targetCenterY - popoverHeight / 2;
           if (left < 10) {
             placement = "bottom";
-            top = rect.bottom + 12;
+            top = rect.bottom + 14;
             left = targetCenterX - popoverWidth / 2;
           }
         }
@@ -533,8 +534,8 @@ export function CourseGuideTour({
               </div>
 
               {/* Short Action Instruction */}
-              <div className="bg-indigo-500/20 border border-indigo-500/30 rounded-lg px-2.5 py-2 text-xs font-semibold text-indigo-200 mb-2.5 leading-snug break-words">
-                {activeInstruction}
+              <div className="bg-indigo-500/20 border border-indigo-500/30 rounded-lg px-2.5 py-2 text-xs font-semibold text-indigo-200 mb-2.5 leading-snug break-words flex items-center gap-1.5">
+                <span>{activeInstruction}</span>
               </div>
 
               {/* Footer Actions */}
@@ -554,7 +555,7 @@ export function CourseGuideTour({
                   className="h-7 px-3 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm"
                 >
                   {currentStepIndex === steps.length - 1 ? (
-                    "Finish 🎉"
+                    "Got it 👍"
                   ) : (
                     <>
                       Next
