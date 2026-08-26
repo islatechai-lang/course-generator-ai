@@ -236,7 +236,17 @@ export default function DashboardPage() {
     },
   });
 
-  const handleCreateScratch = async (title: string) => {
+  const handleCreateScratch = async (title: string, generateThumbnail: boolean = false) => {
+    let coverImage: string | undefined = undefined;
+    if (generateThumbnail) {
+      try {
+        const generated = await generateCourseImage(title.trim() || "Course");
+        coverImage = generated || undefined;
+      } catch (err) {
+        console.error("Failed to generate cover image for scratch course:", err);
+      }
+    }
+
     const scratchData: GeneratedCourse = {
       course_title: title.trim() || "Untitled Course",
       description: "Manually created course.",
@@ -257,6 +267,7 @@ export default function DashboardPage() {
       generatedCourse: scratchData,
       isFree: true,
       price: "0",
+      coverImage,
       generateLessonImages: false,
       generateVideo: false,
     });

@@ -211,42 +211,17 @@ export function CourseGenerator({
       return;
     }
 
-    if (mode !== "scratch" && !topic.trim()) {
+    if (mode === "scratch") {
+      setShowScratchThumbnailModal(true);
+      return;
+    }
+
+    if (!topic.trim()) {
       toast({
         title: "Topic required",
         description: "Please enter a topic for your course.",
         variant: "destructive",
       });
-      return;
-    }
-
-    if (mode === "scratch") {
-      if (onCreateScratch) {
-        setIsCreatingScratch(true);
-        try {
-          await onCreateScratch(topic.trim() || "Untitled Course");
-        } catch (e) {
-          setIsCreatingScratch(false);
-        }
-        return;
-      }
-      // Direct manual creation bypasses AI
-      const emptyCourse: GeneratedCourse = {
-        course_title: topic.trim() || "Untitled Course",
-        description: "Manually created course.",
-        modules: [{
-          module_title: "Module 1",
-          lessons: [{
-            lesson_title: "Lesson 1",
-            content: "Start writing your content here..."
-          }],
-          quiz: {
-            title: "Module 1 Quiz",
-            questions: []
-          }
-        }]
-      };
-      onGenerated(emptyCourse);
       return;
     }
 
@@ -646,6 +621,41 @@ export function CourseGenerator({
           </Card>
         </Tabs>
       )}
+
+      {/* Manual Course Thumbnail Choice Modal */}
+      <AlertDialog open={showScratchThumbnailModal} onOpenChange={setShowScratchThumbnailModal}>
+        <AlertDialogContent className="max-w-md p-6 rounded-2xl">
+          <AlertDialogHeader className="space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mx-auto">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <AlertDialogTitle className="text-xl font-bold text-center">
+              Generate Course Thumbnail?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-center text-muted-foreground leading-relaxed">
+              Would you like AI to automatically generate an eye-catching thumbnail for <strong className="font-semibold text-foreground">"{topic.trim() || 'your course'}"</strong>, or skip and add your own later?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleConfirmScratch(false)}
+              className="w-full sm:w-1/2 h-11 text-xs font-medium text-muted-foreground hover:text-foreground"
+            >
+              Skip, I'll do this later
+            </Button>
+            <Button
+              type="button"
+              onClick={() => handleConfirmScratch(true)}
+              className="w-full sm:w-1/2 h-11 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 gap-1.5"
+            >
+              <Sparkles className="h-4 w-4" />
+              Generate Thumbnail
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
