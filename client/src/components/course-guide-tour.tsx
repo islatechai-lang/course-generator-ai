@@ -465,85 +465,51 @@ export function CourseGuideTour({
               }}
             />
 
-            {/* Big Animated Directional Arrow Pointer pointing directly at target to click */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.15 }}
+            {/* Stationary Arrow Pointer pointing directly at the target */}
+            <div
               className="fixed pointer-events-none z-[9996]"
               style={{
                 top:
                   popoverPos.placement === "top"
-                    ? Math.max(10, targetRect.top - 48)
+                    ? targetRect.top - 28
                     : popoverPos.placement === "bottom"
-                    ? Math.min(window.innerHeight - 52, targetRect.bottom + 6)
+                    ? targetRect.bottom + 2
                     : targetRect.top + targetRect.height / 2,
                 left:
                   popoverPos.placement === "right"
-                    ? Math.max(12, targetRect.left - 48)
+                    ? targetRect.right + 2
                     : popoverPos.placement === "left"
-                    ? Math.min(window.innerWidth - 60, targetRect.right + 8)
-                    : Math.max(20, Math.min(window.innerWidth - 20, targetRect.left + targetRect.width / 2)),
+                    ? targetRect.left - 28
+                    : targetRect.left + targetRect.width / 2,
                 transform:
                   popoverPos.placement === "top" || popoverPos.placement === "bottom"
                     ? "translateX(-50%)"
                     : "translateY(-50%)",
               }}
             >
-              <motion.div
-                animate={
-                  popoverPos.placement === "top"
-                    ? { y: [0, 6, 0] }
-                    : popoverPos.placement === "bottom"
-                    ? { y: [0, -6, 0] }
-                    : popoverPos.placement === "right"
-                    ? { x: [0, 6, 0] }
-                    : { x: [0, -6, 0] }
-                }
-                transition={{
-                  repeat: Infinity,
-                  duration: 0.9,
-                  ease: "easeInOut",
-                }}
-                className="flex flex-col items-center gap-0.5 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]"
-              >
+              <div className="flex items-center justify-center text-amber-400 drop-shadow-[0_0_12px_rgba(245,158,11,0.9)]">
                 {popoverPos.placement === "bottom" && (
-                  <div className="text-amber-400 -mb-1">
-                    <svg className="w-7 h-7 sm:w-8 sm:h-8 filter drop-shadow-[0_0_10px_rgba(245,158,11,1)] fill-current" viewBox="0 0 24 24">
-                      <path d="M12 3l-6 7h3.5v11h5v-11h3.5z" />
-                    </svg>
-                  </div>
+                  <svg className="w-7 h-7 sm:w-8 sm:h-8 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 3l-6 7h3.5v11h5v-11h3.5z" />
+                  </svg>
                 )}
-
-                <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white font-black text-[10px] sm:text-xs px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.95)] border-2 border-white tracking-wider flex items-center gap-1 whitespace-nowrap">
-                  <span>👉</span>
-                  <span>CLICK HERE</span>
-                </div>
-
                 {popoverPos.placement === "top" && (
-                  <div className="text-amber-400 -mt-1">
-                    <svg className="w-7 h-7 sm:w-8 sm:h-8 filter drop-shadow-[0_0_10px_rgba(245,158,11,1)] fill-current" viewBox="0 0 24 24">
-                      <path d="M12 21l6-7h-3.5v-11h-5v11h-3.5z" />
-                    </svg>
-                  </div>
+                  <svg className="w-7 h-7 sm:w-8 sm:h-8 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 21l6-7h-3.5v-11h-5v11h-3.5z" />
+                  </svg>
                 )}
                 {popoverPos.placement === "right" && (
-                  <div className="text-amber-400 -mt-1">
-                    <svg className="w-7 h-7 sm:w-8 sm:h-8 filter drop-shadow-[0_0_10px_rgba(245,158,11,1)] fill-current" viewBox="0 0 24 24">
-                      <path d="M21 12l-7-6v3.5h-11v5h11v3.5z" />
-                    </svg>
-                  </div>
+                  <svg className="w-7 h-7 sm:w-8 sm:h-8 fill-current" viewBox="0 0 24 24">
+                    <path d="M3 12l7-6v3.5h11v5h-11v3.5z" />
+                  </svg>
                 )}
                 {popoverPos.placement === "left" && (
-                  <div className="text-amber-400 -mt-1">
-                    <svg className="w-7 h-7 sm:w-8 sm:h-8 filter drop-shadow-[0_0_10px_rgba(245,158,11,1)] fill-current" viewBox="0 0 24 24">
-                      <path d="M3 12l7 6v-3.5h11v-5h-11v-3.5z" />
-                    </svg>
-                  </div>
+                  <svg className="w-7 h-7 sm:w-8 sm:h-8 fill-current" viewBox="0 0 24 24">
+                    <path d="M21 12l-7 6v-3.5h-11v-5h11v-3.5z" />
+                  </svg>
                 )}
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
 
             {/* Attached Interactive Directional Tooltip Card */}
             <motion.div
@@ -551,7 +517,7 @@ export function CourseGuideTour({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="fixed z-[9995] bg-slate-950 text-slate-50 border border-indigo-500/50 shadow-2xl rounded-xl p-3 sm:p-3.5 backdrop-blur-xl box-border overflow-hidden"
+              className="fixed z-[9995] bg-slate-950 text-slate-50 border border-indigo-500/50 shadow-2xl rounded-xl p-3 sm:p-3.5 backdrop-blur-xl box-border"
               style={{
                 top: popoverPos.top,
                 left: popoverPos.left,
@@ -561,7 +527,7 @@ export function CourseGuideTour({
             >
               {/* Exact Pointer Arrow pointing directly to target center */}
               <div
-                className="absolute pointer-events-none transition-all duration-150"
+                className="absolute pointer-events-none"
                 style={
                   popoverPos.placement === "top"
                     ? {
