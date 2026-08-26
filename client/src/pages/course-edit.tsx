@@ -2212,45 +2212,50 @@ export default function CourseEditPage() {
               isFree !== course.isFree ||
               price !== course.price
             ))) && (
-                <motion.div
-                  initial={{ opacity: 0, y: isMobile ? 20 : -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: isMobile ? 20 : -20 }}
-                  transition={{ duration: 0.2 }}
+                <div
                   className={cn(
-                    "fixed z-[9998] transition-all duration-300",
-                    isMobile
-                      ? "bottom-6 left-1/2 -translate-x-1/2"
-                      : "top-[60px] left-1/2 -translate-x-1/2"
+                    "fixed inset-x-0 z-[9998] flex justify-center pointer-events-none px-4",
+                    isMobile ? "bottom-6" : "top-[60px]"
                   )}
                   data-testid="floating-save-button"
                 >
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="shadow-xl"
-                    onClick={activeTab === "settings" ? () => updateCourseMutation.mutate({
-                      title: title || course.title,
-                      description: description || course.description,
-                      isFree,
-                      price: isFree ? "0" : price,
-                    }) : handleSaveChanges}
-                    disabled={isSaving}
-                    data-testid="button-save-changes"
+                  <motion.div
+                    initial={{ opacity: 0, y: isMobile ? 25 : -25 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: isMobile ? 25 : -25 }}
+                    transition={{ duration: 0.2 }}
+                    className="pointer-events-auto"
                   >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-1.5" />
-                        Save Changes
-                      </>
-                    )}
-                  </Button>
-                </motion.div>
+                    <Button
+                      variant="default"
+                      size={isMobile ? "default" : "sm"}
+                      className={cn(
+                        "font-semibold shadow-2xl transition-all",
+                        isMobile ? "h-11 px-6 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/25 border border-white/20" : "shadow-xl"
+                      )}
+                      onClick={activeTab === "settings" ? () => updateCourseMutation.mutate({
+                        title: title || course.title,
+                        description: description || course.description,
+                        isFree,
+                        price: isFree ? "0" : price,
+                      }) : handleSaveChanges}
+                      disabled={isSaving}
+                      data-testid="button-save-changes"
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-1.5" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                  </motion.div>
+                </div>
               )}
           </AnimatePresence>
         </div>
