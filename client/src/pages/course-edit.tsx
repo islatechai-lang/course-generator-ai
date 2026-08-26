@@ -812,7 +812,7 @@ export default function CourseEditPage() {
     toast({ title: "Changes discarded", description: "Your changes have been reverted." });
   };
 
-  const handleTabChange = (newTab: string) => {
+  const handleTabChange = async (newTab: string) => {
     if (newTab === "content" || !isEditMode || !isDirty) {
       setActiveTab(newTab);
       if (newTab !== "content") {
@@ -822,9 +822,17 @@ export default function CourseEditPage() {
       }
       return;
     }
-    // Has unsaved changes, show dialog
-    setPendingTabChange(newTab);
-    setShowUnsavedDialog(true);
+    // Auto-save changes smoothly before switching tabs so user is never blocked!
+    try {
+      await handleSaveChanges();
+      setActiveTab(newTab);
+      setIsEditMode(false);
+      setIsDirty(false);
+      editedContentRef.current.clear();
+    } catch (e) {
+      setPendingTabChange(newTab);
+      setShowUnsavedDialog(true);
+    }
   };
 
   const handleModuleChange = (moduleId: string) => {
@@ -1837,59 +1845,6 @@ export default function CourseEditPage() {
                   </div>
                   <Separator />
                   <div className="grid gap-6">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Appearance & Branding</Label>
-                      <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-xl border border-muted-foreground/10">
-                        <div className="space-y-2">
-                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Primary Color</Label>
-                          <div className="flex gap-2">
-                            <div
-                              className="h-9 w-9 rounded-lg border border-muted-foreground/20 shrink-0"
-                              style={{ backgroundColor: course.theme?.primaryColor || "#0f172a" }}
-                            />
-                            <Input
-                              type="text"
-                              value={course.theme?.primaryColor || "#0f172a"}
-                              onChange={(e) => updateCourseMutation.mutate({
-                                theme: {
-                                  headingColor: "#0f172a",
-                                  backgroundColor: "#f8fafc",
-                                  bodyTextColor: "#334155",
-                                  linkColor: "#2563eb",
-                                  ...course.theme,
-                                  primaryColor: e.target.value
-                                }
-                              })}
-                              className="h-9 font-mono text-xs"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Heading Color</Label>
-                          <div className="flex gap-2">
-                            <div
-                              className="h-9 w-9 rounded-lg border border-muted-foreground/20 shrink-0"
-                              style={{ backgroundColor: course.theme?.headingColor || "#0f172a" }}
-                            />
-                            <Input
-                              type="text"
-                              value={course.theme?.headingColor || "#0f172a"}
-                              onChange={(e) => updateCourseMutation.mutate({
-                                theme: {
-                                  primaryColor: "#0f172a",
-                                  backgroundColor: "#f8fafc",
-                                  bodyTextColor: "#334155",
-                                  linkColor: "#2563eb",
-                                  ...course.theme,
-                                  headingColor: e.target.value
-                                }
-                              })}
-                              className="h-9 font-mono text-xs"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="title" className="text-sm font-medium">Title</Label>
                       <Input

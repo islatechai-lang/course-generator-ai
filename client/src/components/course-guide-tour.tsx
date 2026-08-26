@@ -90,7 +90,7 @@ export function CourseGuideTour({
       id: "settings-pricing",
       target: '[data-tour="sidebar-settings"]',
       title: "3. Thumbnail & Pricing",
-      instruction: "👉 Click 'Settings' to customize thumbnail, colors & price",
+      instruction: "👉 Click 'Settings' to edit course price, thumbnail etc",
       icon: Settings,
       badge: "Step 3",
       preferredPlacement: "right",
@@ -112,16 +112,25 @@ export function CourseGuideTour({
     },
   ];
 
+  // Expose global console helper for easy testing
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).resetGuide = () => {
+        localStorage.removeItem(storageKey);
+        console.log("Guide tour reset! Reloading page...");
+        window.location.reload();
+      };
+      (window as any).resetTour = (window as any).resetGuide;
+    }
+  }, [storageKey]);
+
   // Initialize on mount
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
     if (!saved) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-        setIsMinimized(false);
-        setIsCompleted(false);
-      }, 500);
-      return () => clearTimeout(timer);
+      setIsOpen(true);
+      setIsMinimized(false);
+      setIsCompleted(false);
     } else {
       try {
         const parsed = JSON.parse(saved);
@@ -131,10 +140,14 @@ export function CourseGuideTour({
           setIsMinimized(false);
           setIsOpen(false);
         } else {
-          setIsMinimized(true);
+          // Incomplete progress - start the guide immediately!
+          setIsOpen(true);
+          setIsMinimized(false);
+          setIsCompleted(false);
         }
       } catch (e) {
-        // ignore
+        setIsOpen(true);
+        setIsMinimized(false);
       }
     }
   }, [courseId, storageKey]);
