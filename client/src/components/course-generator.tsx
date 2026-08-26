@@ -458,7 +458,7 @@ export function CourseGenerator({
                       {mode === "scratch" ? <PenTool className="h-4 w-4" /> : <Lightbulb className="h-4 w-4 text-amber-500" />}
                       {mode === "scratch" ? "Course Title" : "What is this course about?"}
                     </Label>
-                    {generationLimit && (
+                    {mode !== "scratch" && generationLimit && (
                       <div className="w-full sm:w-auto flex justify-center sm:justify-end">
                         <div className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-full border text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm ${generationLimit.remaining > 0
                           ? "bg-secondary/40 border-secondary/40 text-secondary-foreground"
@@ -477,6 +477,13 @@ export function CourseGenerator({
                               </span>
                             </>
                           )}
+                        </div>
+                      </div>
+                    )}
+                    {mode === "scratch" && (
+                      <div className="w-full sm:w-auto flex justify-center sm:justify-end">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                          <span>Unlimited Manual Creation</span>
                         </div>
                       </div>
                     )}
@@ -562,7 +569,7 @@ export function CourseGenerator({
               <div className="pt-2">
                 <Button
                   onClick={handleGenerate}
-                  disabled={isGenerating || (mode !== "scratch" && !topic.trim()) || isExtracting || (generationLimit && generationLimit.remaining === 0)}
+                  disabled={isGenerating || isExtracting || (mode !== "scratch" && (!topic.trim() || (generationLimit && generationLimit.remaining === 0)))}
                   className="w-full h-14 text-lg font-semibold rounded-xl shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99]"
                   size="lg"
                 >
