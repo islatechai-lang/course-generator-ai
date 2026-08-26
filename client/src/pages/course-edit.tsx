@@ -1181,6 +1181,7 @@ export default function CourseEditPage() {
                           onClick={() => isEditMode ? exitEditMode() : enterEditMode()}
                           className="w-full sm:w-auto h-9 sm:h-8 md:hidden"
                           data-testid="button-toggle-edit"
+                          data-tour="edit-mode-toggle"
                         >
                           {isEditMode ? (
                             <>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -6,28 +6,29 @@ import {
   ChevronLeft,
   X,
   CheckCircle2,
-  HelpCircle,
   Eye,
   Layers,
   Settings,
   Send,
   PlusCircle,
-  Minimize2,
-  Maximize2,
-  BookOpen
+  BookOpen,
+  ArrowDown,
+  ArrowUp,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 
 export interface TourStep {
   id: string;
   target: string;
   title: string;
+  instruction: string;
   description: string;
   icon: React.ElementType;
   badge?: string;
-  actionHint?: string;
+  preferredPlacement?: "top" | "bottom" | "left" | "right";
   onEnter?: () => void;
 }
 
@@ -47,22 +48,28 @@ export function CourseGuideTour({
   setActiveTab,
 }: CourseGuideTourProps) {
   const storageKey = `cursai_course_tour_${courseId}`;
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
-  const [spotlightRect, setSpotlightRect] = useState<DOMRect | null>(null);
+  const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const [popoverPos, setPopoverPos] = useState<{
+    top: number;
+    left: number;
+    placement: "top" | "bottom" | "left" | "right";
+  }>({ top: 0, left: 0, placement: "bottom" });
 
   const steps: TourStep[] = [
     {
       id: "edit-mode",
       target: '[data-tour="edit-mode-toggle"]',
-      title: "1. Switch to Edit Mode",
-      description: "By default, you see the student preview. Click 'Edit Mode' in the sidebar footer or top toolbar to start editing lessons, adding modules, and organizing your curriculum.",
+      title: "Switch to Edit Mode",
+      instruction: "👉 Click 'Edit Mode' below to enable editing",
+      description: "You're currently in preview mode. Entering Edit Mode unlocks editing lesson text, adding modules, and generating AI media.",
       icon: Eye,
-      badge: "Essential",
-      actionHint: "Click Edit Mode to enable full editing capabilities.",
+      badge: "Step 1",
+      preferredPlacement: "top",
       onEnter: () => {
         if (activeTab !== "content") setActiveTab("content");
       },
@@ -70,11 +77,12 @@ export function CourseGuideTour({
     {
       id: "content-blocks",
       target: '[data-tour="lesson-content-area"]',
-      title: "2. Edit Content & Add Interactive Blocks",
-      description: "Click into any lesson to edit text. Use the Block Toolbar to add rich images, AI voiceovers, code snippets, video embeds, and callout tips.",
+      title: "Edit Content & Add Blocks",
+      instruction: "✏️ Click into any lesson or block to customize",
+      description: "Type directly into lessons or use the Block Toolbar to insert images, AI voiceovers, code blocks, videos, and callouts.",
       icon: PlusCircle,
-      badge: "Interactive Blocks",
-      actionHint: "You can format markdown, add custom media, or generate illustrations.",
+      badge: "Step 2",
+      preferredPlacement: "bottom",
       onEnter: () => {
         if (activeTab !== "content") setActiveTab("content");
         if (!isEditMode) enterEditMode();
@@ -83,11 +91,12 @@ export function CourseGuideTour({
     {
       id: "module-quiz",
       target: '[data-tour="sidebar-modules"]',
-      title: "3. Organize Modules & Add Quizzes",
-      description: "Organize lessons into modules. At the end of each module, you can add interactive quizzes with multiple-choice questions and instant feedback to test student knowledge.",
+      title: "Modules & Review Quizzes",
+      instruction: "📚 Organize lessons & attach module quizzes",
+      description: "Structure your curriculum with modules. At the end of each module, you can add interactive quizzes with instant answer feedback.",
       icon: Layers,
-      badge: "Curriculum",
-      actionHint: "Add new modules or customize review quizzes.",
+      badge: "Step 3",
+      preferredPlacement: "right",
       onEnter: () => {
         if (activeTab !== "content") setActiveTab("content");
       },
@@ -95,11 +104,12 @@ export function CourseGuideTour({
     {
       id: "settings-pricing",
       target: '[data-tour="sidebar-settings"]',
-      title: "4. Set Thumbnail, Theme & Pricing",
-      description: "Navigate to Settings to upload or AI-generate a custom cover image, personalize your brand colors, and set your course price or offer it for Free.",
+      title: "Thumbnail, Theme & Pricing",
+      instruction: "⚙️ Click 'Settings' to customize thumbnail & price",
+      description: "Upload or AI-generate a cover thumbnail, customize brand colors, and set course pricing (Free or Paid).",
       icon: Settings,
-      badge: "Branding & Price",
-      actionHint: "Customize course thumbnail and pricing options.",
+      badge: "Step 4",
+      preferredPlacement: "right",
       onEnter: () => {
         setActiveTab("settings");
       },
@@ -107,11 +117,12 @@ export function CourseGuideTour({
     {
       id: "publish-live",
       target: '[data-tour="publish-button"]',
-      title: "5. Publish Your Course Live",
-      description: "Once your curriculum is ready, hit 'Publish' in the top header. Your course will immediately become accessible to your Whop community and students!",
+      title: "Publish Your Course Live",
+      instruction: "🚀 Click 'Publish' when your course is ready",
+      description: "When you're happy with your curriculum, click Publish to immediately make the course available to students on Whop.",
       icon: Send,
-      badge: "Go Live",
-      actionHint: "Ready to launch? Toggle Publish when you're set.",
+      badge: "Final Step",
+      preferredPlacement: "bottom",
       onEnter: () => {
         if (activeTab !== "content") setActiveTab("content");
       },
@@ -125,7 +136,7 @@ export function CourseGuideTour({
       const timer = setTimeout(() => {
         setIsOpen(true);
         setIsMinimized(false);
-      }, 700);
+      }, 500);
       return () => clearTimeout(timer);
     } else {
       try {
@@ -140,10 +151,28 @@ export function CourseGuideTour({
     }
   }, [courseId, storageKey]);
 
-  // Update spotlight rect when step changes or window resizes
-  const updateSpotlight = useCallback(() => {
+  // Progressive auto-advancement listeners
+  // 1. If at Step 0 ("edit-mode") and user enters edit mode, auto-advance to Step 1!
+  useEffect(() => {
+    if (isOpen && currentStepIndex === 0 && isEditMode) {
+      const timer = setTimeout(() => {
+        handleNext();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isEditMode, isOpen, currentStepIndex]);
+
+  // 2. If at Step 3 ("settings-pricing") and user navigates to settings, update target position
+  useEffect(() => {
+    if (isOpen && currentStepIndex === 3 && activeTab === "settings") {
+      updatePosition();
+    }
+  }, [activeTab, isOpen, currentStepIndex]);
+
+  // Update target rect and popover position
+  const updatePosition = useCallback(() => {
     if (!isOpen || isMinimized) {
-      setSpotlightRect(null);
+      setTargetRect(null);
       return;
     }
 
@@ -156,25 +185,71 @@ export function CourseGuideTour({
       const el = document.querySelector(currentStep.target);
       if (el) {
         const rect = el.getBoundingClientRect();
-        setSpotlightRect(rect);
-        if (rect.top < 0 || rect.bottom > window.innerHeight) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTargetRect(rect);
+
+        // Smoothly bring element into view if needed
+        if (rect.top < 60 || rect.bottom > window.innerHeight - 60) {
+          el.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
+
+        const popoverWidth = Math.min(340, window.innerWidth - 32);
+        const popoverHeight = 180; // approximate
+        let placement = currentStep.preferredPlacement || "bottom";
+        let top = 0;
+        let left = 0;
+
+        if (placement === "top") {
+          top = rect.top - popoverHeight - 16;
+          left = rect.left + rect.width / 2 - popoverWidth / 2;
+          if (top < 10) {
+            placement = "bottom";
+            top = rect.bottom + 16;
+          }
+        } else if (placement === "bottom") {
+          top = rect.bottom + 16;
+          left = rect.left + rect.width / 2 - popoverWidth / 2;
+          if (top + popoverHeight > window.innerHeight - 10) {
+            placement = "top";
+            top = rect.top - popoverHeight - 16;
+          }
+        } else if (placement === "right") {
+          left = rect.right + 16;
+          top = rect.top + rect.height / 2 - popoverHeight / 2;
+          if (left + popoverWidth > window.innerWidth - 10) {
+            placement = "bottom";
+            top = rect.bottom + 16;
+            left = rect.left;
+          }
+        } else if (placement === "left") {
+          left = rect.left - popoverWidth - 16;
+          top = rect.top + rect.height / 2 - popoverHeight / 2;
+          if (left < 10) {
+            placement = "bottom";
+            top = rect.bottom + 16;
+            left = rect.left;
+          }
+        }
+
+        // Clamp inside window boundaries
+        left = Math.max(16, Math.min(window.innerWidth - popoverWidth - 16, left));
+        top = Math.max(16, Math.min(window.innerHeight - popoverHeight - 16, top));
+
+        setPopoverPos({ top, left, placement });
       } else {
-        setSpotlightRect(null);
+        setTargetRect(null);
       }
     }, 150);
   }, [isOpen, isMinimized, currentStepIndex, activeTab, isEditMode]);
 
   useEffect(() => {
-    updateSpotlight();
-    window.addEventListener("resize", updateSpotlight);
-    window.addEventListener("scroll", updateSpotlight, true);
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
     return () => {
-      window.removeEventListener("resize", updateSpotlight);
-      window.removeEventListener("scroll", updateSpotlight, true);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [updateSpotlight]);
+  }, [updatePosition]);
 
   const saveProgress = (completed: string[]) => {
     setCompletedSteps(completed);
@@ -212,231 +287,188 @@ export function CourseGuideTour({
     saveProgress(completedSteps);
   };
 
-  const handleOpenStep = (index: number) => {
-    setCurrentStepIndex(index);
+  const handleRestartTour = () => {
+    setCurrentStepIndex(0);
     setIsOpen(true);
     setIsMinimized(false);
   };
 
   const currentStep = steps[currentStepIndex];
-  const progressPercent = Math.round((completedSteps.length / steps.length) * 100);
 
   return (
     <>
-      {/* 1. Global Spotlight Highlight Box (when Tour is actively open) */}
+      {/* 1. Spotlight Outline & Pointer Arrow Attached Directly to Target Element */}
       <AnimatePresence>
-        {isOpen && !isMinimized && spotlightRect && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed pointer-events-none z-[9990] transition-all duration-300 ease-out"
-            style={{
-              top: Math.max(0, spotlightRect.top - 8),
-              left: Math.max(0, spotlightRect.left - 8),
-              width: spotlightRect.width + 16,
-              height: spotlightRect.height + 16,
-              borderRadius: "12px",
-              boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.55), 0 0 25px rgba(99, 102, 241, 0.7)",
-              border: "2px solid #818cf8",
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* 2. Floating Bottom-Right Guide Widget */}
-      <div className="fixed bottom-5 right-5 z-[9999] flex flex-col items-end">
-        <AnimatePresence mode="wait">
-          {/* A. Minimized Floating Pill Badge */}
-          {isMinimized ? (
+        {isOpen && !isMinimized && targetRect && (
+          <>
+            {/* Spotlight Border Overlay (Passes pointer events so target remains clickable) */}
             <motion.div
-              key="minimized"
-              initial={{ scale: 0.8, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 20 }}
-              className="flex items-center gap-2"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              className="fixed pointer-events-none z-[9990] transition-all duration-200 ease-out"
+              style={{
+                top: Math.max(0, targetRect.top - 6),
+                left: Math.max(0, targetRect.left - 6),
+                width: targetRect.width + 12,
+                height: targetRect.height + 12,
+                borderRadius: "10px",
+                boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.8)",
+                border: "2px solid #818cf8",
+              }}
+            />
+
+            {/* Pulsing Target Marker Indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed pointer-events-none z-[9991] flex items-center justify-center"
+              style={{
+                top: targetRect.top - 10,
+                right: window.innerWidth - targetRect.right - 10,
+              }}
             >
-              <Button
-                onClick={() => {
-                  setIsMinimized(false);
-                  setIsOpen(true);
-                }}
-                className="h-11 px-4 rounded-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-xl shadow-indigo-500/25 border border-indigo-400/30 flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95"
-              >
-                <Sparkles className="h-4 w-4 text-amber-300 animate-pulse" />
-                <span className="text-xs sm:text-sm">Course Setup Guide</span>
-                <Badge className="bg-white/20 hover:bg-white/20 text-white text-[11px] px-1.5 py-0 border-0">
-                  {completedSteps.length}/{steps.length}
-                </Badge>
-              </Button>
+              <span className="relative flex h-5 w-5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-5 w-5 bg-indigo-600 border-2 border-white items-center justify-center text-[10px] text-white font-bold">
+                  {currentStepIndex + 1}
+                </span>
+              </span>
             </motion.div>
-          ) : (
-            /* B. Expanded Step-by-Step Card */
+
+            {/* Attached Interactive Tooltip Card */}
             <motion.div
-              key="expanded"
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="w-[90vw] sm:w-[380px] bg-card border border-border/80 shadow-2xl rounded-2xl p-5 backdrop-blur-xl flex flex-col gap-4 text-card-foreground"
+              initial={{ opacity: 0, y: popoverPos.placement === "top" ? 10 : -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: popoverPos.placement === "top" ? 10 : -10 }}
+              transition={{ duration: 0.2 }}
+              className="fixed z-[9995] w-[calc(100vw-32px)] sm:w-[340px] bg-slate-900/95 dark:bg-slate-900/95 text-slate-50 border border-indigo-500/40 shadow-2xl rounded-2xl p-4 backdrop-blur-xl"
+              style={{
+                top: popoverPos.top,
+                left: popoverPos.left,
+              }}
             >
+              {/* Pointing Arrow Indicator */}
+              <div
+                className={`absolute flex items-center justify-center text-indigo-400 ${
+                  popoverPos.placement === "top"
+                    ? "bottom-[-18px] left-1/2 -translate-x-1/2 animate-bounce"
+                    : popoverPos.placement === "bottom"
+                    ? "top-[-18px] left-1/2 -translate-x-1/2 animate-bounce"
+                    : popoverPos.placement === "right"
+                    ? "left-[-18px] top-1/2 -translate-y-1/2"
+                    : "right-[-18px] top-1/2 -translate-y-1/2"
+                }`}
+              >
+                {popoverPos.placement === "top" && <ArrowDown className="h-5 w-5 drop-shadow-md stroke-[3]" />}
+                {popoverPos.placement === "bottom" && <ArrowUp className="h-5 w-5 drop-shadow-md stroke-[3]" />}
+                {popoverPos.placement === "right" && <ArrowLeft className="h-5 w-5 drop-shadow-md stroke-[3]" />}
+                {popoverPos.placement === "left" && <ArrowRight className="h-5 w-5 drop-shadow-md stroke-[3]" />}
+              </div>
+
               {/* Header */}
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-500 shrink-0">
-                    <BookOpen className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold leading-tight">Course Creator Tour</h4>
-                    <p className="text-[11px] text-muted-foreground">
-                      Step {currentStepIndex + 1} of {steps.length}
-                    </p>
-                  </div>
+              <div className="flex items-center justify-between gap-2 mb-2.5">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-indigo-500/30 text-indigo-300 border-indigo-500/40 text-[10px] px-2 py-0 font-bold uppercase tracking-wider">
+                    {currentStep.badge || `Step ${currentStepIndex + 1} of ${steps.length}`}
+                  </Badge>
+                  <span className="text-xs font-bold text-slate-100">{currentStep.title}</span>
                 </div>
-
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-foreground rounded-lg"
-                    onClick={() => {
-                      setIsMinimized(true);
-                      setIsOpen(false);
-                    }}
-                    title="Minimize"
-                  >
-                    <Minimize2 className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-destructive rounded-lg"
-                    onClick={handleSkip}
-                    title="Close Tour"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-[10px] font-medium text-muted-foreground">
-                  <span>Progress</span>
-                  <span>{progressPercent}% completed</span>
-                </div>
-                <Progress value={progressPercent} className="h-1.5 bg-muted" />
-              </div>
-
-              {/* Active Step Content */}
-              <div className="bg-muted/40 rounded-xl p-3.5 border border-border/50 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    {React.createElement(currentStep.icon, {
-                      className: "h-4 w-4 text-indigo-500 shrink-0",
-                    })}
-                    <span className="text-xs font-bold text-foreground">
-                      {currentStep.title}
-                    </span>
-                  </div>
-                  {currentStep.badge && (
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20">
-                      {currentStep.badge}
-                    </Badge>
-                  )}
-                </div>
-
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {currentStep.description}
-                </p>
-
-                {currentStep.actionHint && (
-                  <div className="text-[11px] text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 rounded-lg px-2.5 py-1.5 font-medium flex items-center gap-1.5">
-                    <Sparkles className="h-3 w-3 shrink-0" />
-                    <span>{currentStep.actionHint}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Step Checklist Navigator */}
-              <div className="space-y-1 max-h-[140px] overflow-y-auto pr-1">
-                {steps.map((step, idx) => {
-                  const isDone = completedSteps.includes(step.id);
-                  const isCurrent = idx === currentStepIndex;
-
-                  return (
-                    <button
-                      key={step.id}
-                      onClick={() => handleOpenStep(idx)}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left text-xs transition-colors ${
-                        isCurrent
-                          ? "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-semibold border border-indigo-500/30"
-                          : isDone
-                          ? "text-muted-foreground hover:bg-muted/60"
-                          : "text-muted-foreground/80 hover:bg-muted/40"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        {isDone ? (
-                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
-                        ) : (
-                          <div className={`h-3.5 w-3.5 rounded-full border flex items-center justify-center text-[9px] ${
-                            isCurrent ? "border-indigo-500 text-indigo-500 font-bold" : "border-muted-foreground/40"
-                          }`}>
-                            {idx + 1}
-                          </div>
-                        )}
-                        <span className="truncate">{step.title.replace(/^\d+\.\s*/, "")}</span>
-                      </div>
-                      {isCurrent && (
-                        <span className="text-[10px] uppercase font-bold text-indigo-500 shrink-0">Current</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/50">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleBack}
-                  disabled={currentStepIndex === 0}
-                  className="h-8 px-2.5 text-xs text-muted-foreground"
+                <button
+                  onClick={handleSkip}
+                  className="text-slate-400 hover:text-slate-200 transition-colors p-1 rounded-md hover:bg-slate-800"
+                  title="Close Guide"
                 >
-                  <ChevronLeft className="h-3.5 w-3.5 mr-1" />
-                  Back
-                </Button>
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              {/* Action Instruction Callout */}
+              <div className="bg-indigo-500/15 border border-indigo-500/30 rounded-xl px-3 py-2 text-xs font-semibold text-indigo-200 mb-2">
+                {currentStep.instruction}
+              </div>
+
+              {/* Description */}
+              <p className="text-xs text-slate-300 leading-relaxed mb-3.5">
+                {currentStep.description}
+              </p>
+
+              {/* Footer Controls */}
+              <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+                <div className="flex items-center gap-1">
+                  {steps.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-1.5 rounded-full transition-all ${
+                        i === currentStepIndex
+                          ? "w-4 bg-indigo-400"
+                          : completedSteps.includes(steps[i].id)
+                          ? "w-1.5 bg-green-400"
+                          : "w-1.5 bg-slate-700"
+                      }`}
+                    />
+                  ))}
+                </div>
 
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSkip}
-                    className="h-8 px-3 text-xs"
-                  >
-                    Skip Tour
-                  </Button>
+                  {currentStepIndex > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleBack}
+                      className="h-7 px-2 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                    >
+                      <ChevronLeft className="h-3 w-3 mr-0.5" />
+                      Back
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     onClick={handleNext}
-                    className="h-8 px-4 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
+                    className="h-7 px-3 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md"
                   >
                     {currentStepIndex === steps.length - 1 ? (
-                      "Complete 🎉"
+                      "Finish 🎉"
                     ) : (
                       <>
                         Next
-                        <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                        <ChevronRight className="h-3 w-3 ml-0.5" />
                       </>
                     )}
                   </Button>
                 </div>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* 2. Docked Bottom-Right Trigger Pill (Only visible when Tour is minimized / closed) */}
+      <AnimatePresence>
+        {isMinimized && (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, y: 20 }}
+            className="fixed bottom-5 right-5 z-[9999]"
+          >
+            <Button
+              onClick={() => {
+                setIsMinimized(false);
+                setIsOpen(true);
+              }}
+              className="h-10 px-3.5 rounded-full bg-slate-900/90 hover:bg-slate-900 text-white font-semibold shadow-xl shadow-indigo-500/20 border border-indigo-500/40 flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95 text-xs"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
+              <span>Course Setup Guide</span>
+              <Badge className="bg-indigo-500/30 text-indigo-300 text-[10px] px-1.5 py-0 border border-indigo-500/40">
+                {completedSteps.length}/{steps.length}
+              </Badge>
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
