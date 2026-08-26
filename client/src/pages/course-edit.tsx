@@ -844,11 +844,12 @@ export default function CourseEditPage() {
       return;
     }
     // Auto-save changes smoothly before switching tabs so user is never blocked!
+    // Switch tab and edit mode immediately so UI and Guide Tour transition instantly
+    setActiveTab(newTab);
+    setIsEditMode(false);
+    setIsDirty(false);
     try {
       await handleSaveChanges();
-      setActiveTab(newTab);
-      setIsEditMode(false);
-      setIsDirty(false);
       editedContentRef.current.clear();
     } catch (e) {
       setPendingTabChange(newTab);

@@ -197,7 +197,7 @@ export function CourseGuideTour({
     if (isOpen && currentStepIndex === 2 && activeTab === "settings") {
       const timer = setTimeout(() => {
         handleNext();
-      }, 350);
+      }, 60);
       return () => clearTimeout(timer);
     }
   }, [activeTab, isOpen, currentStepIndex]);
