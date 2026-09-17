@@ -75,15 +75,15 @@ export function TrialGate({ onSuccess, userEmail, userName }: TrialGateProps) {
   };
 
   return (
-    <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden select-none">
+    <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-y-auto">
       {/* Background glow effects */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-amber-500/15 via-orange-500/10 to-indigo-500/10 blur-[130px] pointer-events-none rounded-full" />
 
       {/* Main Container */}
-      <div className="max-w-3xl w-full z-10 space-y-6">
+      <div className="max-w-3xl w-full z-10 space-y-6 my-auto py-4">
         {showCheckout && checkoutId ? (
-          <div className="bg-card border rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-4 border-b flex items-center justify-between bg-muted/40">
+          <div className="bg-card border rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
+            <div className="p-4 border-b flex items-center justify-between bg-muted/40 shrink-0">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-emerald-500" />
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -100,7 +100,7 @@ export function TrialGate({ onSuccess, userEmail, userName }: TrialGateProps) {
                 Back
               </Button>
             </div>
-            <div className="w-full h-[620px] bg-white">
+            <div className="w-full h-[650px] max-h-[78vh] overflow-y-auto overflow-x-hidden bg-white">
               <WhopCheckoutEmbed
                 sessionId={checkoutId}
                 returnUrl={window.location.href}
