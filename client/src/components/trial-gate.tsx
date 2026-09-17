@@ -92,12 +92,11 @@ export function TrialGate({ onSuccess, userEmail, userName }: TrialGateProps) {
               </div>
               <Button
                 variant="ghost"
-                size="sm"
-                className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+                size="icon"
+                className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted"
                 onClick={() => setShowCheckout(false)}
               >
-                <X className="h-4 w-4 mr-1" />
-                Back
+                <X className="h-4 w-4" />
               </Button>
             </div>
             <div className="w-full h-[650px] max-h-[78vh] overflow-y-auto overflow-x-hidden bg-white">
