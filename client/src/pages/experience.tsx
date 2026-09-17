@@ -18,6 +18,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CourseGenerator, CoursePreview } from "@/components/course-generator";
 import { UpgradeModal } from "@/components/upgrade-modal";
+import { TrialGate } from "@/components/trial-gate";
 import { OnboardingDemo } from "@/components/onboarding-demo";
 import { CourseCard } from "@/components/course-card";
 import { WithdrawRequestDialog } from "@/components/withdraw-request-dialog";
@@ -447,6 +448,19 @@ export default function ExperiencePage() {
   const isAdmin = data?.accessLevel === "admin";
 
   if (isAdmin) {
+    const isPaidUser = data?.generationLimit?.isPro || data?.generationLimit?.isBasic;
+    if (!isPaidUser) {
+      return (
+        <TrialGate
+          userName={data?.user?.username}
+          userEmail={data?.user?.email}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["/api/experiences", experienceId] });
+          }}
+        />
+      );
+    }
+
     const stats = {
       totalCourses: data?.courses.length || 0,
       publishedCourses: data?.courses.filter((c) => c.published).length || 0,

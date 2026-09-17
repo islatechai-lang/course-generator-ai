@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { UpgradeModal } from "@/components/upgrade-modal";
+import { TrialGate } from "@/components/trial-gate";
 import { OnboardingDemo } from "@/components/onboarding-demo";
 import { CourseGenerator, CoursePreview } from "@/components/course-generator";
 import { generateCourseImage } from "@/lib/image-generator";
@@ -418,6 +419,19 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+    );
+  }
+
+  const isPaidUser = data?.generationLimit?.isPro || data?.generationLimit?.isBasic;
+  if (!isPaidUser) {
+    return (
+      <TrialGate
+        userName={data?.user?.username}
+        userEmail={data?.user?.email}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId] });
+        }}
+      />
     );
   }
 
