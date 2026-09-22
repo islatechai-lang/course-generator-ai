@@ -5,7 +5,6 @@ import {
   Sparkles,
   Zap,
   ShieldCheck,
-  RefreshCw,
   Loader2,
   Layers,
   FileText,
@@ -244,17 +243,6 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
                   </button>
                 </div>
               )}
-
-              <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground pt-1">
-                <button
-                  type="button"
-                  onClick={() => window.location.reload()}
-                  className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors underline-offset-4 hover:underline"
-                >
-                  <RefreshCw className="h-3.5 w-3.5" />
-                  Already subscribed? Refresh status
-                </button>
-              </div>
             </div>
           </div>
         )}
