@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Sparkles, BookOpen, ChevronRight, Lightbulb, Code, Camera, Palette, TrendingUp, DollarSign, Upload, FileText, User, MessageSquare, Book, PenTool, Layout, Cpu } from "lucide-react";
+import { Loader2, Sparkles, BookOpen, ChevronRight, Lightbulb, Code, Camera, Palette, TrendingUp, DollarSign, Upload, FileText, User, MessageSquare, Book, PenTool, Layout, Cpu, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GenerationProgress } from "@/components/generation-progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -665,7 +665,17 @@ export function CourseGenerator({
 
       {/* Manual Course Thumbnail Choice Modal */}
       <AlertDialog open={showScratchThumbnailModal} onOpenChange={setShowScratchThumbnailModal}>
-        <AlertDialogContent className="max-w-md p-6 rounded-2xl">
+        <AlertDialogContent className="max-w-md p-6 rounded-2xl relative">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-4 top-4 text-muted-foreground/60 hover:text-foreground h-8 w-8 rounded-full hover:bg-muted"
+            onClick={() => setShowScratchThumbnailModal(false)}
+            title="Cancel"
+          >
+            <X className="h-4 w-4" />
+          </Button>
           <AlertDialogHeader className="space-y-3">
             <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mx-auto">
               <Sparkles className="h-6 w-6" />
