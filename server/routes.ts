@@ -1040,14 +1040,23 @@ export async function registerRoutes(
       const { title, description, published, isFree, price, coverImage } = req.body;
 
       if (published === true && course.published === false) {
+        // Special Pro users have unlimited publishing
+        const isSpecialPro = req.whopUserId && SPECIAL_PRO_USERS.includes(req.whopUserId);
+
+        // Publishing requires Pro or Basic (or active 3-day free trial)
+        if (!isSpecialPro && !req.isPro && !req.isBasic) {
+          console.log(`[PATCH Course] Free user ${req.user?.id} attempted to publish course. Triggering upgrade modal.`);
+          return res.status(403).json({
+            error: "Publishing your course requires an active plan or 3-day free trial.",
+            needsUpgrade: true
+          });
+        }
+
         // Enforce publishing limits
         const publishedCourses = await storage.getCoursesByCreator(req.user?.id, paramCompanyId);
         const publishedCount = publishedCourses.filter(c => c.published).length;
-        
-        // Special Pro users have unlimited publishing
-        const isSpecialPro = req.whopUserId && SPECIAL_PRO_USERS.includes(req.whopUserId);
-        const maxPublished = isSpecialPro ? Infinity : (req.isPro ? 10 : (req.isBasic ? 3 : 1));
-        const planName = req.isPro ? "Pro" : (req.isBasic ? "Basic" : "Free");
+        const maxPublished = isSpecialPro ? Infinity : (req.isPro ? 10 : 3);
+        const planName = req.isPro ? "Pro" : "Basic";
 
         if (publishedCount >= maxPublished) {
           console.log(`[PATCH Course] Publishing limit reached for user ${req.user?.id}: ${publishedCount}/${maxPublished}. needsUpgrade: ${!req.isPro}`);
@@ -1895,13 +1904,22 @@ export async function registerRoutes(
 
       // Enforce publishing limits
       if (published === true && !course.published) {
-        const allCourses = await storage.getCoursesByCreator(req.user.id, companyId || "");
-        const publishedCount = allCourses.filter(c => c.published).length;
-        
         // Special Pro users have unlimited publishing
         const isSpecialPro = req.whopUserId && SPECIAL_PRO_USERS.includes(req.whopUserId);
-        const limit = isSpecialPro ? Infinity : (req.isPro ? 10 : (req.isBasic ? 3 : 1));
-        const planName = req.isPro ? "Pro" : (req.isBasic ? "Basic" : "Free");
+
+        // Publishing requires Pro or Basic (or active 3-day free trial)
+        if (!isSpecialPro && !req.isPro && !req.isBasic) {
+          console.log(`[PATCH Experience Course] Free user ${req.user?.id} attempted to publish course. Triggering upgrade modal.`);
+          return res.status(403).json({
+            error: "Publishing your course requires an active plan or 3-day free trial.",
+            needsUpgrade: true
+          });
+        }
+
+        const allCourses = await storage.getCoursesByCreator(req.user.id, companyId || "");
+        const publishedCount = allCourses.filter(c => c.published).length;
+        const limit = isSpecialPro ? Infinity : (req.isPro ? 10 : 3);
+        const planName = req.isPro ? "Pro" : "Basic";
 
         if (publishedCount >= limit) {
           console.log(`[PATCH Experience Course] Publishing limit reached for user ${req.user?.id}: ${publishedCount}/${limit}. needsUpgrade: ${!req.isPro}`);

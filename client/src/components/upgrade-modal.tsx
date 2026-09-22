@@ -119,9 +119,9 @@ export function UpgradeModal({ open, onOpenChange, currentPlan = "free" }: Upgra
                                 </div>
 
                                 <ul className="flex-1 space-y-3 mb-8">
-                                    <li className="flex items-center gap-2.5 text-xs text-foreground/80 font-medium">
-                                        <Check className="h-4 w-4 text-primary/60 shrink-0" />
-                                        1 Published Course
+                                    <li className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                                        <X className="h-4 w-4 shrink-0 text-red-500" />
+                                        Course Publishing (Requires Plan)
                                     </li>
                                     <li className="flex items-center gap-2.5 text-xs text-foreground/80 font-medium">
                                         <Check className="h-4 w-4 text-primary/60 shrink-0" />
@@ -289,7 +289,7 @@ export function UpgradeModal({ open, onOpenChange, currentPlan = "free" }: Upgra
                                         onClick={() => handleStartCheckout("pro")}
                                         disabled={isLoading !== null}
                                     >
-                                        {isLoading === "pro" ? "Loading..." : "Choose plan"}
+                                        {isLoading === "pro" ? "Loading..." : "Start 3-Day Free Trial"}
                                     </Button>
                                 )}
                             </div>
