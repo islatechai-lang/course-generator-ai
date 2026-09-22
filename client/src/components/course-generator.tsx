@@ -665,12 +665,13 @@ export function CourseGenerator({
 
       {/* Manual Course Thumbnail Choice Modal */}
       <AlertDialog open={showScratchThumbnailModal} onOpenChange={setShowScratchThumbnailModal}>
-        <AlertDialogContent className="max-w-md p-6 rounded-2xl relative">
+        <AlertDialogContent className="max-w-md p-6 rounded-2xl">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute right-4 top-4 text-muted-foreground/60 hover:text-foreground h-8 w-8 rounded-full hover:bg-muted"
+            className="absolute z-50 text-muted-foreground/60 hover:text-foreground h-8 w-8 rounded-full hover:bg-muted flex items-center justify-center"
+            style={{ position: 'absolute', top: '1rem', right: '1rem', left: 'auto' }}
             onClick={() => setShowScratchThumbnailModal(false)}
             title="Cancel"
           >
