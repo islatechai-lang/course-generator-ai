@@ -62,6 +62,9 @@ export default function DashboardPage() {
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [hasDismissedGate, setHasDismissedGate] = useState(() => {
+    return sessionStorage.getItem("dismissed_trial_gate") === "true";
+  });
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
@@ -423,11 +426,15 @@ export default function DashboardPage() {
   }
 
   const isPaidUser = data?.generationLimit?.isPro || data?.generationLimit?.isBasic;
-  if (!isPaidUser) {
+  if (!isPaidUser && !hasDismissedGate) {
     return (
       <TrialGate
         userName={data?.user?.username}
         userEmail={data?.user?.email}
+        onDismiss={() => {
+          sessionStorage.setItem("dismissed_trial_gate", "true");
+          setHasDismissedGate(true);
+        }}
         onSuccess={() => {
           queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId] });
         }}

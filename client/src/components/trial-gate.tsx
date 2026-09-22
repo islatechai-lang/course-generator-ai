@@ -18,11 +18,12 @@ import confetti from "canvas-confetti";
 
 interface TrialGateProps {
   onSuccess?: () => void;
+  onDismiss?: () => void;
   userEmail?: string;
   userName?: string;
 }
 
-export function TrialGate({ onSuccess, userEmail, userName }: TrialGateProps) {
+export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGateProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
   const [showCheckout, setShowCheckout] = useState(false);
@@ -108,7 +109,20 @@ export function TrialGate({ onSuccess, userEmail, userName }: TrialGateProps) {
             </div>
           </div>
         ) : (
-          <div className="bg-card/80 backdrop-blur-xl border border-border/80 rounded-3xl shadow-2xl p-6 sm:p-10 lg:p-12 space-y-8 animate-in fade-in duration-300">
+          <div className="bg-card/80 backdrop-blur-xl border border-border/80 rounded-3xl shadow-2xl p-6 sm:p-10 lg:p-12 space-y-8 animate-in fade-in duration-300 relative">
+            {/* Top-Right Dismiss Button */}
+            {onDismiss && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 top-4 sm:right-6 sm:top-6 text-muted-foreground/60 hover:text-foreground h-9 w-9 rounded-full hover:bg-muted"
+                onClick={onDismiss}
+                title="Continue with Limited Free Plan"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+
             {/* Header / App Brand */}
             <div className="flex flex-col items-center text-center space-y-4">
               <div className="relative">
@@ -217,6 +231,19 @@ export function TrialGate({ onSuccess, userEmail, userName }: TrialGateProps) {
                   </>
                 )}
               </Button>
+
+              {onDismiss && (
+                <div className="text-center pt-0.5">
+                  <button
+                    type="button"
+                    onClick={onDismiss}
+                    className="text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors hover:underline underline-offset-4 inline-flex items-center gap-1"
+                  >
+                    <span>Continue with Limited Free Plan</span>
+                    <span>→</span>
+                  </button>
+                </div>
+              )}
 
               <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground pt-1">
                 <button

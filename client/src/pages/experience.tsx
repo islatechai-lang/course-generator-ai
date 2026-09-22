@@ -71,6 +71,9 @@ export default function ExperiencePage() {
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [hasDismissedGate, setHasDismissedGate] = useState(() => {
+    return sessionStorage.getItem("dismissed_trial_gate") === "true";
+  });
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const createTabRef = useRef<HTMLDivElement>(null);
 
@@ -449,11 +452,15 @@ export default function ExperiencePage() {
 
   if (isAdmin) {
     const isPaidUser = data?.generationLimit?.isPro || data?.generationLimit?.isBasic;
-    if (!isPaidUser) {
+    if (!isPaidUser && !hasDismissedGate) {
       return (
         <TrialGate
           userName={data?.user?.username}
           userEmail={data?.user?.email}
+          onDismiss={() => {
+            sessionStorage.setItem("dismissed_trial_gate", "true");
+            setHasDismissedGate(true);
+          }}
           onSuccess={() => {
             queryClient.invalidateQueries({ queryKey: ["/api/experiences", experienceId] });
           }}
