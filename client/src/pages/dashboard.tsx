@@ -116,7 +116,7 @@ export default function DashboardPage() {
   const handleOnboardingComplete = () => {
     safeLocalStorage.setItem("hasSeenOnboardingDemo", "true");
     sessionStorage.setItem("hasDismissedOnboardingSession", "true");
-    setShowUpgradeModal(true);
+    scrollToCreate();
   };
 
   const handleOnboardingOpenChange = (open: boolean) => {
