@@ -530,7 +530,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-semibold text-foreground">
                   Free Account: <span className="text-amber-600 dark:text-amber-400 font-bold">{data?.generationLimit?.remaining ?? 1} Free Trial Generation</span> remaining.
                 </p>
-                <p className="text-[11px] text-muted-foreground">Upgrade to Creator Pro to unlock guided document imports, 2 daily generations & 10 published courses.</p>
+                <p className="text-[11px] text-muted-foreground">Upgrade to Creator Pro to unlock guided document imports, 2 daily generations & unlimited published courses.</p>
               </div>
             </div>
             <Button
