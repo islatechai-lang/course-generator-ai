@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,7 +26,15 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
   const [isLoading, setIsLoading] = useState(false);
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [canDismiss, setCanDismiss] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCanDismiss(true);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleStartTrial = async () => {
     setIsLoading(true);
@@ -109,12 +117,12 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
           </div>
         ) : (
           <div className="bg-card/90 backdrop-blur-2xl border border-border/80 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 animate-in fade-in duration-300 relative">
-            {/* Top-Right Dismiss Button */}
-            {onDismiss && (
+            {/* Top-Right Dismiss Button - appears after 5s */}
+            {onDismiss && canDismiss && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground/60 hover:text-foreground h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center z-20"
+                className="text-muted-foreground/60 hover:text-foreground h-9 w-9 rounded-full hover:bg-muted flex items-center justify-center z-20 animate-in fade-in duration-500"
                 style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', left: 'auto' }}
                 onClick={onDismiss}
                 title="Continue with Limited Free Plan"
@@ -208,8 +216,8 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
                 )}
               </Button>
 
-              {onDismiss && (
-                <div className="text-center pt-0.5">
+              {onDismiss && canDismiss && (
+                <div className="text-center pt-0.5 animate-in fade-in duration-500">
                   <button
                     type="button"
                     onClick={onDismiss}
