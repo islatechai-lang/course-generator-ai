@@ -32,11 +32,11 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Hide X and skip link for the first 5 seconds to ensure users review plans
+  // Hide X for the first 10 seconds to ensure users review plans
   useEffect(() => {
     const timer = setTimeout(() => {
       setCanDismiss(true);
-    }, 5000);
+    }, 10000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -230,7 +230,7 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
                 <ul className="flex-1 space-y-3 mb-8">
                   <li className="flex items-center gap-2.5 text-xs font-bold text-blue-500">
                     <Zap className="h-4 w-4 shrink-0" />
-                    3 Published Courses
+                    10 Published Courses
                   </li>
                   <li className="flex items-center gap-2.5 text-xs font-bold text-blue-500">
                     <Check className="h-4 w-4 shrink-0" />
@@ -299,7 +299,7 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
                 <ul className="flex-1 space-y-3 mb-8">
                   <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
                     <Zap className="h-4 w-4 shrink-0" />
-                    10 Published Courses
+                    Unlimited Published Courses
                   </li>
                   <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
                     <Check className="h-4 w-4 shrink-0" />
@@ -336,25 +336,12 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
               </div>
             </div>
 
-            {/* Footer Trust & Dismiss Link */}
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs text-center">
-                <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span><strong>100% Risk-Free: $0.00 due today.</strong> Cancel anytime in 1-click in your Whop dashboard before Day 3.</span>
+            {/* Footer Trust Text */}
+            <div className="pt-2">
+              <div className="flex items-center justify-center gap-1.5 text-muted-foreground text-xs text-center">
+                <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <span>100% Risk-Free. Cancel anytime in your Whop Settings.</span>
               </div>
-
-              {onDismiss && canDismiss && (
-                <div className="text-center pt-1 animate-in fade-in duration-500">
-                  <button
-                    type="button"
-                    onClick={onDismiss}
-                    className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors hover:underline underline-offset-4 inline-flex items-center gap-1"
-                  >
-                    <span>Continue with Limited Free Plan</span>
-                    <span>→</span>
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         )}

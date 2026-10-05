@@ -185,7 +185,7 @@ export function UpgradeModal({ open, onOpenChange, currentPlan = "free" }: Upgra
                                 <ul className="flex-1 space-y-3 mb-8">
                                     <li className="flex items-center gap-2.5 text-xs font-bold text-blue-500">
                                         <Zap className="h-4 w-4 shrink-0" />
-                                        3 Published Courses
+                                        10 Published Courses
                                     </li>
                                     <li className="flex items-center gap-2.5 text-xs font-bold text-blue-500">
                                         <Check className="h-4 w-4 shrink-0" />
@@ -256,7 +256,7 @@ export function UpgradeModal({ open, onOpenChange, currentPlan = "free" }: Upgra
                                 <ul className="flex-1 space-y-3 mb-8">
                                     <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
                                         <Zap className="h-4 w-4 shrink-0" />
-                                        10 Published Courses
+                                        Unlimited Published Courses
                                     </li>
                                     <li className="flex items-center gap-2.5 text-xs font-bold text-primary">
                                         <Check className="h-4 w-4 shrink-0" />

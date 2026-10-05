@@ -1055,7 +1055,7 @@ export async function registerRoutes(
         // Enforce publishing limits
         const publishedCourses = await storage.getCoursesByCreator(req.user?.id, paramCompanyId);
         const publishedCount = publishedCourses.filter(c => c.published).length;
-        const maxPublished = isSpecialPro ? Infinity : (req.isPro ? 10 : 3);
+        const maxPublished = isSpecialPro || req.isPro ? Infinity : (req.isBasic ? 10 : 0);
         const planName = req.isPro ? "Pro" : "Basic";
 
         if (publishedCount >= maxPublished) {
@@ -1918,7 +1918,7 @@ export async function registerRoutes(
 
         const allCourses = await storage.getCoursesByCreator(req.user.id, companyId || "");
         const publishedCount = allCourses.filter(c => c.published).length;
-        const limit = isSpecialPro ? Infinity : (req.isPro ? 10 : 3);
+        const limit = isSpecialPro || req.isPro ? Infinity : (req.isBasic ? 10 : 0);
         const planName = req.isPro ? "Pro" : "Basic";
 
         if (publishedCount >= limit) {
