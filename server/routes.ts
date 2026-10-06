@@ -4,7 +4,7 @@ import fileUpload from "express-fileupload";
 import { PDFParse } from "pdf-parse";
 import { storage } from "./storage";
 import { verifyUserToken, checkAccess, checkIsOwner, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, getCompanyIdFromExperience, createProCheckoutSession, checkPlanAccess } from "./whop";
-import { generateCourse, regenerateModule, regenerateLesson, generateCourseImage, generateImagePrompt, generateCourseMediaPlan, generateLessonImage, generateQuiz, generateDeepVideoImage, generateVeoVideoSegment, analyzeDocumentMetadata, generateFallbackImagePrompt, generateBlockContent, generateCourseImageWithDeAPI } from "./gemini";
+import { generateCourse, regenerateModule, regenerateLesson, generateCourseImage, generateImagePrompt, generateCourseMediaPlan, generateLessonImage, generateQuiz, generateDeepVideoImage, generateVeoVideoSegment, analyzeDocumentMetadata, generateFallbackImagePrompt, generateBlockContent, generateCourseImageWithDeAPI, generateLaunchPack, askCourseTutor } from "./gemini";
 import { stitchVideos } from "./video-processor";
 import path from "path";
 import fs from "fs";
@@ -960,6 +960,7 @@ export async function registerRoutes(
         published: false,
         isFree: isFree === true,
         price: isFree === true ? "0" : (price || "0"),
+        launchPack: (validated.data as any).launch_pack || null,
         generationStatus: (generateLessonImages || generateVideo) ? "generating" : "complete",
       });
       // Use the optimized batch insertion method
@@ -1403,6 +1404,147 @@ export async function registerRoutes(
     }
   });
 
+  // Helper to generate and save launch pack for a course
+  async function getOrGenerateCourseLaunchPack(courseId: string, forceRefresh: boolean = false) {
+    const courseWithModules = await storage.getCourseWithModules(courseId);
+    if (!courseWithModules) return null;
+
+    if (!forceRefresh && (courseWithModules as any).launchPack && (courseWithModules as any).launchPack.headline) {
+      return (courseWithModules as any).launchPack;
+    }
+
+    const modulesSummary = courseWithModules.modules.map((m, idx) => {
+      const lessonTitles = m.lessons.map(l => l.title).join(", ");
+      return `Module ${idx + 1}: ${m.title} (Lessons: ${lessonTitles})`;
+    }).join("\n");
+
+    const launchPack = await generateLaunchPack(
+      courseWithModules.title,
+      modulesSummary || "Comprehensive course curriculum",
+      undefined
+    );
+
+    await storage.updateCourse(courseId, { launchPack });
+    return launchPack;
+  }
+
+  // Dashboard Launch Pack endpoints
+  app.get("/api/dashboard/:companyId/courses/:courseId/launch-pack", authenticateWhop, requireAdmin, async (req: AuthenticatedRequest, res: any) => {
+    try {
+      const course = await storage.getCourse(req.params.courseId);
+      if (!course) return res.status(404).json({ error: "Course not found" });
+
+      const paramCompanyId = await resolveCompanyId(req.params.companyId);
+      if (course.creatorId !== req.user?.id || course.whopCompanyId !== paramCompanyId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const launchPack = await getOrGenerateCourseLaunchPack(course.id, req.query.refresh === "true");
+      res.json({ launchPack });
+    } catch (error: any) {
+      console.error("Dashboard get launch pack error:", error);
+      res.status(500).json({ error: "Failed to fetch launch pack" });
+    }
+  });
+
+  app.post("/api/dashboard/:companyId/courses/:courseId/launch-pack", authenticateWhop, requireAdmin, async (req: AuthenticatedRequest, res: any) => {
+    try {
+      const course = await storage.getCourse(req.params.courseId);
+      if (!course) return res.status(404).json({ error: "Course not found" });
+
+      const paramCompanyId = await resolveCompanyId(req.params.companyId);
+      if (course.creatorId !== req.user?.id || course.whopCompanyId !== paramCompanyId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const launchPack = await getOrGenerateCourseLaunchPack(course.id, true);
+      res.json({ launchPack });
+    } catch (error: any) {
+      console.error("Dashboard generate launch pack error:", error);
+      res.status(500).json({ error: "Failed to generate launch pack" });
+    }
+  });
+
+  // Experience Launch Pack endpoints
+  app.get("/api/experiences/:experienceId/courses/:courseId/launch-pack", authenticateWhop, requireExperienceAccess, async (req: AuthenticatedRequest, res: any) => {
+    try {
+      const course = await storage.getCourse(req.params.courseId);
+      if (!course) return res.status(404).json({ error: "Course not found" });
+
+      const launchPack = await getOrGenerateCourseLaunchPack(course.id, req.query.refresh === "true");
+      res.json({ launchPack });
+    } catch (error: any) {
+      console.error("Experience get launch pack error:", error);
+      res.status(500).json({ error: "Failed to fetch launch pack" });
+    }
+  });
+
+  app.post("/api/experiences/:experienceId/courses/:courseId/launch-pack", authenticateWhop, requireExperienceAccess, async (req: AuthenticatedRequest, res: any) => {
+    try {
+      const course = await storage.getCourse(req.params.courseId);
+      if (!course) return res.status(404).json({ error: "Course not found" });
+
+      const launchPack = await getOrGenerateCourseLaunchPack(course.id, true);
+      res.json({ launchPack });
+    } catch (error: any) {
+      console.error("Experience generate launch pack error:", error);
+      res.status(500).json({ error: "Failed to generate launch pack" });
+    }
+  });
+
+  // 24/7 In-Course AI Student Tutor endpoints
+  const handleAskTutor = async (req: AuthenticatedRequest, res: any) => {
+    try {
+      const { courseId } = req.params;
+      const { lessonId, query, chatHistory } = req.body;
+
+      if (!query || typeof query !== "string") {
+        return res.status(400).json({ error: "Query is required" });
+      }
+
+      const course = await storage.getCourseWithModules(courseId);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      // Find current lesson
+      let targetLesson: any = null;
+      if (lessonId) {
+        for (const mod of course.modules) {
+          const found = mod.lessons.find((l: any) => l.id === lessonId);
+          if (found) {
+            targetLesson = found;
+            break;
+          }
+        }
+      }
+
+      if (!targetLesson && course.modules.length > 0 && course.modules[0].lessons.length > 0) {
+        targetLesson = course.modules[0].lessons[0];
+      }
+
+      const lessonTitle = targetLesson ? targetLesson.title : course.title;
+      const lessonContent = targetLesson ? targetLesson.content : course.description || "";
+
+      const answer = await askCourseTutor({
+        courseTitle: course.title,
+        lessonTitle,
+        lessonContent,
+        query,
+        chatHistory: Array.isArray(chatHistory) ? chatHistory : [],
+      });
+
+      res.json({ response: answer });
+    } catch (error: any) {
+      console.error("Ask tutor error:", error);
+      res.status(500).json({ error: error.message || "Failed to get tutor answer" });
+    }
+  };
+
+  app.post("/api/dashboard/:companyId/courses/:courseId/ask-tutor", authenticateWhop, handleAskTutor);
+  app.post("/api/experiences/:experienceId/courses/:courseId/ask-tutor", authenticateWhop, handleAskTutor);
+  app.post("/api/courses/:courseId/ask-tutor", authenticateWhop, handleAskTutor);
+
   app.get("/api/dashboard/:companyId/courses/:courseId/analytics", authenticateWhop, requireAdmin, async (req: AuthenticatedRequest, res: any) => {
     try {
       const course = await storage.getCourse(req.params.courseId);
@@ -1844,6 +1986,7 @@ export async function registerRoutes(
         published: false,
         isFree: isFree === true,
         price: isFree === true ? "0" : (price || "0"),
+        launchPack: (validated.data as any).launch_pack || null,
         generationStatus: (generateLessonImages || generateVideo) ? "generating" : "complete",
       });
       console.log(`[Experience Save] Course created in DB: ${course.id}`);

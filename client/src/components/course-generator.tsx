@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Sparkles, BookOpen, ChevronRight, Lightbulb, Code, Camera, Palette, TrendingUp, DollarSign, Upload, FileText, User, MessageSquare, Book, PenTool, Layout, Cpu, X } from "lucide-react";
+import { Loader2, Sparkles, BookOpen, ChevronRight, Lightbulb, Code, Camera, Palette, TrendingUp, DollarSign, Upload, FileText, User, MessageSquare, Book, PenTool, Layout, Cpu, X, Rocket } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GenerationProgress } from "@/components/generation-progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -781,6 +781,29 @@ export function CoursePreview({ course, onSave, onDiscard, isSaving, savingStatu
               {course.description}
             </p>
           )}
+
+          {/* Action-First & Launch Pack feature highlights */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 flex items-start gap-2.5">
+              <div className="h-7 w-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                <Sparkles className="h-3.5 w-3.5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-foreground">Action-First Masterclass</p>
+                <p className="text-[11px] text-muted-foreground">Frameworks, comparison grids, checklists & 24/7 AI Tutor included.</p>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-start gap-2.5">
+              <div className="h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                <Rocket className="h-3.5 w-3.5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Whop Launch Pack Ready</p>
+                <p className="text-[11px] text-muted-foreground">Sales pitch, community post & pricing strategy generated.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-5">

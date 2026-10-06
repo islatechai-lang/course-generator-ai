@@ -1,7 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { z } from "zod";
 
-export interface IUser extends Document {
+type MongoDoc = Omit<Document, "_id">;
+
+export interface IUser extends MongoDoc {
   _id: string;
   whopUserId: string;
   email?: string;
@@ -19,6 +21,15 @@ export interface IUser extends Document {
   createdAt: Date;
 }
 
+export interface ILaunchPack {
+  headline?: string;
+  salesPitch?: string;
+  targetAudience?: string;
+  recommendedPrice?: string;
+  communityAnnouncement?: string;
+  emailAnnouncement?: string;
+}
+
 export interface ICourseTheme {
   primaryColor: string;
   headingColor: string;
@@ -27,7 +38,7 @@ export interface ICourseTheme {
   linkColor: string;
 }
 
-export interface ICourse extends Document {
+export interface ICourse extends MongoDoc {
   _id: string;
   creatorId: string;
   whopCompanyId: string;
@@ -35,6 +46,7 @@ export interface ICourse extends Document {
   description?: string;
   coverImage?: string;
   theme?: ICourseTheme;
+  launchPack?: ILaunchPack;
   published: boolean;
   isFree: boolean;
   price: string;
@@ -43,7 +55,7 @@ export interface ICourse extends Document {
   updatedAt: Date;
 }
 
-export interface IModule extends Document {
+export interface IModule extends MongoDoc {
   _id: string;
   courseId: string;
   title: string;
@@ -70,7 +82,7 @@ export interface ILessonBlock {
   orderIndex: number;
 }
 
-export interface ILesson extends Document {
+export interface ILesson extends MongoDoc {
   _id: string;
   moduleId: string;
   title: string;
@@ -89,7 +101,7 @@ export interface IQuizQuestion {
   explanation?: string;
 }
 
-export interface IQuiz extends Document {
+export interface IQuiz extends MongoDoc {
   _id: string;
   moduleId: string;
   title: string;
@@ -97,7 +109,7 @@ export interface IQuiz extends Document {
   createdAt: Date;
 }
 
-export interface IAssignment extends Document {
+export interface IAssignment extends MongoDoc {
   _id: string;
   moduleId: string;
   lessonId?: string;
@@ -114,7 +126,7 @@ export interface ISurveyQuestion {
   options?: string[];
 }
 
-export interface ISurvey extends Document {
+export interface ISurvey extends MongoDoc {
   _id: string;
   moduleId: string;
   lessonId?: string;
@@ -123,7 +135,7 @@ export interface ISurvey extends Document {
   createdAt: Date;
 }
 
-export interface ICourseAccess extends Document {
+export interface ICourseAccess extends MongoDoc {
   _id: string;
   courseId: string;
   userId: string;
@@ -131,7 +143,7 @@ export interface ICourseAccess extends Document {
   purchasedViaWhop: boolean;
 }
 
-export interface IPayment extends Document {
+export interface IPayment extends MongoDoc {
   _id: string;
   courseId: string;
   buyerId: string;
@@ -144,7 +156,7 @@ export interface IPayment extends Document {
   completedAt?: Date;
 }
 
-export interface ICreatorEarnings extends Document {
+export interface ICreatorEarnings extends MongoDoc {
   _id: string;
   creatorId: string;
   totalEarnings: number;
@@ -197,6 +209,7 @@ const courseSchema = new Schema<ICourse>({
   description: { type: String },
   coverImage: { type: String },
   theme: { type: courseThemeSchema },
+  launchPack: { type: Schema.Types.Mixed },
   published: { type: Boolean, default: false, required: true },
   isFree: { type: Boolean, default: true, required: true },
   price: { type: String, default: "0" },
@@ -375,6 +388,8 @@ export type Course = {
   title: string;
   description: string | null;
   coverImage: string | null;
+  theme?: ICourseTheme;
+  launchPack?: ILaunchPack | null;
   published: boolean;
   isFree: boolean;
   price: string | null;
@@ -408,6 +423,7 @@ export type Lesson = {
   moduleId: string;
   title: string;
   content: string;
+  blocks?: ILessonBlock[];
   orderIndex: number;
   media: MediaItem[];
   createdAt: Date;
@@ -453,6 +469,7 @@ export type InsertCourse = {
   title: string;
   description?: string | null;
   coverImage?: string | null;
+  launchPack?: ILaunchPack | null;
   published?: boolean;
   isFree?: boolean;
   price?: string | null;
@@ -557,6 +574,7 @@ export const insertCourseSchema = z.object({
   description: z.string().nullish(),
   coverImage: z.string().nullish(),
   theme: insertCourseThemeSchema.optional(),
+  launchPack: z.any().optional(),
   published: z.boolean().optional(),
   isFree: z.boolean().optional(),
   price: z.string().nullish(),
@@ -614,11 +632,21 @@ export const quizQuestionSchemaZod = z.object({
 export const generatedCourseSchema = z.object({
   course_title: z.string(),
   description: z.string().optional(),
+  coverImage: z.string().optional(),
+  launch_pack: z.object({
+    headline: z.string().optional(),
+    sales_pitch: z.string().optional(),
+    target_audience: z.string().optional(),
+    recommended_price: z.string().optional(),
+    community_announcement: z.string().optional(),
+    email_announcement: z.string().optional(),
+  }).optional(),
   modules: z.array(z.object({
     module_title: z.string(),
     lessons: z.array(z.object({
       lesson_title: z.string(),
       content: z.string(),
+      blocks: z.array(z.any()).optional(),
     })),
     quiz: z.object({
       title: z.string(),

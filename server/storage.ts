@@ -9,7 +9,8 @@ import {
   type Payment, type InsertPayment,
   type CreatorEarnings,
   type CourseWithModules,
-  QuizModel, type Quiz, type InsertQuiz
+  QuizModel, type Quiz, type InsertQuiz,
+  type GeneratedCourse
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import process from "process";
@@ -54,6 +55,7 @@ function docToCourse(doc: any): Course {
     published: doc.published,
     isFree: doc.isFree,
     price: doc.price || null,
+    launchPack: doc.launchPack || null,
     generationStatus: doc.generationStatus || "complete",
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
@@ -378,6 +380,7 @@ export class DatabaseStorage implements IStorage {
       published: insertCourse.published ?? false,
       isFree: insertCourse.isFree ?? true,
       price: insertCourse.price || "0",
+      launchPack: insertCourse.launchPack || null,
       generationStatus: insertCourse.generationStatus ?? "complete",
     });
     return docToCourse(doc);
@@ -764,14 +767,21 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Create lessons for this module
-      const lessonInsertions = moduleData.lessons.map((lessonData, j) => {
+      const lessonInsertions = moduleData.lessons.map((lessonData: any, j: number) => {
         const lessonId = randomUUID();
         createdLessons.push({ moduleIndex: i, lessonIndex: j, lessonId });
+
+        // If blocks are already structured or present, store them as JSON
+        let finalContent = lessonData.content || "";
+        if (Array.isArray(lessonData.blocks) && lessonData.blocks.length > 0) {
+          finalContent = JSON.stringify(lessonData.blocks);
+        }
+
         return {
           _id: lessonId,
           moduleId: moduleId,
           title: lessonData.lesson_title,
-          content: lessonData.content,
+          content: finalContent,
           orderIndex: j,
           media: [],
         };

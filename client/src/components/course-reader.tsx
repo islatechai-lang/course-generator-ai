@@ -8,6 +8,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Progress } from "@/components/ui/progress";
 import { TTSPlayer } from "@/components/tts-player";
 import QuizViewer from "@/components/QuizViewer";
+import { AiTutorDrawer } from "@/components/ai-tutor-drawer";
 import {
   ChevronLeft,
   ChevronRight,
@@ -262,6 +263,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
   const [serverWords, setServerWords] = useState<string[]>([]);
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
   const [completedQuizzes, setCompletedQuizzes] = useState<Set<string>>(new Set());
+  const [isTutorOpen, setIsTutorOpen] = useState(false);
 
   const allItems = useMemo(() => {
     const items: ({ type: 'lesson'; data: Lesson } | { type: 'quiz'; data: Quiz })[] = [];
@@ -498,7 +500,18 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
           </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsTutorOpen(true)}
+            className="gap-1.5 h-8 px-2.5 sm:px-3 rounded-full border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/50 shadow-xs text-xs font-semibold"
+            title="Ask 24/7 AI Tutor"
+          >
+            <Sparkles className="h-3.5 w-3.5 fill-primary/20 text-primary" />
+            <span className="hidden sm:inline">AI Tutor</span>
+          </Button>
+
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-sm">
             <CircleCheck className="h-3.5 w-3.5 text-primary" />
             <span className="tabular-nums font-medium">{currentIndex + 1}</span>
@@ -628,6 +641,28 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
           )}
         </div>
       </footer>
+
+      {/* Floating 24/7 AI Tutor Trigger */}
+      <div className="fixed bottom-16 right-4 sm:bottom-20 sm:right-6 z-40">
+        <Button
+          onClick={() => setIsTutorOpen(true)}
+          className="h-10 sm:h-11 px-3.5 sm:px-4 rounded-full bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/95 hover:to-indigo-700 text-white shadow-xl shadow-primary/30 flex items-center gap-2 font-bold text-xs sm:text-sm transform hover:scale-105 active:scale-95 transition-all border border-white/20"
+        >
+          <Sparkles className="h-4 w-4 fill-white/20 animate-pulse" />
+          <span>Ask AI Tutor</span>
+        </Button>
+      </div>
+
+      {/* 24/7 AI Tutor Slide-out Drawer */}
+      <AiTutorDrawer
+        open={isTutorOpen}
+        onOpenChange={setIsTutorOpen}
+        courseId={course.id}
+        courseTitle={course.title}
+        currentLessonId={currentLesson?.id}
+        currentLessonTitle={currentLesson?.title}
+        experienceId={experienceId}
+      />
     </div>
   );
 }

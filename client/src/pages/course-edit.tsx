@@ -85,6 +85,12 @@ import {
   Menu,
   HelpCircle,
   Edit,
+  Rocket,
+  Copy,
+  Check,
+  Megaphone,
+  Target,
+  RefreshCw,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -95,7 +101,7 @@ import { cn, getEmbedUrl } from "@/lib/utils";
 import QuizEditor from "@/components/QuizEditor";
 import { MediaDialog } from "@/components/media-dialog";
 import { BlockEditor, BlockEditorToolbar } from "@/components/block-editor";
-import { ILessonBlock } from "@shared/schema";
+import { ILessonBlock, CourseWithModules, Quiz, Course, Lesson, Module } from "@shared/schema";
 import { UpgradeModal } from "@/components/upgrade-modal";
 import { generateCourseImage } from "@/lib/image-generator";
 import { CourseGuideTour } from "@/components/course-guide-tour";
@@ -241,6 +247,21 @@ function CourseSidebar({
               </SidebarMenuItem>
             </Collapsible>
 
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                isActive={activeTab === "launch"}
+                onClick={() => handleNavClick("launch")}
+                data-testid="sidebar-nav-launch"
+                className={activeTab === "launch" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold" : ""}
+              >
+                <Rocket className="h-4 w-4 text-emerald-500" />
+                <span>Launch & Sell</span>
+                <Badge variant="outline" className="ml-auto text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 font-bold px-1.5 py-0">
+                  MONETIZE
+                </Badge>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
             <SidebarMenuItem data-tour="sidebar-settings">
               <SidebarMenuButton
                 isActive={activeTab === "settings"}
@@ -343,6 +364,36 @@ export default function CourseEditPage() {
   const [showMobileScrollButton, setShowMobileScrollButton] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const { data: launchPackData, isLoading: isLoadingLaunchPack, refetch: refetchLaunchPack } = useQuery<{ launchPack: any }>({
+    queryKey: ["/api/dashboard", companyId, "courses", courseId, "launch-pack"],
+    queryFn: async () => {
+      return apiRequest("GET", `/api/dashboard/${companyId}/courses/${courseId}/launch-pack`);
+    },
+    enabled: !!companyId && !!courseId && activeTab === "launch",
+  });
+
+  const regenerateLaunchPackMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/dashboard/${companyId}/courses/${courseId}/launch-pack`);
+    },
+    onSuccess: (data: any) => {
+      queryClient.setQueryData(["/api/dashboard", companyId, "courses", courseId, "launch-pack"], data);
+      toast({ title: "Launch Pack Regenerated!", description: "Fresh sales copy and launch templates created." });
+    },
+    onError: () => {
+      toast({ title: "Regeneration failed", description: "Could not refresh launch pack. Please try again.", variant: "destructive" });
+    }
+  });
+
+  const handleCopyText = (text: string, key: string, label: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    toast({ title: "Copied to clipboard!", description: `${label} ready to paste.` });
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
 
   useEffect(() => {
     const handleTriggerUpgrade = () => {
@@ -857,7 +908,7 @@ export default function CourseEditPage() {
     }
   };
 
-  const handleModuleChange = (moduleId: string) => {
+  const handleModuleChange = (moduleId: string | null) => {
     // Allow switching modules freely - changes are tracked in ref
     setSelectedModuleId(moduleId);
   };
@@ -2201,6 +2252,217 @@ export default function CourseEditPage() {
                     </div>
                   )}
                 </section>
+              </div>
+            )}
+
+            {/* Launch & Monetize Section */}
+            {activeTab === "launch" && (
+              <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 animate-in fade-in duration-300">
+                {/* Header Banner */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/20">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                        <Rocket className="h-4 w-4" />
+                      </div>
+                      <h2 className="text-xl font-bold tracking-tight text-foreground">
+                        Whop Launch & Monetization Pack
+                      </h2>
+                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Ready-to-use sales copy, community announcements, and pricing strategy to monetize this course today.
+                    </p>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => regenerateLaunchPackMutation.mutate()}
+                    disabled={regenerateLaunchPackMutation.isPending || isLoadingLaunchPack}
+                    className="gap-2 shrink-0 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 font-semibold"
+                  >
+                    <RefreshCw className={cn("h-3.5 w-3.5", regenerateLaunchPackMutation.isPending && "animate-spin")} />
+                    <span>Regenerate Copy</span>
+                  </Button>
+                </div>
+
+                {isLoadingLaunchPack ? (
+                  <div className="space-y-4 py-8">
+                    <Skeleton className="h-32 w-full rounded-xl" />
+                    <Skeleton className="h-48 w-full rounded-xl" />
+                    <Skeleton className="h-40 w-full rounded-xl" />
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* 1. Whop Store Headline & Sales Pitch */}
+                    <Card className="rounded-2xl border bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm">
+                      <div className="p-4 sm:p-5 border-b bg-muted/20 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Target className="h-4 w-4 text-emerald-500" />
+                          <h3 className="font-bold text-sm text-foreground">Whop Product Listing Copy</h3>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleCopyText(
+                            `${launchPackData?.launchPack?.headline || course?.title}\n\n${launchPackData?.launchPack?.salesPitch || ''}\n\nTarget Audience:\n${launchPackData?.launchPack?.targetAudience || ''}`,
+                            "whop-listing",
+                            "Whop Listing Pitch"
+                          )}
+                          className="h-8 gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
+                        >
+                          {copiedKey === "whop-listing" ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                          <span>{copiedKey === "whop-listing" ? "Copied" : "Copy Listing"}</span>
+                        </Button>
+                      </div>
+
+                      <CardContent className="p-4 sm:p-6 space-y-4">
+                        <div>
+                          <Label className="text-xs uppercase font-bold text-muted-foreground/70">Headline / Hook</Label>
+                          <div className="mt-1.5 p-3 rounded-xl bg-muted/40 border border-border/60 text-sm font-semibold text-foreground flex items-center justify-between group">
+                            <span>{launchPackData?.launchPack?.headline || `Master ${course?.title}`}</span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-muted-foreground hover:text-foreground opacity-60 group-hover:opacity-100"
+                              onClick={() => handleCopyText(launchPackData?.launchPack?.headline || `Master ${course?.title}`, "headline", "Headline")}
+                            >
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label className="text-xs uppercase font-bold text-muted-foreground/70">Key Outcomes & Benefits</Label>
+                          <div className="mt-1.5 p-3 rounded-xl bg-muted/40 border border-border/60 text-xs sm:text-sm text-foreground/90 whitespace-pre-line leading-relaxed">
+                            {launchPackData?.launchPack?.salesPitch || "• Master foundational & advanced frameworks\n• Complete hands-on real-world exercises\n• 24/7 in-course AI Tutor included"}
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label className="text-xs uppercase font-bold text-muted-foreground/70">Target Audience</Label>
+                          <div className="mt-1.5 p-3 rounded-xl bg-muted/40 border border-border/60 text-xs sm:text-sm text-muted-foreground">
+                            {launchPackData?.launchPack?.targetAudience || "Community members and high-intent learners looking for structured, actionable skills."}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* 2. Monetization Strategy & Suggested Pricing */}
+                    <Card className="rounded-2xl border bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm">
+                      <div className="p-4 sm:p-5 border-b bg-muted/20 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="h-4 w-4 text-emerald-500" />
+                          <h3 className="font-bold text-sm text-foreground">Pricing & Monetization Strategy</h3>
+                        </div>
+                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-xs font-bold">
+                          Recommended
+                        </Badge>
+                      </div>
+
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                          <div>
+                            <span className="text-xs font-semibold uppercase text-emerald-600 dark:text-emerald-400">Suggested Price Point</span>
+                            <div className="text-2xl font-black text-foreground mt-0.5">
+                              {launchPackData?.launchPack?.recommendedPrice || "$29 - $49"}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Based on your module depth, quizzes, and 24/7 AI tutor value.
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setIsFree(false);
+                                setPrice("29");
+                                setActiveTab("settings");
+                                toast({ title: "Switched to Paid!", description: "Set price to $29. Save changes in settings." });
+                              }}
+                              className="text-xs font-bold border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+                            >
+                              Set to $29 in Settings
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setIsFree(true);
+                                setPrice("0");
+                                setActiveTab("settings");
+                                toast({ title: "Switched to Free!", description: "Offer as community member benefit." });
+                              }}
+                              className="text-xs font-bold"
+                            >
+                              Make Free VIP Benefit
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* 3. Discord / Whop Community Announcement */}
+                    <Card className="rounded-2xl border bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm">
+                      <div className="p-4 sm:p-5 border-b bg-muted/20 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Megaphone className="h-4 w-4 text-emerald-500" />
+                          <h3 className="font-bold text-sm text-foreground">Community Launch Announcement (Discord / Whop Chat)</h3>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleCopyText(
+                            launchPackData?.launchPack?.communityAnnouncement || `🚀 NEW COURSE LAUNCH: ${course?.title}!`,
+                            "community-post",
+                            "Community Announcement"
+                          )}
+                          className="h-8 gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
+                        >
+                          {copiedKey === "community-post" ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                          <span>{copiedKey === "community-post" ? "Copied" : "Copy Post"}</span>
+                        </Button>
+                      </div>
+
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="p-4 rounded-xl bg-muted/40 border border-border/60 text-xs sm:text-sm font-mono text-foreground/90 whitespace-pre-line leading-relaxed">
+                          {launchPackData?.launchPack?.communityAnnouncement || `🚀 **NEW COURSE LIVE: ${course?.title}**\n\nWe just launched a brand new hands-on masterclass! Complete with action blueprints and 24/7 AI tutor guidance. Head over to the course section to start learning!`}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* 4. Email / Direct Message Announcement */}
+                    <Card className="rounded-2xl border bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm">
+                      <div className="p-4 sm:p-5 border-b bg-muted/20 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-emerald-500" />
+                          <h3 className="font-bold text-sm text-foreground">Email / DM Announcement Template</h3>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleCopyText(
+                            launchPackData?.launchPack?.emailAnnouncement || `Subject: New Masterclass: ${course?.title}`,
+                            "email-template",
+                            "Email Template"
+                          )}
+                          className="h-8 gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
+                        >
+                          {copiedKey === "email-template" ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                          <span>{copiedKey === "email-template" ? "Copied" : "Copy Email"}</span>
+                        </Button>
+                      </div>
+
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="p-4 rounded-xl bg-muted/40 border border-border/60 text-xs sm:text-sm text-foreground/90 whitespace-pre-line leading-relaxed">
+                          {launchPackData?.launchPack?.emailAnnouncement || `Subject: Brand new masterclass: ${course?.title}\n\nHi there,\n\nWe just published our newest course inside the portal. It's packed with step-by-step frameworks and includes a 24/7 AI tutor to answer all your questions.\n\nClick below to access it now!`}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
               </div>
             )}
           </main>

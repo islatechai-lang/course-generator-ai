@@ -167,29 +167,72 @@ export async function generateCourse(topic: string, options?: GenerateCourseOpti
     if (options.referenceText) customInstructions += `\n  REFERENCE MATERIAL (use this as the primary source of truth):\n  ${options.referenceText}`;
   }
 
-  const prompt = `You are an expert course designer. Create an engaging, up-to-date online course on: "${topic}".
+  const prompt = `You are a world-class course creator, instructional designer, and digital product master.
+  Create an engaging, highly actionable online masterclass on: "${topic}".
   
   Current Date: ${currentMonth} ${currentYear}
   ${customInstructions}
   
-  COURSE REQUIREMENTS:
-  - 3-4 structured modules.
-  - 2-3 focused lessons per module.
-  - Each lesson: 2-4 comprehensive, actionable paragraphs with real-world examples and practical takeaways.
-  - At the end of EACH module, include a quiz with 2-3 high-quality multiple-choice questions.
+  PEDAGOGY & QUALITY STANDARDS:
+  - Do NOT write generic surface-level essays or dry textbook paragraphs.
+  - Make each lesson feel like a $200 masterclass: practical, step-by-step, packed with concrete frameworks, and immediately actionable.
+  - 3-4 structured, comprehensive modules.
+  - 2-3 high-impact lessons per module.
+  
+  EACH LESSON MUST INCLUDE:
+  1. "content": High-value, comprehensive core breakdown formatted in rich HTML (using <h3> for section headers, <p> for clear explanations, <strong> for key terminology, and <ol>/<ul> for implementation steps). Include real examples and actionable advice.
+  2. "key_takeaway": An inspiring, memorable rule of thumb or quote summarizing the lesson with an author or mentor title.
+  3. "grid": A 2-column comparative framework or key principles (e.g., comparing "Common Mistake vs. Pro Strategy" or "Core Execution Pillars") with 2-4 items.
+  4. "action_checklist": An array of 3-4 concrete homework tasks / action items the student must execute immediately.
+  
+  MODULE REQUIREMENTS:
+  - At the end of EACH module, include a 2-3 question review quiz with multiple-choice options, correctAnswer index, and explanation.
+
+  LAUNCH PACK REQUIREMENTS:
+  - Provide a ready-to-sell Whop launch pack:
+    - "headline": Magnetic sales title for the course
+    - "sales_pitch": 3 punchy value bullets explaining what the buyer will master
+    - "target_audience": Exactly who this is for vs who it is not for
+    - "recommended_price": Suggested pricing (e.g. "$29 - $49") with brief rationale
+    - "community_announcement": Ready-to-copy Discord / Whop community announcement post with emojis
+    - "email_announcement": Ready-to-copy email / DM blast
 
   CRITICAL: You MUST respond ONLY with a single valid JSON object. No explanation or preamble.
   JSON SCHEMA:
   {
     "course_title": "string",
-    "description": "string (2-3 sentences)",
+    "description": "string (2-3 sentences explaining the tangible transformation)",
+    "launch_pack": {
+      "headline": "string",
+      "sales_pitch": "string",
+      "target_audience": "string",
+      "recommended_price": "string",
+      "community_announcement": "string",
+      "email_announcement": "string"
+    },
     "modules": [
       {
         "module_title": "string",
         "lessons": [
           {
             "lesson_title": "string",
-            "content": "string (multiline formatted text with headers and paragraphs)"
+            "content": "string (multiline HTML with <h3>, <p>, <strong>, <ul>, <ol>)",
+            "key_takeaway": {
+              "quote": "string",
+              "author": "string"
+            },
+            "grid": {
+              "title": "string",
+              "items": [
+                { "title": "string", "content": "string" },
+                { "title": "string", "content": "string" }
+              ]
+            },
+            "action_checklist": [
+              "string",
+              "string",
+              "string"
+            ]
           }
         ],
         "quiz": {
@@ -256,14 +299,14 @@ export async function generateCourse(topic: string, options?: GenerateCourseOpti
 
     const jsonText = extractJSON(text);
 
-    let parsed;
+    let parsed: any;
     try {
-      parsed = JSON.parse(jsonText) as GeneratedCourse;
+      parsed = JSON.parse(jsonText);
     } catch (parseError: any) {
       console.log(`⚠️  Initial JSON parse failed, attempting repair...`);
       try {
         const repairedJSON = repairJSON(jsonText);
-        parsed = JSON.parse(repairedJSON) as GeneratedCourse;
+        parsed = JSON.parse(repairedJSON);
         console.log(`✅ JSON successfully repaired and parsed`);
       } catch (repairError: any) {
         console.error(`❌ JSON parse error: ${repairError.message}`);
@@ -275,11 +318,71 @@ export async function generateCourse(topic: string, options?: GenerateCourseOpti
       throw new Error("Invalid course structure");
     }
 
-    // ENSURE CONSISTENCY: Repair malformed course structures
+    // ENSURE CONSISTENCY & ENRICH LESSONS WITH RICH BLOCKS
     parsed.modules.forEach((module: any, idx: number) => {
       if (!module.module_title) module.module_title = `Module ${idx + 1}`;
       if (!module.lessons) module.lessons = module.lesson ? [module.lesson] : [];
       if (!Array.isArray(module.lessons)) module.lessons = [module.lessons];
+
+      module.lessons.forEach((lesson: any, lIdx: number) => {
+        if (!lesson.lesson_title) lesson.lesson_title = `Lesson ${lIdx + 1}`;
+
+        // Assemble rich block structure for instant polish
+        const blocks: any[] = [];
+
+        // 1. Core text block
+        const coreHtml = lesson.content || `<p>Welcome to ${lesson.lesson_title}. In this lesson, you will master key principles and execution steps.</p>`;
+        blocks.push({
+          id: `block-text-${idx}-${lIdx}-0`,
+          type: "text",
+          content: { text: coreHtml },
+          orderIndex: 0,
+        });
+
+        // 2. Key takeaway quote block
+        if (lesson.key_takeaway && (lesson.key_takeaway.quote || typeof lesson.key_takeaway === "string")) {
+          const quoteText = typeof lesson.key_takeaway === "string" ? lesson.key_takeaway : lesson.key_takeaway.quote;
+          const authorText = lesson.key_takeaway?.author || "Mastery Rule";
+          blocks.push({
+            id: `block-quote-${idx}-${lIdx}-1`,
+            type: "quote",
+            content: {
+              text: quoteText,
+              author: authorText,
+            },
+            orderIndex: blocks.length,
+          });
+        }
+
+        // 3. 2-Column Framework / Comparison Grid block
+        if (lesson.grid && Array.isArray(lesson.grid.items) && lesson.grid.items.length > 0) {
+          blocks.push({
+            id: `block-grid-${idx}-${lIdx}-2`,
+            type: "grid",
+            content: {
+              title: lesson.grid.title || "Core Execution Principles",
+              items: lesson.grid.items,
+            },
+            orderIndex: blocks.length,
+          });
+        }
+
+        // 4. Action Checklist & Homework block
+        if (Array.isArray(lesson.action_checklist) && lesson.action_checklist.length > 0) {
+          const checklistItems = lesson.action_checklist.map((item: string) => `<li>☑️ <strong>${item}</strong></li>`).join("");
+          const checklistHtml = `<div class="p-4 rounded-2xl bg-primary/5 border border-primary/10 mt-6"><h4 class="font-bold text-foreground text-base mb-2">🎯 Action Checklist & Implementation</h4><p class="text-xs text-muted-foreground mb-3">Execute these steps to implement what you learned:</p><ul class="space-y-1.5 text-sm">${checklistItems}</ul></div>`;
+          blocks.push({
+            id: `block-checklist-${idx}-${lIdx}-3`,
+            type: "text",
+            content: { text: checklistHtml },
+            orderIndex: blocks.length,
+          });
+        }
+
+        // Save blocks array and serialized content
+        lesson.blocks = blocks;
+        lesson.content = JSON.stringify(blocks);
+      });
     });
 
     // Handle missing quizzes and generate them if needed
@@ -295,13 +398,11 @@ export async function generateCourse(topic: string, options?: GenerateCourseOpti
           console.log(`✅ Quiz backfilled for module ${i + 1}`);
         } catch (quizError) {
           console.error(`❌ Failed to backfill quiz for module ${i + 1}:`, quizError);
-          // Fallback: Create an empty quiz structure to satisfy schema if necessary, 
-          // but generateQuiz usually succeeds as it's a smaller call.
         }
       }
     }
 
-    console.log(`✅ Course generated successfully: "${parsed.course_title}"`);
+    console.log(`✅ Masterclass course generated successfully: "${parsed.course_title}"`);
     console.log(`   Modules: ${parsed.modules.length}`);
     console.log(`   Total lessons: ${parsed.modules.reduce((sum: number, m: any) => sum + m.lessons.length, 0)}\n`);
 
@@ -1183,5 +1284,127 @@ export async function generateBlockContent(
   }
 }
 
-// End of file
+export interface LaunchPackResult {
+  headline: string;
+  salesPitch: string;
+  targetAudience: string;
+  recommendedPrice: string;
+  communityAnnouncement: string;
+  emailAnnouncement: string;
+}
+
+export async function generateLaunchPack(
+  courseTitle: string,
+  modulesSummary: string,
+  audience?: string
+): Promise<LaunchPackResult> {
+  const prompt = `You are a high-ticket digital product strategist and copywriter for top Whop communities.
+Create a high-converting Whop Course Launch & Monetization Pack for:
+Course Title: "${courseTitle}"
+Target Audience: "${audience || "Community members & high-intent learners"}"
+
+Curriculum Overview:
+${modulesSummary}
+
+REQUIREMENTS:
+- "headline": High-converting 1-line hook for the Whop store listing.
+- "salesPitch": 3 punchy benefit bullets explaining the tangible transformation and skills mastered.
+- "targetAudience": Exactly who this course is built for vs who should skip it.
+- "recommendedPrice": Specific recommended pricing (e.g., "$29 - $49 one-time" or "Free VIP Benefit") with 1-sentence monetization rationale.
+- "communityAnnouncement": An engaging, exciting Discord / Whop community announcement post with emojis, urgency, and ready-to-use launch tone.
+- "emailAnnouncement": A short, persuasive email or direct message announcement template.
+
+Respond ONLY with a single valid JSON object matching this schema:
+{
+  "headline": "string",
+  "salesPitch": "string",
+  "targetAudience": "string",
+  "recommendedPrice": "string",
+  "communityAnnouncement": "string",
+  "emailAnnouncement": "string"
+}`;
+
+  try {
+    const { response, model } = await generateWithFallback({
+      prompt,
+      useGrounding: false,
+    });
+
+    const jsonText = extractJSON(response.text || "");
+    const parsed = JSON.parse(jsonText);
+    return {
+      headline: parsed.headline || `Master ${courseTitle}: From Zero to Execution`,
+      salesPitch: parsed.salesPitch || "• Master foundational & advanced frameworks\n• Complete hands-on real-world exercises\n• 24/7 AI Tutor included for personalized guidance",
+      targetAudience: parsed.targetAudience || "Built for creators, operators, and learners looking for actionable mastery.",
+      recommendedPrice: parsed.recommendedPrice || "$29 - $49 (Proven sweet spot for high volume on Whop)",
+      communityAnnouncement: parsed.communityAnnouncement || `🚀 **NEW COURSE LAUNCH: ${courseTitle}**\n\nWe just released a complete masterclass with frameworks, action checklists, and 24/7 AI tutor access! Check it out in the courses tab now!`,
+      emailAnnouncement: parsed.emailAnnouncement || `Subject: New Masterclass: ${courseTitle}\n\nHey team,\n\nWe just published a brand new course designed to take you step-by-step through ${courseTitle}. Access it directly inside our community portal!`,
+    };
+  } catch (error) {
+    console.error("Launch pack generation failed, returning fallback:", error);
+    return {
+      headline: `Master ${courseTitle} with Step-by-Step Practical Frameworks`,
+      salesPitch: "• Action-oriented lessons with real-world case studies\n• Interactive homework exercises & quizzes\n• Lifetime access to 24/7 in-course AI tutor",
+      targetAudience: "Community members ready to take their skills to the next level.",
+      recommendedPrice: "$29 - $49 (Recommended for standalone purchase)",
+      communityAnnouncement: `🔥 **Just Dropped: ${courseTitle}**\n\nLevel up your skills with our newly released course! Packed with actionable steps and tools. Dive in today!`,
+      emailAnnouncement: `Subject: Just launched: ${courseTitle}\n\nHi there,\n\nOur newest course is now officially live. Dive in and start learning today!`,
+    };
+  }
+}
+
+export async function askCourseTutor(params: {
+  courseTitle: string;
+  lessonTitle: string;
+  lessonContent: string;
+  query: string;
+  chatHistory?: Array<{ role: "user" | "assistant"; text: string }>;
+}): Promise<string> {
+  const { courseTitle, lessonTitle, lessonContent, query, chatHistory = [] } = params;
+
+  // Clean HTML tags for lean, fast context
+  const cleanLessonText = lessonContent
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .substring(0, 3500);
+
+  let conversationFormatted = "";
+  if (chatHistory.length > 0) {
+    conversationFormatted = chatHistory
+      .slice(-4)
+      .map((m) => `${m.role === "user" ? "Student" : "AI Mentor"}: ${m.text}`)
+      .join("\n");
+  }
+
+  const prompt = `You are the personal 24/7 AI Tutor and expert mentor for students taking the online course "${courseTitle}".
+The student is currently learning the lesson: "${lessonTitle}".
+
+CURRENT LESSON CONTENT:
+${cleanLessonText}
+
+${conversationFormatted ? `RECENT CONVERSATION:\n${conversationFormatted}\n` : ""}
+STUDENT QUESTION: "${query}"
+
+INSTRUCTIONS:
+- Answer directly, warmly, and clearly as an experienced, encouraging mentor.
+- Ground your answer in the current lesson principles.
+- Use concrete examples, bullet points, or step-by-step breakdowns when helpful.
+- If the student asks for practice, an exercise, or a quiz, test their understanding with a quick challenge.
+- Keep answers conversational, supportive, and formatted in clean markdown (2-3 concise paragraphs or bullet points).
+- Do not repeat boilerplate; jump straight into the helpful response.
+
+Response:`;
+
+  try {
+    const { response, model } = await generateWithFallback({
+      prompt,
+      useGrounding: false,
+    });
+    return response.text?.trim() || "I'm here to help! Could you please tell me more about what you'd like to explore in this lesson?";
+  } catch (error) {
+    console.error("AI Course Tutor error:", error);
+    throw new Error("Tutor unavailable at the moment. Please try again.");
+  }
+}
 

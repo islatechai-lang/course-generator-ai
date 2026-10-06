@@ -89,7 +89,7 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
             // If the user is typing, we NEVER want to slam the content prop back in.
             if (!editor.isFocused || content.length === 0) {
                 lastContentRef.current = content;
-                editor.commands.setContent(content, false);
+                editor.commands.setContent(content, { emitUpdate: false });
             }
         }
     }, [content, editor]);
