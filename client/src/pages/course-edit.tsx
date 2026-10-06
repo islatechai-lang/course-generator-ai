@@ -576,6 +576,7 @@ export default function CourseEditPage() {
     onError: (err: any) => {
       console.log("updateCourseMutation error in course-edit:", err);
       console.log("err.data:", err.data);
+      setShowPublishBeforeNotifyDialog(false);
       if (err.data?.needsUpgrade) {
         console.log("Triggering upgrade modal (course-edit) because needsUpgrade is true");
         setShowUpgradeModal(true);
@@ -2848,28 +2849,22 @@ export default function CourseEditPage() {
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center gap-2 text-base font-bold">
                 <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
-                Publish Course Before Notifying?
+                Publish Course First
               </AlertDialogTitle>
-              <AlertDialogDescription className="space-y-2 text-xs sm:text-sm text-muted-foreground pt-1">
-                <span>
-                  Your course is currently in <strong>Draft</strong> mode. Members won't be able to view or take any lessons until the course is published.
-                </span>
-                <br />
-                <span>
-                  Would you like to publish <strong>"{course?.title}"</strong> now and immediately send the push notification to all your community members?
-                </span>
+              <AlertDialogDescription className="text-xs sm:text-sm text-muted-foreground pt-1">
+                Your course must be published before sending notifications so members can access it.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter className="gap-2 sm:gap-0 mt-4">
+            <AlertDialogFooter className="gap-2 sm:gap-0 mt-3">
               <AlertDialogCancel disabled={isPublishingAndNotifying}>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 disabled={isPublishingAndNotifying}
                 onClick={async (e) => {
                   e.preventDefault();
+                  setShowPublishBeforeNotifyDialog(false);
                   setIsPublishingAndNotifying(true);
                   try {
                     await updateCourseMutation.mutateAsync({ published: true });
-                    setShowPublishBeforeNotifyDialog(false);
                     notifyMembersMutation.mutate();
                   } catch (err) {
                     console.error("Failed to publish before notify:", err);
@@ -2882,12 +2877,12 @@ export default function CourseEditPage() {
                 {isPublishingAndNotifying ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                    <span>Publishing & Notifying...</span>
+                    <span>Publishing...</span>
                   </>
                 ) : (
                   <>
                     <Send className="h-4 w-4 mr-1.5" />
-                    <span>Publish & Notify Members</span>
+                    <span>Publish & Notify</span>
                   </>
                 )}
               </AlertDialogAction>

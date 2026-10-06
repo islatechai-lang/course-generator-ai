@@ -58,12 +58,12 @@ export function UpgradeModal({ open, onOpenChange, currentPlan = "free" }: Upgra
 
     return (
         <div
-            className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100000] pointer-events-auto bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
             style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
             onClick={() => onOpenChange(false)}
         >
             <div
-                className={`w-full max-w-3xl bg-card border rounded-2xl shadow-xl animate-in zoom-in-95 duration-200 relative max-h-[95vh] ${showCheckout ? 'overflow-hidden' : 'overflow-y-auto'}`}
+                className={`w-full max-w-3xl pointer-events-auto bg-card border rounded-2xl shadow-xl animate-in zoom-in-95 duration-200 relative max-h-[95vh] ${showCheckout ? 'overflow-hidden' : 'overflow-y-auto'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Close Button */}
