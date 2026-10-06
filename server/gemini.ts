@@ -1314,7 +1314,8 @@ REQUIREMENTS:
 - "communityAnnouncement": An engaging, exciting Discord / Whop community announcement post with emojis, key takeaways, and call-to-action link.
   CRITICAL: Do NOT use markdown bold asterisks like **bold** in the text — write plain uppercase or clean text instead (e.g., write "THE WAIT IS OVER" instead of "**THE WAIT IS OVER**") so it looks clean everywhere.
   ${communityUrl ? `Include the link: ${communityUrl}` : `Include placeholder [Course Link]`}.
-- "recommendedPrice": Suggested one-time purchase price (e.g., "$29 - $49 one-time" or "$39 one-time"). All courses on Whop are one-time purchases only, NEVER monthly or subscription.
+- "recommendedPrice": Suggested one-time purchase price ONLY (e.g. "$49 one-time" or "$29 - $49 one-time").
+  CRITICAL: Do NOT include monthly, subscription, recurring payments, or explanation sentences like "/month" or "positions the program as". Give ONLY the clean price string like "$49 one-time".
 
 Respond ONLY with a single valid JSON object matching this schema:
 {
@@ -1335,9 +1336,24 @@ Respond ONLY with a single valid JSON object matching this schema:
       .replace(/\*\*/g, "")
       .replace(/\*/g, "");
 
+    // Sanitize recommendedPrice: strip monthly/recurring and rationale
+    let cleanPrice = (parsed.recommendedPrice || "$49 one-time")
+      .replace(/\s*(?:—|-)\s*.*$/, "") // strip trailing dashes and sentences
+      .replace(/\/month.*/i, "") // strip monthly
+      .replace(/or\s*\$\d+\/month.*/i, "")
+      .trim();
+
+    // Extract dollar amount range or single
+    const priceMatch = cleanPrice.match(/\$\d+(?:\s*-\s*\$\d+)?/);
+    if (priceMatch) {
+      cleanPrice = `${priceMatch[0]} one-time`;
+    } else {
+      cleanPrice = "$49 one-time";
+    }
+
     return {
       communityAnnouncement: cleanAnnouncement,
-      recommendedPrice: parsed.recommendedPrice || "$29 - $49 one-time",
+      recommendedPrice: cleanPrice,
       communityUrl,
     };
   } catch (error) {
@@ -1345,7 +1361,7 @@ Respond ONLY with a single valid JSON object matching this schema:
     const linkSuffix = communityUrl ? `\n\n👉 Access the masterclass here: ${communityUrl}` : "";
     return {
       communityAnnouncement: `🔥 Just Dropped: ${courseTitle}\n\nLevel up your skills with our newly released masterclass! Packed with actionable blueprints and 24/7 AI guidance. Dive in today!${linkSuffix}`,
-      recommendedPrice: "$29 - $49 one-time",
+      recommendedPrice: "$49 one-time",
       communityUrl,
     };
   }

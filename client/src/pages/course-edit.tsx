@@ -95,6 +95,7 @@ import {
   Bell,
   Mail,
   ExternalLink,
+  Globe,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -2352,6 +2353,73 @@ export default function CourseEditPage() {
                   </div>
                 ) : (
                   <div className="space-y-6">
+                    {/* 0. Critical Step: Make Course Generator App Public on Whop */}
+                    <Card className="rounded-2xl border bg-gradient-to-br from-blue-500/10 via-card to-card backdrop-blur-sm overflow-hidden shadow-sm border-blue-500/30">
+                      <div className="p-4 sm:p-5 border-b bg-blue-500/5 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-lg bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                            <Globe className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-sm text-foreground">Make Course Generator App Public</h3>
+                            <p className="text-xs text-muted-foreground">Required so your community members can see and access your courses inside Whop.</p>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 text-xs font-bold">
+                          Step 1 of Launch
+                        </Badge>
+                      </div>
+
+                      <CardContent className="p-4 sm:p-6 space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Step 1 Visual Card */}
+                          <div className="p-4 rounded-xl bg-muted/30 border border-border/60 flex flex-col justify-between space-y-3">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">1</span>
+                                <span className="text-xs font-bold text-foreground">Click the 3 dots (⋮) on Course Generator</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground pl-7">
+                                In your Whop left sidebar, find <strong>Course Generator</strong> and click the 3 dots menu.
+                              </p>
+                            </div>
+                            <div className="rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2">
+                              <img
+                                src="/guide/step1-menu.png"
+                                alt="Click 3 dots on Course Generator"
+                                className="max-h-48 object-contain rounded"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Step 2 Visual Card */}
+                          <div className="p-4 rounded-xl bg-muted/30 border border-border/60 flex flex-col justify-between space-y-3">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">2</span>
+                                <span className="text-xs font-bold text-foreground">Select "Change visibility" → Choose "Public"</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground pl-7">
+                                Click <strong>Change visibility</strong>, switch to <strong>Public (Anyone on Whop will be able to view)</strong>, and click <strong>Save</strong>.
+                              </p>
+                            </div>
+                            <div className="rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2">
+                              <img
+                                src="/guide/step2-visibility.png"
+                                alt="Change visibility to Public"
+                                className="max-h-48 object-contain rounded"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-300">
+                          <CheckCircle2 className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                          <span>Once set to Public, all members in your community will immediately see your published courses in their sidebar.</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+
                     {/* 1. Community Launch Announcement (Discord / Whop Chat + 1-Click Broadcast) */}
                     <Card className="rounded-2xl border bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm border-emerald-500/20">
                       <div className="p-4 sm:p-5 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -2370,7 +2438,18 @@ export default function CourseEditPage() {
                             variant="default"
                             size="sm"
                             disabled={isNotifyingMembers || !course}
-                            onClick={() => notifyMembersMutation.mutate()}
+                            onClick={() => {
+                              if (!course?.published) {
+                                toast({
+                                  title: "Course must be published first",
+                                  description: "Publish your course in Settings before notifying your community members.",
+                                  variant: "destructive",
+                                });
+                                setActiveTab("settings");
+                                return;
+                              }
+                              notifyMembersMutation.mutate();
+                            }}
                             className="h-8 gap-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
                           >
                             {isNotifyingMembers ? (
@@ -2403,6 +2482,25 @@ export default function CourseEditPage() {
                       </div>
 
                       <CardContent className="p-4 sm:p-6 space-y-3">
+                        {!course?.published && (
+                          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-xs text-amber-800 dark:text-amber-300">
+                            <div className="flex items-center gap-2">
+                              <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                              <span>Your course is currently <strong>Unpublished</strong>. Members cannot access it until you publish.</span>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                updateCourseMutation.mutate({ published: true });
+                              }}
+                              className="h-7 text-xs font-bold border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 shrink-0"
+                            >
+                              Publish Now
+                            </Button>
+                          </div>
+                        )}
+
                         {launchPackData?.launchPack?.communityUrl && (
                           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-400">
                             <ExternalLink className="h-3.5 w-3.5 shrink-0" />
