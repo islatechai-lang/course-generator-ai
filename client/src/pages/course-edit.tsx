@@ -2373,19 +2373,19 @@ export default function CourseEditPage() {
 
             {/* Launch & Monetize Section */}
             {activeTab === "launch" && (
-              <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 animate-in fade-in duration-300">
+              <div className="max-w-4xl mx-auto p-3.5 sm:p-6 space-y-4 sm:space-y-6 animate-in fade-in duration-300">
                 {/* Header Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/20">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/20">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                         <Rocket className="h-4 w-4" />
                       </div>
-                      <h2 className="text-xl font-bold tracking-tight text-foreground">
+                      <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
                         Whop Launch & Monetization Pack
                       </h2>
                     </div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground pl-10.5 sm:pl-0">
                       Ready-to-use sales copy, community announcements, and pricing strategy to monetize this course today.
                     </p>
                   </div>
@@ -2398,12 +2398,12 @@ export default function CourseEditPage() {
                     <Skeleton className="h-40 w-full rounded-xl" />
                   </div>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {/* 0. Critical Step: Make Course Generator App Public on Whop */}
                     <Card className="rounded-2xl border bg-gradient-to-br from-blue-500/10 via-card to-card backdrop-blur-sm overflow-hidden shadow-sm border-blue-500/30">
-                      <div className="p-4 sm:p-5 border-b bg-blue-500/5 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-lg bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <div className="p-3.5 sm:p-5 border-b bg-blue-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-8 w-8 rounded-lg bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                             <Globe className="h-4 w-4" />
                           </div>
                           <div>
@@ -2411,15 +2411,15 @@ export default function CourseEditPage() {
                             <p className="text-xs text-muted-foreground">Required so your community members can see and access your courses inside Whop.</p>
                           </div>
                         </div>
-                        <Badge variant="outline" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 text-xs font-bold">
+                        <Badge variant="outline" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 text-xs font-bold w-fit self-start sm:self-auto shrink-0">
                           Step 1 of Launch
                         </Badge>
                       </div>
 
-                      <CardContent className="p-4 sm:p-6 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <CardContent className="p-3.5 sm:p-6 space-y-3 sm:space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                           {/* Step 1 Visual Card */}
-                          <div className="p-4 rounded-xl bg-muted/30 border border-border/60 flex flex-col justify-between space-y-3">
+                          <div className="p-3 sm:p-4 rounded-xl bg-muted/30 border border-border/60 flex flex-col justify-between space-y-2.5 sm:space-y-3">
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
                                 <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
@@ -2436,19 +2436,19 @@ export default function CourseEditPage() {
                               <img
                                 src="/guide/step1-menu.png"
                                 alt="Click 3 dots on Course Generator"
-                                className="max-h-60 sm:max-h-72 w-full object-contain rounded transition-transform duration-200 group-hover:scale-[1.02]"
+                                className="max-h-48 sm:max-h-72 w-full object-contain rounded transition-transform duration-200 group-hover:scale-[1.02]"
                               />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg backdrop-blur-[1px]">
-                                <span className="px-3 py-1.5 rounded-full bg-black/85 text-white text-xs font-medium flex items-center gap-1.5 shadow-xl border border-white/20">
-                                  <ZoomIn className="h-3.5 w-3.5" />
-                                  Click to view full size
+                              <div className="absolute bottom-2 right-2 sm:bottom-auto sm:right-auto sm:inset-0 sm:bg-black/40 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg sm:backdrop-blur-[1px]">
+                                <span className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-black/85 text-white text-[11px] sm:text-xs font-medium flex items-center gap-1.5 shadow-xl border border-white/20">
+                                  <ZoomIn className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                  <span>Enlarge</span>
                                 </span>
                               </div>
                             </div>
                           </div>
 
                           {/* Step 2 Visual Card */}
-                          <div className="p-4 rounded-xl bg-muted/30 border border-border/60 flex flex-col justify-between space-y-3">
+                          <div className="p-3 sm:p-4 rounded-xl bg-muted/30 border border-border/60 flex flex-col justify-between space-y-2.5 sm:space-y-3">
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
                                 <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
@@ -2465,20 +2465,20 @@ export default function CourseEditPage() {
                               <img
                                 src="/guide/step2-visibility.png"
                                 alt="Change visibility to Public"
-                                className="max-h-60 sm:max-h-72 w-full object-contain rounded transition-transform duration-200 group-hover:scale-[1.02]"
+                                className="max-h-48 sm:max-h-72 w-full object-contain rounded transition-transform duration-200 group-hover:scale-[1.02]"
                               />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg backdrop-blur-[1px]">
-                                <span className="px-3 py-1.5 rounded-full bg-black/85 text-white text-xs font-medium flex items-center gap-1.5 shadow-xl border border-white/20">
-                                  <ZoomIn className="h-3.5 w-3.5" />
-                                  Click to view full size
+                              <div className="absolute bottom-2 right-2 sm:bottom-auto sm:right-auto sm:inset-0 sm:bg-black/40 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg sm:backdrop-blur-[1px]">
+                                <span className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-black/85 text-white text-[11px] sm:text-xs font-medium flex items-center gap-1.5 shadow-xl border border-white/20">
+                                  <ZoomIn className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                  <span>Enlarge</span>
                                 </span>
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-300">
-                          <CheckCircle2 className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                        <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 flex items-start sm:items-center gap-2.5 text-xs text-blue-700 dark:text-blue-300">
+                          <CheckCircle2 className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5 sm:mt-0" />
                           <span>Once set to Public, all members in your community will immediately see your published courses in their sidebar.</span>
                         </div>
                       </CardContent>
@@ -2486,9 +2486,9 @@ export default function CourseEditPage() {
 
                     {/* 1. Community Launch Announcement (Discord / Whop Chat + 1-Click Broadcast) */}
                     <Card className="rounded-2xl border bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm border-emerald-500/20">
-                      <div className="p-4 sm:p-5 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                      <div className="p-3.5 sm:p-5 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-8 w-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
                             <Megaphone className="h-4 w-4" />
                           </div>
                           <div>
@@ -2497,7 +2497,7 @@ export default function CourseEditPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
                           <Button
                             variant="ghost"
                             size="icon"
@@ -2520,7 +2520,7 @@ export default function CourseEditPage() {
                               }
                               notifyMembersMutation.mutate();
                             }}
-                            className="h-8 gap-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                            className="h-8 gap-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex-1 sm:flex-initial"
                           >
                             {isNotifyingMembers ? (
                               <>
@@ -2530,7 +2530,7 @@ export default function CourseEditPage() {
                             ) : (
                               <>
                                 <Send className="h-3.5 w-3.5" />
-                                <span>1-Click Notify Members</span>
+                                <span>1-Click Notify<span className="hidden sm:inline"> Members</span></span>
                               </>
                             )}
                           </Button>
@@ -2543,19 +2543,19 @@ export default function CourseEditPage() {
                               "community-post",
                               "Community Announcement"
                             )}
-                            className="h-8 gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10 border-emerald-500/30"
+                            className="h-8 gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10 border-emerald-500/30 flex-1 sm:flex-initial"
                           >
                             {copiedKey === "community-post" ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
-                            <span>{copiedKey === "community-post" ? "Copied" : "Copy Post"}</span>
+                            <span>{copiedKey === "community-post" ? "Copied" : "Copy"}<span className="hidden sm:inline"> Post</span></span>
                           </Button>
                         </div>
                       </div>
 
-                      <CardContent className="p-4 sm:p-6 space-y-3">
+                      <CardContent className="p-3.5 sm:p-6 space-y-3">
                         {!course?.published && (
-                          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-xs text-amber-800 dark:text-amber-300">
-                            <div className="flex items-center gap-2">
-                              <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-amber-800 dark:text-amber-300">
+                            <div className="flex items-start sm:items-center gap-2">
+                              <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5 sm:mt-0" />
                               <span>Your course is currently <strong>Unpublished</strong>. Members cannot access it until you publish.</span>
                             </div>
                             <Button
@@ -2565,7 +2565,7 @@ export default function CourseEditPage() {
                               onClick={() => {
                                 updateCourseMutation.mutate({ published: true });
                               }}
-                              className="h-7 text-xs font-bold border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 shrink-0"
+                              className="h-7 text-xs font-bold border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 shrink-0 w-full sm:w-auto"
                             >
                               {updateCourseMutation.isPending ? (
                                 <>
@@ -2580,21 +2580,21 @@ export default function CourseEditPage() {
                         )}
 
                         {launchPackData?.launchPack?.communityUrl && (
-                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-400">
+                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-400 overflow-hidden">
                             <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                            <span className="font-medium">Community URL auto-included:</span>
+                            <span className="font-medium shrink-0">Community Link:</span>
                             <a
                               href={launchPackData.launchPack.communityUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="font-mono underline truncate hover:opacity-80"
+                              className="font-mono underline truncate hover:opacity-80 min-w-0"
                             >
                               {launchPackData.launchPack.communityUrl}
                             </a>
                           </div>
                         )}
 
-                        <div className="p-4 rounded-xl bg-muted/40 border border-border/60 text-xs sm:text-sm font-mono text-foreground/90 whitespace-pre-line leading-relaxed">
+                        <div className="p-3.5 sm:p-4 rounded-xl bg-muted/40 border border-border/60 text-xs sm:text-sm font-mono text-foreground/90 whitespace-pre-line leading-relaxed break-words overflow-x-hidden">
                           {(launchPackData?.launchPack?.communityAnnouncement || `🚀 NEW MASTERCLASS LIVE: ${course?.title}\n\nWe just launched a brand new hands-on masterclass! Complete with action blueprints and 24/7 AI tutor guidance. Head over to the course section to start learning!`)
                             .replace(/\*\*/g, "")
                             .replace(/\*/g, "")}
@@ -2604,21 +2604,21 @@ export default function CourseEditPage() {
 
                     {/* 2. Monetization Strategy & Suggested Pricing */}
                     <Card className="rounded-2xl border bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm">
-                      <div className="p-4 sm:p-5 border-b bg-muted/20 flex items-center justify-between">
+                      <div className="p-3.5 sm:p-5 border-b bg-muted/20 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-4 w-4 text-emerald-500" />
                           <h3 className="font-bold text-sm text-foreground">Suggested Pricing Point</h3>
                         </div>
                         <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-xs font-bold">
-                          One-Time Purchase
+                          One-Time
                         </Badge>
                       </div>
 
-                      <CardContent className="p-4 sm:p-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                      <CardContent className="p-3.5 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
                           <div>
                             <span className="text-xs font-semibold uppercase text-emerald-600 dark:text-emerald-400">Sweet Spot for Whop</span>
-                            <div className="text-2xl font-black text-foreground mt-0.5">
+                            <div className="text-xl sm:text-2xl font-black text-foreground mt-0.5">
                               {(() => {
                                 const raw = launchPackData?.launchPack?.recommendedPrice || "$29 - $49 one-time";
                                 return raw.includes("one-time") ? raw : `${raw} one-time`;
@@ -2629,7 +2629,7 @@ export default function CourseEditPage() {
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="w-full sm:w-auto">
                             {(() => {
                               const rawPriceStr = launchPackData?.launchPack?.recommendedPrice || "29";
                               const matchNum = rawPriceStr.match(/\$(\d+)/);
@@ -2645,7 +2645,7 @@ export default function CourseEditPage() {
                                     setActiveTab("settings");
                                     toast({ title: "Switched to Paid!", description: `Set price to $${targetPrice} one-time. Save changes in settings.` });
                                   }}
-                                  className="text-xs font-bold border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+                                  className="w-full sm:w-auto text-xs font-bold border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
                                 >
                                   Set to ${targetPrice} in Settings
                                 </Button>
@@ -2658,9 +2658,9 @@ export default function CourseEditPage() {
 
                     {/* 3. On-Demand Email & Direct Message Announcement Generator */}
                     <Card className="rounded-2xl border bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm">
-                      <div className="p-4 sm:p-5 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center">
+                      <div className="p-3.5 sm:p-5 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-8 w-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
                             <Mail className="h-4 w-4" />
                           </div>
                           <div>
@@ -2669,13 +2669,13 @@ export default function CourseEditPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
                           <Button
                             variant="outline"
                             size="sm"
                             disabled={isGeneratingEmail}
                             onClick={() => generateEmailMutation.mutate()}
-                            className="h-8 gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-500/10 border-blue-500/30"
+                            className="h-8 gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-500/10 border-blue-500/30 flex-1 sm:flex-initial"
                           >
                             {isGeneratingEmail ? (
                               <>
@@ -2685,7 +2685,7 @@ export default function CourseEditPage() {
                             ) : (
                               <>
                                 <Sparkles className="h-3.5 w-3.5" />
-                                <span>{launchPackData?.launchPack?.emailAnnouncement ? "Regenerate Email" : "Generate Email"}</span>
+                                <span>{launchPackData?.launchPack?.emailAnnouncement ? "Regenerate" : "Generate Email"}</span>
                               </>
                             )}
                           </Button>
@@ -2699,7 +2699,7 @@ export default function CourseEditPage() {
                                 "email-template",
                                 "Email Template"
                               )}
-                              className="h-8 gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-500/10"
+                              className="h-8 gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-500/10 flex-1 sm:flex-initial"
                             >
                               {copiedKey === "email-template" ? <Check className="h-3.5 w-3.5 text-blue-600" /> : <Copy className="h-3.5 w-3.5" />}
                               <span>{copiedKey === "email-template" ? "Copied" : "Copy Email"}</span>
@@ -2708,9 +2708,9 @@ export default function CourseEditPage() {
                         </div>
                       </div>
 
-                      <CardContent className="p-4 sm:p-6">
+                      <CardContent className="p-3.5 sm:p-6">
                         {launchPackData?.launchPack?.emailAnnouncement ? (
-                          <div className="p-4 rounded-xl bg-muted/40 border border-border/60 text-xs sm:text-sm text-foreground/90 whitespace-pre-line leading-relaxed font-sans">
+                          <div className="p-3.5 sm:p-4 rounded-xl bg-muted/40 border border-border/60 text-xs sm:text-sm text-foreground/90 whitespace-pre-line leading-relaxed font-sans break-words overflow-x-hidden">
                             {launchPackData.launchPack.emailAnnouncement}
                           </div>
                         ) : (
