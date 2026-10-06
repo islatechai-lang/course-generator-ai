@@ -700,7 +700,7 @@ export async function generateCourseImageWithDeAPI(prompt: string): Promise<stri
         width: 768,
         height: 432,
         guidance: 7.5,
-        steps: 20,
+        steps: 8,
         seed: Math.floor(Math.random() * 1000000)
       })
     });
@@ -719,31 +719,36 @@ export async function generateCourseImageWithDeAPI(prompt: string): Promise<stri
       return null;
     }
 
-    const maxAttempts = 50;
-    const pollInterval = 5000;
+    const maxAttempts = 40;
+    const pollInterval = 2000;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       await sleep(pollInterval);
 
-      const statusResponse = await fetch(`${DEAPI_BASE_URL}/api/v1/client/request-status/${requestId}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Accept": "application/json"
-        }
-      });
+      let statusResponse;
+      try {
+        statusResponse = await fetch(`${DEAPI_BASE_URL}/api/v1/client/request-status/${requestId}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Accept": "application/json"
+          }
+        });
+      } catch (fetchErr: any) {
+        console.warn(`DeAPI: Status check network warning on attempt ${attempt + 1}:`, fetchErr.message);
+        continue;
+      }
 
       if (statusResponse.status === 429) {
-        console.log(`DeAPI: Rate limited (429), attempt ${attempt + 1}. Backing off for 10s...`);
-        await sleep(10000);
+        console.log(`DeAPI: Rate limited (429), attempt ${attempt + 1}. Backing off for 5s...`);
+        await sleep(5000);
         continue;
       }
 
       if (!statusResponse.ok) {
         const errorText = await statusResponse.text().catch(() => "Unknown error");
         console.error(`DeAPI: Status check failed with status ${statusResponse.status}, attempt ${attempt + 1}:`, errorText);
-        // On server error, wait longer
-        await sleep(2000);
+        await sleep(1000);
         continue;
       }
 
