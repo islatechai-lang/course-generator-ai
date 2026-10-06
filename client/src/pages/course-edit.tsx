@@ -381,6 +381,8 @@ export default function CourseEditPage() {
 
   const [isNotifyingMembers, setIsNotifyingMembers] = useState(false);
   const [isGeneratingEmail, setIsGeneratingEmail] = useState(false);
+  const [showPublishBeforeNotifyDialog, setShowPublishBeforeNotifyDialog] = useState(false);
+  const [isPublishingAndNotifying, setIsPublishingAndNotifying] = useState(false);
 
   const notifyMembersMutation = useMutation({
     mutationFn: async () => {
@@ -2090,6 +2092,60 @@ export default function CourseEditPage() {
                   </div>
                 </section>
 
+                {/* Course Status & Visibility Section */}
+                <section className="space-y-6">
+                  <div className="space-y-1">
+                    <h2 className="text-lg font-semibold">Course Status</h2>
+                    <p className="text-sm text-muted-foreground">Manage whether this course is published and available to students</p>
+                  </div>
+                  <Separator />
+                  <div className="p-4 rounded-lg border bg-muted/30 flex items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Publish Status:</span>
+                        <Badge
+                          className={course.published
+                            ? "bg-green-500/90 text-white hover:bg-green-500"
+                            : "bg-amber-500/90 text-white hover:bg-amber-500"}
+                        >
+                          {course.published ? "Live / Published" : "Draft / Unpublished"}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {course.published
+                          ? "This course is currently Live. Members in your community can view and take this course."
+                          : "This course is in Draft mode. Members cannot access it until you publish."}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={course.published ? "outline" : "default"}
+                      disabled={updateCourseMutation.isPending}
+                      onClick={() => updateCourseMutation.mutate({ published: !course.published })}
+                      className={course.published
+                        ? "border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10 shrink-0"
+                        : "bg-green-600 hover:bg-green-700 text-white shrink-0 font-semibold"}
+                    >
+                      {updateCourseMutation.isPending ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                          <span>Updating...</span>
+                        </>
+                      ) : course.published ? (
+                        <>
+                          <EyeOff className="h-4 w-4 mr-1.5" />
+                          <span>Unpublish</span>
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-4 w-4 mr-1.5" />
+                          <span>Publish Course</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </section>
+
                 {/* Pricing Section */}
                 <section className="space-y-6">
                   <div className="space-y-1">
@@ -2332,17 +2388,6 @@ export default function CourseEditPage() {
                       Ready-to-use sales copy, community announcements, and pricing strategy to monetize this course today.
                     </p>
                   </div>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => regenerateLaunchPackMutation.mutate()}
-                    disabled={regenerateLaunchPackMutation.isPending || isLoadingLaunchPack}
-                    className="gap-2 shrink-0 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 font-semibold"
-                  >
-                    <RefreshCw className={cn("h-3.5 w-3.5", regenerateLaunchPackMutation.isPending && "animate-spin")} />
-                    <span>Regenerate Copy</span>
-                  </Button>
                 </div>
 
                 {isLoadingLaunchPack ? (
@@ -2376,19 +2421,28 @@ export default function CourseEditPage() {
                           <div className="p-4 rounded-xl bg-muted/30 border border-border/60 flex flex-col justify-between space-y-3">
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">1</span>
+                                <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
                                 <span className="text-xs font-bold text-foreground">Click the 3 dots (⋮) on Course Generator</span>
                               </div>
                               <p className="text-xs text-muted-foreground pl-7">
                                 In your Whop left sidebar, find <strong>Course Generator</strong> and click the 3 dots menu.
                               </p>
                             </div>
-                            <div className="rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2">
+                            <div
+                              onClick={() => setLightboxImage({ url: "/guide/step1-menu.png", alt: "Step 1: Click the 3 dots menu on Course Generator" })}
+                              className="group relative cursor-pointer rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2 hover:border-blue-500/60 transition-all"
+                            >
                               <img
                                 src="/guide/step1-menu.png"
                                 alt="Click 3 dots on Course Generator"
-                                className="max-h-48 object-contain rounded"
+                                className="max-h-60 sm:max-h-72 w-full object-contain rounded transition-transform duration-200 group-hover:scale-[1.02]"
                               />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg backdrop-blur-[1px]">
+                                <span className="px-3 py-1.5 rounded-full bg-black/85 text-white text-xs font-medium flex items-center gap-1.5 shadow-xl border border-white/20">
+                                  <ZoomIn className="h-3.5 w-3.5" />
+                                  Click to view full size
+                                </span>
+                              </div>
                             </div>
                           </div>
 
@@ -2396,19 +2450,28 @@ export default function CourseEditPage() {
                           <div className="p-4 rounded-xl bg-muted/30 border border-border/60 flex flex-col justify-between space-y-3">
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">2</span>
+                                <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
                                 <span className="text-xs font-bold text-foreground">Select "Change visibility" → Choose "Public"</span>
                               </div>
                               <p className="text-xs text-muted-foreground pl-7">
                                 Click <strong>Change visibility</strong>, switch to <strong>Public (Anyone on Whop will be able to view)</strong>, and click <strong>Save</strong>.
                               </p>
                             </div>
-                            <div className="rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2">
+                            <div
+                              onClick={() => setLightboxImage({ url: "/guide/step2-visibility.png", alt: "Step 2: Change visibility to Public" })}
+                              className="group relative cursor-pointer rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2 hover:border-blue-500/60 transition-all"
+                            >
                               <img
                                 src="/guide/step2-visibility.png"
                                 alt="Change visibility to Public"
-                                className="max-h-48 object-contain rounded"
+                                className="max-h-60 sm:max-h-72 w-full object-contain rounded transition-transform duration-200 group-hover:scale-[1.02]"
                               />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg backdrop-blur-[1px]">
+                                <span className="px-3 py-1.5 rounded-full bg-black/85 text-white text-xs font-medium flex items-center gap-1.5 shadow-xl border border-white/20">
+                                  <ZoomIn className="h-3.5 w-3.5" />
+                                  Click to view full size
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -2435,17 +2498,23 @@ export default function CourseEditPage() {
 
                         <div className="flex items-center gap-2">
                           <Button
+                            variant="ghost"
+                            size="icon"
+                            title="Regenerate Announcement"
+                            disabled={regenerateLaunchPackMutation.isPending || isLoadingLaunchPack}
+                            onClick={() => regenerateLaunchPackMutation.mutate()}
+                            className="h-8 w-8 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10 shrink-0"
+                          >
+                            <RefreshCw className={cn("h-3.5 w-3.5", regenerateLaunchPackMutation.isPending && "animate-spin")} />
+                          </Button>
+
+                          <Button
                             variant="default"
                             size="sm"
                             disabled={isNotifyingMembers || !course}
                             onClick={() => {
                               if (!course?.published) {
-                                toast({
-                                  title: "Course must be published first",
-                                  description: "Publish your course in Settings before notifying your community members.",
-                                  variant: "destructive",
-                                });
-                                setActiveTab("settings");
+                                setShowPublishBeforeNotifyDialog(true);
                                 return;
                               }
                               notifyMembersMutation.mutate();
@@ -2491,12 +2560,20 @@ export default function CourseEditPage() {
                             <Button
                               variant="outline"
                               size="sm"
+                              disabled={updateCourseMutation.isPending}
                               onClick={() => {
                                 updateCourseMutation.mutate({ published: true });
                               }}
                               className="h-7 text-xs font-bold border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 shrink-0"
                             >
-                              Publish Now
+                              {updateCourseMutation.isPending ? (
+                                <>
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                  <span>Publishing...</span>
+                                </>
+                              ) : (
+                                "Publish Now"
+                              )}
                             </Button>
                           </div>
                         )}
@@ -2765,6 +2842,59 @@ export default function CourseEditPage() {
           </AlertDialogContent>
         </AlertDialog>
 
+        {/* Publish Before Notify Dialog */}
+        <AlertDialog open={showPublishBeforeNotifyDialog} onOpenChange={setShowPublishBeforeNotifyDialog}>
+          <AlertDialogContent className="sm:max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2 text-base font-bold">
+                <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+                Publish Course Before Notifying?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="space-y-2 text-xs sm:text-sm text-muted-foreground pt-1">
+                <span>
+                  Your course is currently in <strong>Draft</strong> mode. Members won't be able to view or take any lessons until the course is published.
+                </span>
+                <br />
+                <span>
+                  Would you like to publish <strong>"{course?.title}"</strong> now and immediately send the push notification to all your community members?
+                </span>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-2 sm:gap-0 mt-4">
+              <AlertDialogCancel disabled={isPublishingAndNotifying}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={isPublishingAndNotifying}
+                onClick={async (e) => {
+                  e.preventDefault();
+                  setIsPublishingAndNotifying(true);
+                  try {
+                    await updateCourseMutation.mutateAsync({ published: true });
+                    setShowPublishBeforeNotifyDialog(false);
+                    notifyMembersMutation.mutate();
+                  } catch (err) {
+                    console.error("Failed to publish before notify:", err);
+                  } finally {
+                    setIsPublishingAndNotifying(false);
+                  }
+                }}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+              >
+                {isPublishingAndNotifying ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                    <span>Publishing & Notifying...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-1.5" />
+                    <span>Publish & Notify Members</span>
+                  </>
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         {/* Media Dialog */}
         <MediaDialog
           open={mediaDialogOpen}
@@ -2778,19 +2908,20 @@ export default function CourseEditPage() {
 
         {/* Image Lightbox */}
         <Dialog open={!!lightboxImage} onOpenChange={(open) => !open && setLightboxImage(null)}>
-          <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto p-0 bg-transparent border-0 shadow-none overflow-visible [&>button]:hidden">
+          <DialogContent className="max-w-[95vw] max-h-[95vh] w-auto p-0 bg-transparent border-0 shadow-none overflow-visible [&>button]:hidden flex items-center justify-center">
             {lightboxImage && (
-              <div className="relative">
+              <div className="relative max-w-[95vw] max-h-[92vh] flex items-center justify-center">
                 <img
                   src={lightboxImage.url}
                   alt={lightboxImage.alt}
-                  className="max-w-[90vw] max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
+                  className="max-w-[95vw] max-h-[90vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/20 bg-black/90"
                   data-testid="img-lightbox"
                 />
                 <button
                   onClick={() => setLightboxImage(null)}
-                  className="absolute top-3 right-3 h-10 w-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors shadow-lg"
+                  className="absolute top-3 right-3 h-10 w-10 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center justify-center transition-colors shadow-lg border border-white/20 cursor-pointer"
                   data-testid="button-close-lightbox"
+                  title="Close (Esc)"
                 >
                   <X className="h-5 w-5" />
                 </button>
