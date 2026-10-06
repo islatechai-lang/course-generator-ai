@@ -1311,8 +1311,10 @@ Curriculum Overview:
 ${modulesSummary}
 
 REQUIREMENTS:
-- "communityAnnouncement": An engaging, exciting Discord / Whop community announcement post with emojis, key takeaways, and call-to-action link. ${communityUrl ? `Include the link: ${communityUrl}` : `Include placeholder [Course Link]`}.
-- "recommendedPrice": Specific recommended pricing (e.g., "$29 - $49 one-time" or "Free VIP Benefit") with 1-sentence rationale.
+- "communityAnnouncement": An engaging, exciting Discord / Whop community announcement post with emojis, key takeaways, and call-to-action link.
+  CRITICAL: Do NOT use markdown bold asterisks like **bold** in the text — write plain uppercase or clean text instead (e.g., write "THE WAIT IS OVER" instead of "**THE WAIT IS OVER**") so it looks clean everywhere.
+  ${communityUrl ? `Include the link: ${communityUrl}` : `Include placeholder [Course Link]`}.
+- "recommendedPrice": Suggested one-time purchase price (e.g., "$29 - $49 one-time" or "$39 one-time"). All courses on Whop are one-time purchases only, NEVER monthly or subscription.
 
 Respond ONLY with a single valid JSON object matching this schema:
 {
@@ -1329,17 +1331,21 @@ Respond ONLY with a single valid JSON object matching this schema:
     const jsonText = extractJSON(response.text || "");
     const parsed = JSON.parse(jsonText);
     const linkSuffix = communityUrl ? `\n\n👉 Access the masterclass here: ${communityUrl}` : "";
+    let cleanAnnouncement = (parsed.communityAnnouncement || `🚀 NEW MASTERCLASS LIVE: ${courseTitle}\n\nWe just released an in-depth, hands-on masterclass with frameworks, action checklists, and 24/7 AI tutor access! Check it out in the courses tab now!${linkSuffix}`)
+      .replace(/\*\*/g, "")
+      .replace(/\*/g, "");
+
     return {
-      communityAnnouncement: parsed.communityAnnouncement || `🚀 **NEW MASTERCLASS LIVE: ${courseTitle}**\n\nWe just released an in-depth, hands-on masterclass with frameworks, action checklists, and 24/7 AI tutor access! Check it out in the courses tab now!${linkSuffix}`,
-      recommendedPrice: parsed.recommendedPrice || "$29 - $49 (Proven sweet spot for high volume on Whop)",
+      communityAnnouncement: cleanAnnouncement,
+      recommendedPrice: parsed.recommendedPrice || "$29 - $49 one-time",
       communityUrl,
     };
   } catch (error) {
     console.error("Launch pack generation failed, returning fallback:", error);
     const linkSuffix = communityUrl ? `\n\n👉 Access the masterclass here: ${communityUrl}` : "";
     return {
-      communityAnnouncement: `🔥 **Just Dropped: ${courseTitle}**\n\nLevel up your skills with our newly released masterclass! Packed with actionable blueprints and 24/7 AI guidance. Dive in today!${linkSuffix}`,
-      recommendedPrice: "$29 - $49 (Recommended for standalone purchase)",
+      communityAnnouncement: `🔥 Just Dropped: ${courseTitle}\n\nLevel up your skills with our newly released masterclass! Packed with actionable blueprints and 24/7 AI guidance. Dive in today!${linkSuffix}`,
+      recommendedPrice: "$29 - $49 one-time",
       communityUrl,
     };
   }

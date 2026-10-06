@@ -2361,7 +2361,7 @@ export default function CourseEditPage() {
                           </div>
                           <div>
                             <h3 className="font-bold text-sm text-foreground">Community Launch Announcement</h3>
-                            <p className="text-xs text-muted-foreground">Post in Whop chat / Discord or send an instant push notification to your members.</p>
+                            <p className="text-xs text-muted-foreground">Send an instant push notification to all your members.</p>
                           </div>
                         </div>
 
@@ -2419,7 +2419,9 @@ export default function CourseEditPage() {
                         )}
 
                         <div className="p-4 rounded-xl bg-muted/40 border border-border/60 text-xs sm:text-sm font-mono text-foreground/90 whitespace-pre-line leading-relaxed">
-                          {launchPackData?.launchPack?.communityAnnouncement || `🚀 **NEW MASTERCLASS LIVE: ${course?.title}**\n\nWe just launched a brand new hands-on masterclass! Complete with action blueprints and 24/7 AI tutor guidance. Head over to the course section to start learning!`}
+                          {(launchPackData?.launchPack?.communityAnnouncement || `🚀 NEW MASTERCLASS LIVE: ${course?.title}\n\nWe just launched a brand new hands-on masterclass! Complete with action blueprints and 24/7 AI tutor guidance. Head over to the course section to start learning!`)
+                            .replace(/\*\*/g, "")
+                            .replace(/\*/g, "")}
                         </div>
                       </CardContent>
                     </Card>
@@ -2432,7 +2434,7 @@ export default function CourseEditPage() {
                           <h3 className="font-bold text-sm text-foreground">Suggested Pricing Point</h3>
                         </div>
                         <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-xs font-bold">
-                          Recommended
+                          One-Time Purchase
                         </Badge>
                       </div>
 
@@ -2441,40 +2443,38 @@ export default function CourseEditPage() {
                           <div>
                             <span className="text-xs font-semibold uppercase text-emerald-600 dark:text-emerald-400">Sweet Spot for Whop</span>
                             <div className="text-2xl font-black text-foreground mt-0.5">
-                              {launchPackData?.launchPack?.recommendedPrice || "$29 - $49"}
+                              {(() => {
+                                const raw = launchPackData?.launchPack?.recommendedPrice || "$29 - $49 one-time";
+                                return raw.includes("one-time") ? raw : `${raw} one-time`;
+                              })()}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
-                              Based on your module depth, quizzes, and 24/7 AI tutor value.
+                              One-time purchase price based on your module depth, quizzes, and 24/7 AI tutor value.
                             </p>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setIsFree(false);
-                                setPrice("29");
-                                setActiveTab("settings");
-                                toast({ title: "Switched to Paid!", description: "Set price to $29. Save changes in settings." });
-                              }}
-                              className="text-xs font-bold border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
-                            >
-                              Set to $29 in Settings
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setIsFree(true);
-                                setPrice("0");
-                                setActiveTab("settings");
-                                toast({ title: "Switched to Free!", description: "Offer as community member benefit." });
-                              }}
-                              className="text-xs font-bold"
-                            >
-                              Make Free VIP Benefit
-                            </Button>
+                            {(() => {
+                              const rawPriceStr = launchPackData?.launchPack?.recommendedPrice || "29";
+                              const matchNum = rawPriceStr.match(/\$(\d+)/);
+                              const targetPrice = matchNum ? matchNum[1] : "29";
+
+                              return (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setIsFree(false);
+                                    setPrice(targetPrice);
+                                    setActiveTab("settings");
+                                    toast({ title: "Switched to Paid!", description: `Set price to $${targetPrice} one-time. Save changes in settings.` });
+                                  }}
+                                  className="text-xs font-bold border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+                                >
+                                  Set to ${targetPrice} in Settings
+                                </Button>
+                              );
+                            })()}
                           </div>
                         </div>
                       </CardContent>

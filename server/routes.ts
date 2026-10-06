@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import fileUpload from "express-fileupload";
 import { PDFParse } from "pdf-parse";
 import { storage } from "./storage";
-import { verifyUserToken, checkAccess, checkIsOwner, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, getCompanyIdFromExperience, createProCheckoutSession, checkPlanAccess, getCompanyDetails } from "./whop";
+import { verifyUserToken, checkAccess, checkIsOwner, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, broadcastNotificationToMembers, getCompanyIdFromExperience, createProCheckoutSession, checkPlanAccess, getCompanyDetails } from "./whop";
 import { generateCourse, regenerateModule, regenerateLesson, generateCourseImage, generateImagePrompt, generateCourseMediaPlan, generateLessonImage, generateQuiz, generateDeepVideoImage, generateVeoVideoSegment, analyzeDocumentMetadata, generateFallbackImagePrompt, generateBlockContent, generateCourseImageWithDeAPI, generateLaunchPack, generateEmailAnnouncement, askCourseTutor } from "./gemini";
 import { stitchVideos } from "./video-processor";
 import path from "path";
@@ -1537,18 +1537,23 @@ export async function registerRoutes(
       const notifTitle = title || `New Masterclass: ${course.title}`;
       const notifContent = customMessage || `We just launched "${course.title}". Dive in and start learning today!`;
 
-      const success = await sendNotification({
+      const result = await broadcastNotificationToMembers({
         companyId: paramCompanyId,
         title: notifTitle,
         content: notifContent,
         subtitle: "New Course Available",
       });
 
-      if (!success) {
+      if (!result.success) {
         return res.status(500).json({ error: "Whop notification delivery failed" });
       }
 
-      res.json({ success: true, message: "Notification queued successfully for members" });
+      res.json({
+        success: true,
+        message: result.memberCount > 0
+          ? `Notification queued successfully for ${result.memberCount} members`
+          : "Notification queued successfully for members"
+      });
     } catch (error: any) {
       console.error("Notify members error:", error);
       res.status(500).json({ error: error.message || "Failed to send notification" });
@@ -1625,22 +1630,40 @@ export async function registerRoutes(
       const course = await storage.getCourse(req.params.courseId);
       if (!course) return res.status(404).json({ error: "Course not found" });
 
+      const compId = await getCompanyIdFromExperience(req.params.experienceId);
       const { customMessage, title } = req.body;
       const notifTitle = title || `New Masterclass: ${course.title}`;
       const notifContent = customMessage || `We just launched "${course.title}". Dive in and start learning today!`;
 
-      const success = await sendNotification({
-        experienceId: req.params.experienceId,
-        title: notifTitle,
-        content: notifContent,
-        subtitle: "New Course Available",
-      });
+      let result: { success: boolean; memberCount: number };
+      if (compId) {
+        result = await broadcastNotificationToMembers({
+          companyId: compId,
+          experienceId: req.params.experienceId,
+          title: notifTitle,
+          content: notifContent,
+          subtitle: "New Course Available",
+        });
+      } else {
+        const sent = await sendNotification({
+          experienceId: req.params.experienceId,
+          title: notifTitle,
+          content: notifContent,
+          subtitle: "New Course Available",
+        });
+        result = { success: sent, memberCount: 0 };
+      }
 
-      if (!success) {
+      if (!result.success) {
         return res.status(500).json({ error: "Whop notification delivery failed" });
       }
 
-      res.json({ success: true, message: "Notification queued successfully for members" });
+      res.json({
+        success: true,
+        message: result.memberCount > 0
+          ? `Notification queued successfully for ${result.memberCount} members`
+          : "Notification queued successfully for members"
+      });
     } catch (error: any) {
       console.error("Experience notify members error:", error);
       res.status(500).json({ error: error.message || "Failed to send notification" });

@@ -215,7 +215,7 @@ export async function verifyPaymentComplete(checkoutId: string): Promise<{ succe
   }
 }
 
-// Send a notification to an experience (all customers & team) or to a company's team members
+// Send a notification to an experience (all customers & team) or to a company's team members / members
 export async function sendNotification(options: {
   companyId?: string;
   experienceId?: string;
@@ -256,6 +256,57 @@ export async function sendNotification(options: {
   } catch (error) {
     console.error("Failed to send Whop notification:", error);
     return false;
+  }
+}
+
+// Broadcast notification to ALL company members
+export async function broadcastNotificationToMembers(options: {
+  companyId: string;
+  experienceId?: string;
+  title: string;
+  content: string;
+  subtitle?: string;
+  restPath?: string;
+}): Promise<{ success: boolean; memberCount: number }> {
+  try {
+    // 1. Retrieve all company members
+    const memberUserIds = await getCompanyMemberUserIds(options.companyId, 500);
+    console.log(`[Whop Broadcast] Retrieved ${memberUserIds.length} members for company ${options.companyId}`);
+
+    if (memberUserIds.length > 0) {
+      // Chunk user_ids into batches of 100
+      const batchSize = 100;
+      let totalSent = 0;
+      for (let i = 0; i < memberUserIds.length; i += batchSize) {
+        const batch = memberUserIds.slice(i, i + batchSize);
+        const sent = await sendNotification({
+          companyId: options.companyId,
+          experienceId: options.experienceId,
+          title: options.title,
+          content: options.content,
+          subtitle: options.subtitle,
+          userIds: batch,
+          restPath: options.restPath,
+        });
+        if (sent) totalSent += batch.length;
+      }
+      return { success: true, memberCount: memberUserIds.length };
+    }
+
+    // 2. Fallback: If no explicit members returned (or new company), trigger experience or company notification
+    const fallbackSent = await sendNotification({
+      companyId: options.companyId,
+      experienceId: options.experienceId,
+      title: options.title,
+      content: options.content,
+      subtitle: options.subtitle,
+      restPath: options.restPath,
+    });
+
+    return { success: fallbackSent, memberCount: 0 };
+  } catch (error) {
+    console.error("[Whop Broadcast] Failed to broadcast notification to members:", error);
+    return { success: false, memberCount: 0 };
   }
 }
 
