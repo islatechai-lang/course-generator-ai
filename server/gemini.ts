@@ -1285,43 +1285,39 @@ export async function generateBlockContent(
 }
 
 export interface LaunchPackResult {
-  headline: string;
-  salesPitch: string;
-  targetAudience: string;
-  recommendedPrice: string;
+  headline?: string;
+  salesPitch?: string;
+  targetAudience?: string;
+  recommendedPrice?: string;
   communityAnnouncement: string;
-  emailAnnouncement: string;
+  emailAnnouncement?: string;
+  communityUrl?: string;
 }
 
 export async function generateLaunchPack(
   courseTitle: string,
   modulesSummary: string,
-  audience?: string
+  audience?: string,
+  communityUrl?: string
 ): Promise<LaunchPackResult> {
+  const linkText = communityUrl ? `Community Link: ${communityUrl}` : "";
   const prompt = `You are a high-ticket digital product strategist and copywriter for top Whop communities.
-Create a high-converting Whop Course Launch & Monetization Pack for:
+Create a high-converting Whop Community Launch Announcement for:
 Course Title: "${courseTitle}"
 Target Audience: "${audience || "Community members & high-intent learners"}"
+${linkText ? `Community Link to include: ${communityUrl}` : ""}
 
 Curriculum Overview:
 ${modulesSummary}
 
 REQUIREMENTS:
-- "headline": High-converting 1-line hook for the Whop store listing.
-- "salesPitch": 3 punchy benefit bullets explaining the tangible transformation and skills mastered.
-- "targetAudience": Exactly who this course is built for vs who should skip it.
-- "recommendedPrice": Specific recommended pricing (e.g., "$29 - $49 one-time" or "Free VIP Benefit") with 1-sentence monetization rationale.
-- "communityAnnouncement": An engaging, exciting Discord / Whop community announcement post with emojis, urgency, and ready-to-use launch tone.
-- "emailAnnouncement": A short, persuasive email or direct message announcement template.
+- "communityAnnouncement": An engaging, exciting Discord / Whop community announcement post with emojis, key takeaways, and call-to-action link. ${communityUrl ? `Include the link: ${communityUrl}` : `Include placeholder [Course Link]`}.
+- "recommendedPrice": Specific recommended pricing (e.g., "$29 - $49 one-time" or "Free VIP Benefit") with 1-sentence rationale.
 
 Respond ONLY with a single valid JSON object matching this schema:
 {
-  "headline": "string",
-  "salesPitch": "string",
-  "targetAudience": "string",
-  "recommendedPrice": "string",
   "communityAnnouncement": "string",
-  "emailAnnouncement": "string"
+  "recommendedPrice": "string"
 }`;
 
   try {
@@ -1332,26 +1328,58 @@ Respond ONLY with a single valid JSON object matching this schema:
 
     const jsonText = extractJSON(response.text || "");
     const parsed = JSON.parse(jsonText);
+    const linkSuffix = communityUrl ? `\n\n👉 Access the masterclass here: ${communityUrl}` : "";
     return {
-      headline: parsed.headline || `Master ${courseTitle}: From Zero to Execution`,
-      salesPitch: parsed.salesPitch || "• Master foundational & advanced frameworks\n• Complete hands-on real-world exercises\n• 24/7 AI Tutor included for personalized guidance",
-      targetAudience: parsed.targetAudience || "Built for creators, operators, and learners looking for actionable mastery.",
+      communityAnnouncement: parsed.communityAnnouncement || `🚀 **NEW MASTERCLASS LIVE: ${courseTitle}**\n\nWe just released an in-depth, hands-on masterclass with frameworks, action checklists, and 24/7 AI tutor access! Check it out in the courses tab now!${linkSuffix}`,
       recommendedPrice: parsed.recommendedPrice || "$29 - $49 (Proven sweet spot for high volume on Whop)",
-      communityAnnouncement: parsed.communityAnnouncement || `🚀 **NEW COURSE LAUNCH: ${courseTitle}**\n\nWe just released a complete masterclass with frameworks, action checklists, and 24/7 AI tutor access! Check it out in the courses tab now!`,
-      emailAnnouncement: parsed.emailAnnouncement || `Subject: New Masterclass: ${courseTitle}\n\nHey team,\n\nWe just published a brand new course designed to take you step-by-step through ${courseTitle}. Access it directly inside our community portal!`,
+      communityUrl,
     };
   } catch (error) {
     console.error("Launch pack generation failed, returning fallback:", error);
+    const linkSuffix = communityUrl ? `\n\n👉 Access the masterclass here: ${communityUrl}` : "";
     return {
-      headline: `Master ${courseTitle} with Step-by-Step Practical Frameworks`,
-      salesPitch: "• Action-oriented lessons with real-world case studies\n• Interactive homework exercises & quizzes\n• Lifetime access to 24/7 in-course AI tutor",
-      targetAudience: "Community members ready to take their skills to the next level.",
+      communityAnnouncement: `🔥 **Just Dropped: ${courseTitle}**\n\nLevel up your skills with our newly released masterclass! Packed with actionable blueprints and 24/7 AI guidance. Dive in today!${linkSuffix}`,
       recommendedPrice: "$29 - $49 (Recommended for standalone purchase)",
-      communityAnnouncement: `🔥 **Just Dropped: ${courseTitle}**\n\nLevel up your skills with our newly released course! Packed with actionable steps and tools. Dive in today!`,
-      emailAnnouncement: `Subject: Just launched: ${courseTitle}\n\nHi there,\n\nOur newest course is now officially live. Dive in and start learning today!`,
+      communityUrl,
     };
   }
 }
+
+export async function generateEmailAnnouncement(params: {
+  courseTitle: string;
+  modulesSummary: string;
+  communityUrl?: string;
+}): Promise<string> {
+  const { courseTitle, modulesSummary, communityUrl } = params;
+  const prompt = `You are an expert copywriter for creators selling courses on Whop.
+Write a high-converting, friendly Email / Direct Message announcement for:
+Course Title: "${courseTitle}"
+${communityUrl ? `Course / Community Link: ${communityUrl}` : ""}
+
+Curriculum Overview:
+${modulesSummary}
+
+REQUIREMENTS:
+- Catchy Subject Line.
+- Engaging hook explaining what students will achieve.
+- 3 bullet points highlighting practical skills.
+- Clear Call to Action with ${communityUrl ? communityUrl : "[Course Link]"}.
+- Professional, energetic tone.
+
+Format cleanly as plain text with line breaks.`;
+
+  try {
+    const { response } = await generateWithFallback({
+      prompt,
+      useGrounding: false,
+    });
+    return response.text?.trim() || `Subject: Brand new masterclass: ${courseTitle}\n\nHi there,\n\nOur newest course is now officially live. Dive in and start learning today!${communityUrl ? `\n\nLink: ${communityUrl}` : ''}`;
+  } catch (error) {
+    console.error("Email announcement generation failed:", error);
+    return `Subject: Brand new masterclass: ${courseTitle}\n\nHi there,\n\nOur newest course is now officially live. Dive in and start learning today!${communityUrl ? `\n\nLink: ${communityUrl}` : ''}`;
+  }
+}
+
 
 export async function askCourseTutor(params: {
   courseTitle: string;

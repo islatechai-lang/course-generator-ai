@@ -215,9 +215,10 @@ export async function verifyPaymentComplete(checkoutId: string): Promise<{ succe
   }
 }
 
-// Send a notification to a company's team members
+// Send a notification to an experience (all customers & team) or to a company's team members
 export async function sendNotification(options: {
-  companyId: string;
+  companyId?: string;
+  experienceId?: string;
   title: string;
   content: string;
   subtitle?: string;
@@ -225,15 +226,31 @@ export async function sendNotification(options: {
   restPath?: string;
 }): Promise<boolean> {
   try {
-    const result = await whop.notifications.create({
-      company_id: options.companyId,
-      title: options.title,
-      content: options.content,
-      subtitle: options.subtitle,
-      user_ids: options.userIds,
-      rest_path: options.restPath,
-    });
+    let payload: any;
+    if (options.experienceId) {
+      payload = {
+        experience_id: options.experienceId,
+        title: options.title,
+        content: options.content,
+        subtitle: options.subtitle,
+        user_ids: options.userIds,
+        rest_path: options.restPath,
+      };
+    } else if (options.companyId) {
+      payload = {
+        company_id: options.companyId,
+        title: options.title,
+        content: options.content,
+        subtitle: options.subtitle,
+        user_ids: options.userIds,
+        rest_path: options.restPath,
+      };
+    } else {
+      console.error("sendNotification requires either companyId or experienceId");
+      return false;
+    }
 
+    const result = await whop.notifications.create(payload);
     console.log("Whop notification sent:", result);
     return result.success === true;
   } catch (error) {
@@ -241,3 +258,32 @@ export async function sendNotification(options: {
     return false;
   }
 }
+
+// Retrieve company information (including url route and member count)
+export async function getCompanyDetails(companyId: string) {
+  try {
+    const comp = await whop.companies.retrieve(companyId);
+    return comp;
+  } catch (error) {
+    console.error(`Failed to retrieve company details for ${companyId}:`, error);
+    return null;
+  }
+}
+
+// List member IDs of a company (supports pagination up to specified max)
+export async function getCompanyMemberUserIds(companyId: string, limit: number = 100): Promise<string[]> {
+  try {
+    const page = await whop.members.list({
+      company_id: companyId,
+      first: Math.min(limit, 50),
+    });
+    const userIds = page.data
+      .map((m: any) => m.user?.id)
+      .filter((id: any): id is string => typeof id === "string" && id.length > 0);
+    return userIds;
+  } catch (error) {
+    console.error(`Failed to retrieve member user IDs for company ${companyId}:`, error);
+    return [];
+  }
+}
+

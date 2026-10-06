@@ -3,8 +3,8 @@ import { createServer, type Server } from "http";
 import fileUpload from "express-fileupload";
 import { PDFParse } from "pdf-parse";
 import { storage } from "./storage";
-import { verifyUserToken, checkAccess, checkIsOwner, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, getCompanyIdFromExperience, createProCheckoutSession, checkPlanAccess } from "./whop";
-import { generateCourse, regenerateModule, regenerateLesson, generateCourseImage, generateImagePrompt, generateCourseMediaPlan, generateLessonImage, generateQuiz, generateDeepVideoImage, generateVeoVideoSegment, analyzeDocumentMetadata, generateFallbackImagePrompt, generateBlockContent, generateCourseImageWithDeAPI, generateLaunchPack, askCourseTutor } from "./gemini";
+import { verifyUserToken, checkAccess, checkIsOwner, getUser as getWhopUser, createCheckoutConfiguration, verifyPaymentComplete, whop, sendNotification, getCompanyIdFromExperience, createProCheckoutSession, checkPlanAccess, getCompanyDetails } from "./whop";
+import { generateCourse, regenerateModule, regenerateLesson, generateCourseImage, generateImagePrompt, generateCourseMediaPlan, generateLessonImage, generateQuiz, generateDeepVideoImage, generateVeoVideoSegment, analyzeDocumentMetadata, generateFallbackImagePrompt, generateBlockContent, generateCourseImageWithDeAPI, generateLaunchPack, generateEmailAnnouncement, askCourseTutor } from "./gemini";
 import { stitchVideos } from "./video-processor";
 import path from "path";
 import fs from "fs";
@@ -1405,12 +1405,31 @@ export async function registerRoutes(
   });
 
   // Helper to generate and save launch pack for a course
-  async function getOrGenerateCourseLaunchPack(courseId: string, forceRefresh: boolean = false) {
+  async function getOrGenerateCourseLaunchPack(courseId: string, forceRefresh: boolean = false, companyId?: string) {
     const courseWithModules = await storage.getCourseWithModules(courseId);
     if (!courseWithModules) return null;
 
-    if (!forceRefresh && (courseWithModules as any).launchPack && (courseWithModules as any).launchPack.headline) {
-      return (courseWithModules as any).launchPack;
+    // Resolve company URL if companyId is known
+    let communityUrl: string | undefined = undefined;
+    const resolvedCompId = companyId || courseWithModules.whopCompanyId;
+    if (resolvedCompId) {
+      try {
+        const comp = await getCompanyDetails(resolvedCompId);
+        if (comp?.route) {
+          communityUrl = `https://whop.com/${comp.route}`;
+        }
+      } catch (err) {
+        console.warn(`Could not resolve company route for ${resolvedCompId}:`, err);
+      }
+    }
+
+    if (!forceRefresh && (courseWithModules as any).launchPack && (courseWithModules as any).launchPack.communityAnnouncement) {
+      const existing = (courseWithModules as any).launchPack;
+      if (communityUrl && !existing.communityUrl) {
+        existing.communityUrl = communityUrl;
+        await storage.updateCourse(courseId, { launchPack: existing });
+      }
+      return existing;
     }
 
     const modulesSummary = courseWithModules.modules.map((m, idx) => {
@@ -1421,7 +1440,8 @@ export async function registerRoutes(
     const launchPack = await generateLaunchPack(
       courseWithModules.title,
       modulesSummary || "Comprehensive course curriculum",
-      undefined
+      undefined,
+      communityUrl
     );
 
     await storage.updateCourse(courseId, { launchPack });
@@ -1439,7 +1459,7 @@ export async function registerRoutes(
         return res.status(403).json({ error: "Access denied" });
       }
 
-      const launchPack = await getOrGenerateCourseLaunchPack(course.id, req.query.refresh === "true");
+      const launchPack = await getOrGenerateCourseLaunchPack(course.id, req.query.refresh === "true", paramCompanyId);
       res.json({ launchPack });
     } catch (error: any) {
       console.error("Dashboard get launch pack error:", error);
@@ -1457,11 +1477,81 @@ export async function registerRoutes(
         return res.status(403).json({ error: "Access denied" });
       }
 
-      const launchPack = await getOrGenerateCourseLaunchPack(course.id, true);
+      const launchPack = await getOrGenerateCourseLaunchPack(course.id, true, paramCompanyId);
       res.json({ launchPack });
     } catch (error: any) {
       console.error("Dashboard generate launch pack error:", error);
       res.status(500).json({ error: "Failed to generate launch pack" });
+    }
+  });
+
+  // Dedicated On-Demand Email Announcement Generator endpoint
+  app.post("/api/dashboard/:companyId/courses/:courseId/generate-email", authenticateWhop, requireAdmin, async (req: AuthenticatedRequest, res: any) => {
+    try {
+      const course = await storage.getCourseWithModules(req.params.courseId);
+      if (!course) return res.status(404).json({ error: "Course not found" });
+
+      const paramCompanyId = await resolveCompanyId(req.params.companyId);
+      let communityUrl: string | undefined = undefined;
+      if (paramCompanyId) {
+        try {
+          const comp = await getCompanyDetails(paramCompanyId);
+          if (comp?.route) communityUrl = `https://whop.com/${comp.route}`;
+        } catch {}
+      }
+
+      const modulesSummary = course.modules.map((m, idx) => {
+        const lessonTitles = m.lessons.map(l => l.title).join(", ");
+        return `Module ${idx + 1}: ${m.title} (Lessons: ${lessonTitles})`;
+      }).join("\n");
+
+      const emailText = await generateEmailAnnouncement({
+        courseTitle: course.title,
+        modulesSummary: modulesSummary || "Complete course modules",
+        communityUrl,
+      });
+
+      const currentPack = (course as any).launchPack || {};
+      const updatedPack = { ...currentPack, emailAnnouncement: emailText };
+      await storage.updateCourse(course.id, { launchPack: updatedPack });
+
+      res.json({ emailAnnouncement: emailText });
+    } catch (error: any) {
+      console.error("Generate email announcement error:", error);
+      res.status(500).json({ error: "Failed to generate email announcement" });
+    }
+  });
+
+  // 1-Click Broadcast Notification to Whop Members
+  app.post("/api/dashboard/:companyId/courses/:courseId/notify-members", authenticateWhop, requireAdmin, async (req: AuthenticatedRequest, res: any) => {
+    try {
+      const course = await storage.getCourse(req.params.courseId);
+      if (!course) return res.status(404).json({ error: "Course not found" });
+
+      const paramCompanyId = await resolveCompanyId(req.params.companyId);
+      if (!paramCompanyId) {
+        return res.status(400).json({ error: "Company ID required to send notification" });
+      }
+
+      const { customMessage, title } = req.body;
+      const notifTitle = title || `New Masterclass: ${course.title}`;
+      const notifContent = customMessage || `We just launched "${course.title}". Dive in and start learning today!`;
+
+      const success = await sendNotification({
+        companyId: paramCompanyId,
+        title: notifTitle,
+        content: notifContent,
+        subtitle: "New Course Available",
+      });
+
+      if (!success) {
+        return res.status(500).json({ error: "Whop notification delivery failed" });
+      }
+
+      res.json({ success: true, message: "Notification queued successfully for members" });
+    } catch (error: any) {
+      console.error("Notify members error:", error);
+      res.status(500).json({ error: error.message || "Failed to send notification" });
     }
   });
 
@@ -1471,7 +1561,8 @@ export async function registerRoutes(
       const course = await storage.getCourse(req.params.courseId);
       if (!course) return res.status(404).json({ error: "Course not found" });
 
-      const launchPack = await getOrGenerateCourseLaunchPack(course.id, req.query.refresh === "true");
+      const compId = await getCompanyIdFromExperience(req.params.experienceId);
+      const launchPack = await getOrGenerateCourseLaunchPack(course.id, req.query.refresh === "true", compId || undefined);
       res.json({ launchPack });
     } catch (error: any) {
       console.error("Experience get launch pack error:", error);
@@ -1484,11 +1575,75 @@ export async function registerRoutes(
       const course = await storage.getCourse(req.params.courseId);
       if (!course) return res.status(404).json({ error: "Course not found" });
 
-      const launchPack = await getOrGenerateCourseLaunchPack(course.id, true);
+      const compId = await getCompanyIdFromExperience(req.params.experienceId);
+      const launchPack = await getOrGenerateCourseLaunchPack(course.id, true, compId || undefined);
       res.json({ launchPack });
     } catch (error: any) {
       console.error("Experience generate launch pack error:", error);
       res.status(500).json({ error: "Failed to generate launch pack" });
+    }
+  });
+
+  app.post("/api/experiences/:experienceId/courses/:courseId/generate-email", authenticateWhop, requireExperienceAccess, async (req: AuthenticatedRequest, res: any) => {
+    try {
+      const course = await storage.getCourseWithModules(req.params.courseId);
+      if (!course) return res.status(404).json({ error: "Course not found" });
+
+      const compId = await getCompanyIdFromExperience(req.params.experienceId);
+      let communityUrl: string | undefined = undefined;
+      if (compId) {
+        try {
+          const comp = await getCompanyDetails(compId);
+          if (comp?.route) communityUrl = `https://whop.com/${comp.route}`;
+        } catch {}
+      }
+
+      const modulesSummary = course.modules.map((m, idx) => {
+        const lessonTitles = m.lessons.map(l => l.title).join(", ");
+        return `Module ${idx + 1}: ${m.title} (Lessons: ${lessonTitles})`;
+      }).join("\n");
+
+      const emailText = await generateEmailAnnouncement({
+        courseTitle: course.title,
+        modulesSummary: modulesSummary || "Complete course modules",
+        communityUrl,
+      });
+
+      const currentPack = (course as any).launchPack || {};
+      const updatedPack = { ...currentPack, emailAnnouncement: emailText };
+      await storage.updateCourse(course.id, { launchPack: updatedPack });
+
+      res.json({ emailAnnouncement: emailText });
+    } catch (error: any) {
+      console.error("Experience generate email announcement error:", error);
+      res.status(500).json({ error: "Failed to generate email announcement" });
+    }
+  });
+
+  app.post("/api/experiences/:experienceId/courses/:courseId/notify-members", authenticateWhop, requireExperienceAccess, async (req: AuthenticatedRequest, res: any) => {
+    try {
+      const course = await storage.getCourse(req.params.courseId);
+      if (!course) return res.status(404).json({ error: "Course not found" });
+
+      const { customMessage, title } = req.body;
+      const notifTitle = title || `New Masterclass: ${course.title}`;
+      const notifContent = customMessage || `We just launched "${course.title}". Dive in and start learning today!`;
+
+      const success = await sendNotification({
+        experienceId: req.params.experienceId,
+        title: notifTitle,
+        content: notifContent,
+        subtitle: "New Course Available",
+      });
+
+      if (!success) {
+        return res.status(500).json({ error: "Whop notification delivery failed" });
+      }
+
+      res.json({ success: true, message: "Notification queued successfully for members" });
+    } catch (error: any) {
+      console.error("Experience notify members error:", error);
+      res.status(500).json({ error: error.message || "Failed to send notification" });
     }
   });
 
