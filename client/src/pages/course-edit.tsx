@@ -1359,38 +1359,52 @@ export default function CourseEditPage() {
                   <>
                     {/* AI Illustrations Generation Progress Banner */}
                     {course.generationStatus === "generating" && (
-                      <div className="mb-6 p-4.5 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-blue-500/20 shadow-sm animate-in fade-in duration-300">
-                        <div className="flex items-center justify-between gap-3 mb-2.5">
-                          <div className="flex items-center gap-3">
-                            <div className="h-9 w-9 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
-                              <Sparkles className="h-4.5 w-4.5 animate-spin-slow" />
+                      <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-card border border-blue-500/20 shadow-sm relative overflow-hidden animate-in fade-in duration-300">
+                        {/* Background subtle glow */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/[0.07] via-indigo-500/[0.04] to-transparent pointer-events-none" />
+
+                        <div className="relative space-y-3">
+                          {/* Top Row: Title, Percentage, and Status */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="h-9 w-9 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                                <Sparkles className="h-4.5 w-4.5 animate-spin-slow" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="text-sm font-bold text-foreground truncate">
+                                    Creating AI Lesson Visuals
+                                  </h4>
+                                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 shrink-0">
+                                    {course.generationProgress?.percentage ?? 0}%
+                                  </span>
+                                </div>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {course.generationProgress?.message || "Generating custom illustrations in background..."}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                AI Illustrations Generating...
-                                <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-blue-500/15 text-blue-600 dark:text-blue-400">
-                                  {course.generationProgress?.percentage ?? 0}%
-                                </span>
-                              </h4>
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                {course.generationProgress?.message || `Generating illustrations in background...`}
-                              </p>
-                            </div>
+
+                            <Badge variant="outline" className="self-start sm:self-auto border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/5 items-center gap-1.5 py-1 px-2.5 text-xs font-semibold shrink-0">
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              In Progress
+                            </Badge>
                           </div>
-                          <Badge variant="outline" className="border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/5 hidden sm:inline-flex items-center gap-1.5 py-1 text-xs font-semibold">
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                            In Progress
-                          </Badge>
+
+                          {/* Progress Bar */}
+                          <div className="w-full h-2 bg-muted/60 dark:bg-muted/40 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 transition-all duration-500 ease-out rounded-full"
+                              style={{ width: `${Math.max(5, course.generationProgress?.percentage ?? 0)}%` }}
+                            />
+                          </div>
+
+                          {/* Reassuring note */}
+                          <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
+                            <span>You can freely read, edit, or customize lessons while images generate.</span>
+                            <span className="hidden md:inline font-medium text-foreground/60">Auto-updates live</span>
+                          </div>
                         </div>
-                        <div className="w-full h-2 bg-muted/60 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500 ease-out rounded-full"
-                            style={{ width: `${Math.max(5, course.generationProgress?.percentage ?? 0)}%` }}
-                          />
-                        </div>
-                        <p className="text-[11px] text-muted-foreground mt-2 italic">
-                          You can review and edit your course while images generate. Visuals will appear automatically here once completed!
-                        </p>
                       </div>
                     )}
 

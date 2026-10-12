@@ -174,10 +174,6 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
                 </div>
 
                 <ul className="flex-1 space-y-3 lg:space-y-3.5 mb-8">
-                  <li className="flex items-center gap-2.5 text-xs lg:text-sm text-muted-foreground">
-                    <X className="h-4 w-4 shrink-0 text-red-500" />
-                    Course Publishing (Requires Plan)
-                  </li>
                   <li className="flex items-center gap-2.5 text-xs lg:text-sm text-foreground/80 font-medium">
                     <Check className="h-4 w-4 text-primary/60 shrink-0" />
                     1 Lifetime Trial Generation
