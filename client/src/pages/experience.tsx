@@ -434,7 +434,7 @@ export default function ExperiencePage() {
           <div className="space-y-2">
             <h3 className="text-xl font-bold tracking-tight text-foreground animate-pulse">Loading Your Studio</h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Preparing your AI course environment and learning workspace...
+              Setting up your courses, AI builder, and creator tools...
             </p>
           </div>
 
