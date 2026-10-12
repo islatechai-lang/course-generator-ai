@@ -32,11 +32,11 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Hide X for the first 10 seconds to ensure users review plans
+  // Hide X for the first 4 seconds to ensure users review plans without frustration
   useEffect(() => {
     const timer = setTimeout(() => {
       setCanDismiss(true);
-    }, 10000);
+    }, 4000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -122,7 +122,7 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
           </div>
         ) : (
           <div className="bg-card/90 backdrop-blur-2xl border border-border/80 rounded-3xl shadow-2xl p-6 sm:p-8 md:p-10 lg:p-12 space-y-8 lg:space-y-10 animate-in fade-in duration-300 relative">
-            {/* Top-Right Dismiss Button - Appears after 10 seconds */}
+            {/* Top-Right Dismiss Button - Appears after 4 seconds */}
             {onDismiss && canDismiss && (
               <Button
                 variant="ghost"
