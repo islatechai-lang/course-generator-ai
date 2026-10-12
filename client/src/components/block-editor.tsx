@@ -48,9 +48,11 @@ interface BlockEditorProps {
     moduleTitle?: string;
     lessonTitle?: string;
     onMoveOutside?: (index: number, direction: 'up' | 'down') => void;
+    isGeneratingImages?: boolean;
+    generationProgress?: { total: number; completed: number; percentage: number; message?: string };
 }
 
-export function BlockEditor({ blocks, onChange, courseTitle, moduleTitle, lessonTitle, onMoveOutside }: BlockEditorProps) {
+export function BlockEditor({ blocks, onChange, courseTitle, moduleTitle, lessonTitle, onMoveOutside, isGeneratingImages, generationProgress }: BlockEditorProps) {
     const { companyId } = useParams<{ companyId: string }>();
     const { toast } = useToast();
     const [localBlocks, setLocalBlocks] = useState<ILessonBlock[]>(blocks || []);
@@ -285,7 +287,17 @@ export function BlockEditor({ blocks, onChange, courseTitle, moduleTitle, lesson
                             </div>
                         ))}
 
-
+                        {isGeneratingImages && !localBlocks.some(b => b.type === 'image') && (
+                            <div className="p-6 my-4 rounded-2xl border-2 border-dashed border-blue-500/30 bg-blue-500/[0.04] flex flex-col items-center justify-center text-center animate-pulse">
+                                <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2">
+                                    <Sparkles className="h-5 w-5 animate-spin-slow" />
+                                </div>
+                                <h5 className="text-sm font-semibold text-foreground">AI Illustration In Progress</h5>
+                                <p className="text-xs text-muted-foreground max-w-sm mt-0.5">
+                                    An AI image is currently generating for this lesson ({generationProgress?.percentage ?? 0}% completed). It will appear here automatically when ready.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

@@ -323,6 +323,27 @@ async function startBackgroundMediaGeneration(options: {
       const maxRetries = 2;
 
       const modulesToProcess = (mediaPlan as any).modules || [];
+      let totalImagesToGenerate = 0;
+      if (generateLessonImages) {
+        for (const m of modulesToProcess) {
+          for (const l of (m.lessons || [])) {
+            totalImagesToGenerate += (l.images || []).length;
+          }
+        }
+      }
+
+      await storage.updateCourse(courseId, {
+        generationStatus: "generating",
+        generationProgress: {
+          total: totalImagesToGenerate,
+          completed: 0,
+          percentage: 0,
+          message: totalImagesToGenerate > 0
+            ? `Generating 1 of ${totalImagesToGenerate} illustrations...`
+            : "Finalizing course...",
+        },
+      });
+
       for (let i = 0; i < modulesToProcess.length; i++) {
         const modulePlan = modulesToProcess[i];
         const lessonsToProcess = modulePlan.lessons || [];
@@ -357,16 +378,63 @@ async function startBackgroundMediaGeneration(options: {
               }
 
               if (imageUrl) {
-                await storage.addLessonMedia(lessonInfo.lessonId, {
+                const mediaItem = {
                   id: randomUUID(),
-                  type: "image",
+                  type: "image" as const,
                   url: imageUrl,
                   alt: imagePlan.imageAlt || "",
                   caption: "",
-                  placement: imagePlan.placement ?? 0,
+                  placement: imagePlan.placement ?? 1,
                   prompt: imagePlan.imagePrompt,
-                });
+                };
+                await storage.addLessonMedia(lessonInfo.lessonId, mediaItem);
+
+                // Sync image block into lesson.content if it's block-based JSON
+                try {
+                  const lessonDoc = await storage.getLesson(lessonInfo.lessonId);
+                  if (lessonDoc && lessonDoc.content) {
+                    const trimmed = lessonDoc.content.trim();
+                    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+                      const blocks = JSON.parse(trimmed);
+                      if (Array.isArray(blocks)) {
+                        const exists = blocks.some((b: any) =>
+                          (b.type === 'image' || b.type === 'video') &&
+                          b.content && (b.content.url === imageUrl || b.id === mediaItem.id)
+                        );
+                        if (!exists) {
+                          const newBlock = {
+                            id: mediaItem.id,
+                            type: 'image',
+                            content: { url: imageUrl, alt: mediaItem.alt, caption: mediaItem.caption },
+                            orderIndex: typeof mediaItem.placement === 'number' ? mediaItem.placement : blocks.length,
+                          };
+                          const insertIdx = (typeof mediaItem.placement === 'number' && mediaItem.placement >= 0 && mediaItem.placement < blocks.length)
+                            ? mediaItem.placement
+                            : blocks.length;
+                          blocks.splice(insertIdx, 0, newBlock);
+                          await storage.updateLesson(lessonInfo.lessonId, {
+                            content: JSON.stringify(blocks),
+                          });
+                        }
+                      }
+                    }
+                  }
+                } catch (syncErr) {
+                  console.error("Failed to sync media item to lesson content blocks:", syncErr);
+                }
+
                 imagesGenerated++;
+                const percentage = totalImagesToGenerate > 0
+                  ? Math.min(99, Math.round((imagesGenerated / totalImagesToGenerate) * 100))
+                  : 100;
+                await storage.updateCourse(courseId, {
+                  generationProgress: {
+                    total: totalImagesToGenerate,
+                    completed: imagesGenerated,
+                    percentage,
+                    message: `Generated ${imagesGenerated} of ${totalImagesToGenerate} images (${percentage}%)`,
+                  },
+                });
               }
             }
           }
@@ -433,7 +501,15 @@ async function startBackgroundMediaGeneration(options: {
       console.log(`=== Finished background generation for course ${courseId}. Success: ${imagesGenerated} images ===`);
 
       // Update course status to complete
-      await storage.updateCourse(courseId, { generationStatus: "complete" });
+      await storage.updateCourse(courseId, {
+        generationStatus: "complete",
+        generationProgress: {
+          total: totalImagesToGenerate,
+          completed: imagesGenerated,
+          percentage: 100,
+          message: "All images generated successfully",
+        },
+      });
 
       // Send Whop notification
       try {
@@ -454,7 +530,15 @@ async function startBackgroundMediaGeneration(options: {
 
     } catch (mediaPlanError) {
       console.error("Critical error in background generation:", mediaPlanError);
-      await storage.updateCourse(courseId, { generationStatus: "complete" });
+      await storage.updateCourse(courseId, {
+        generationStatus: "complete",
+        generationProgress: {
+          total: 0,
+          completed: 0,
+          percentage: 100,
+          message: "Generation complete",
+        },
+      });
     }
   }, 100);
 }

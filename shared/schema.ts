@@ -38,6 +38,13 @@ export interface ICourseTheme {
   linkColor: string;
 }
 
+export interface IGenerationProgress {
+  total: number;
+  completed: number;
+  percentage: number;
+  message?: string;
+}
+
 export interface ICourse extends MongoDoc {
   _id: string;
   creatorId: string;
@@ -51,6 +58,7 @@ export interface ICourse extends MongoDoc {
   isFree: boolean;
   price: string;
   generationStatus: "pending" | "generating" | "complete";
+  generationProgress?: IGenerationProgress;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -214,6 +222,7 @@ const courseSchema = new Schema<ICourse>({
   isFree: { type: Boolean, default: true, required: true },
   price: { type: String, default: "0" },
   generationStatus: { type: String, enum: ["pending", "generating", "complete"], default: "complete" },
+  generationProgress: { type: Schema.Types.Mixed },
   createdAt: { type: Date, default: Date.now, required: true },
   updatedAt: { type: Date, default: Date.now, required: true },
 });
@@ -394,6 +403,7 @@ export type Course = {
   isFree: boolean;
   price: string | null;
   generationStatus: "pending" | "generating" | "complete";
+  generationProgress?: IGenerationProgress;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -474,6 +484,7 @@ export type InsertCourse = {
   isFree?: boolean;
   price?: string | null;
   generationStatus?: "pending" | "generating" | "complete";
+  generationProgress?: IGenerationProgress;
 };
 
 export type InsertModule = {

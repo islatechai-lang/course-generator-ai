@@ -57,6 +57,7 @@ function docToCourse(doc: any): Course {
     price: doc.price || null,
     launchPack: doc.launchPack || null,
     generationStatus: doc.generationStatus || "complete",
+    generationProgress: doc.generationProgress || undefined,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -382,6 +383,7 @@ export class DatabaseStorage implements IStorage {
       price: insertCourse.price || "0",
       launchPack: insertCourse.launchPack || null,
       generationStatus: insertCourse.generationStatus ?? "complete",
+      generationProgress: insertCourse.generationProgress,
     });
     return docToCourse(doc);
   }

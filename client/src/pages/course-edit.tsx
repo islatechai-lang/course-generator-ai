@@ -213,9 +213,16 @@ function CourseSidebar({
                   >
                     <Layers className="h-4 w-4" />
                     <span>Content</span>
-                    <Badge variant="secondary" className="ml-auto mr-1 text-xs">
-                      {course.modules.length}
-                    </Badge>
+                    {course.generationStatus === "generating" ? (
+                      <Badge variant="outline" className="ml-auto mr-1 text-[10px] bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 animate-pulse px-1.5 py-0 flex items-center gap-1 font-semibold">
+                        <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                        <span>{course.generationProgress?.percentage ?? 0}%</span>
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="ml-auto mr-1 text-xs">
+                        {course.modules.length}
+                      </Badge>
+                    )}
                     <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
@@ -325,6 +332,10 @@ export default function CourseEditPage() {
     enabled: !!companyId && !!courseId && !courseId.startsWith("temp-"),
     retry: 3,
     retryDelay: 1000,
+    refetchInterval: (query) => {
+      const data = query.state.data as CourseWithModules | undefined;
+      return data?.generationStatus === "generating" ? 2500 : false;
+    },
   });
 
   interface AnalyticsStudent {
@@ -1120,35 +1131,52 @@ export default function CourseEditPage() {
     const edited = editedContentRef.current.get(`content-${lesson.id}`);
     const contentToParse = edited ? edited.value : lesson.content;
 
+    let blocks: ILessonBlock[] = [];
+    let isParsedJson = false;
+
     try {
       const parsed = JSON.parse(contentToParse);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) {
+        blocks = [...parsed];
+        isParsedJson = true;
+      }
     } catch (e) {
-      // Not JSON, convert legacy text + media to blocks
-      const blocks: ILessonBlock[] = [];
-      if (contentToParse) {
-        blocks.push({
-          id: `legacy-text-${lesson.id}-${blocks.length}`,
-          type: 'text',
-          content: { text: contentToParse },
-          orderIndex: 0
-        });
-      }
-
-      // Add legacy media as blocks if any (only if not already converted/edited)
-      if (!edited && lesson.media && Array.isArray(lesson.media)) {
-        lesson.media.forEach((m: any, i: number) => {
-          blocks.push({
-            id: m.id ? String(m.id) : `legacy-media-${lesson.id}-${i}`,
-            type: m.type === 'video' ? 'video' : 'image',
-            content: { url: m.url, alt: m.alt, caption: m.caption },
-            orderIndex: blocks.length
-          });
-        });
-      }
-      return blocks;
+      // Not JSON, fallback to legacy conversion
     }
-    return [];
+
+    if (!isParsedJson && contentToParse) {
+      blocks.push({
+        id: `legacy-text-${lesson.id}-${blocks.length}`,
+        type: 'text',
+        content: { text: contentToParse },
+        orderIndex: 0
+      });
+    }
+
+    // Ensure any lesson.media items (e.g. from background generation) are present in blocks
+    if (lesson.media && Array.isArray(lesson.media)) {
+      lesson.media.forEach((m: any, i: number) => {
+        const alreadyExists = blocks.some(b =>
+          (b.type === 'image' || b.type === 'video') &&
+          b.content && (b.content.url === m.url || b.id === String(m.id))
+        );
+        if (!alreadyExists && m.url) {
+          const newBlock: ILessonBlock = {
+            id: m.id ? String(m.id) : `media-${lesson.id}-${i}`,
+            type: m.type === 'video' ? 'video' : 'image',
+            content: { url: m.url, alt: m.alt || '', caption: m.caption || '' },
+            orderIndex: typeof m.placement === 'number' ? m.placement : blocks.length
+          };
+          if (typeof m.placement === 'number' && m.placement >= 0 && m.placement < blocks.length) {
+            blocks.splice(m.placement, 0, newBlock);
+          } else {
+            blocks.push(newBlock);
+          }
+        }
+      });
+    }
+
+    return blocks;
   };
 
 
@@ -1230,6 +1258,15 @@ export default function CourseEditPage() {
                   </>
                 )}
               </Button>
+              {course.generationStatus === "generating" && (
+                <Badge
+                  variant="outline"
+                  className="border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/10 flex items-center gap-1.5 animate-pulse text-xs font-medium"
+                >
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span>Images {course.generationProgress?.percentage ?? 0}%</span>
+                </Badge>
+              )}
               <Badge
                 className={course.published
                   ? "bg-green-500/90 text-white"
@@ -1320,6 +1357,43 @@ export default function CourseEditPage() {
               <div key={selectedModuleId} className="max-w-3xl mx-auto py-6 pb-24 px-4 sm:px-6">
                 {course.modules.length > 0 ? (
                   <>
+                    {/* AI Illustrations Generation Progress Banner */}
+                    {course.generationStatus === "generating" && (
+                      <div className="mb-6 p-4.5 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-blue-500/20 shadow-sm animate-in fade-in duration-300">
+                        <div className="flex items-center justify-between gap-3 mb-2.5">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
+                              <Sparkles className="h-4.5 w-4.5 animate-spin-slow" />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                AI Illustrations Generating...
+                                <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-blue-500/15 text-blue-600 dark:text-blue-400">
+                                  {course.generationProgress?.percentage ?? 0}%
+                                </span>
+                              </h4>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {course.generationProgress?.message || `Generating illustrations in background...`}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/5 hidden sm:inline-flex items-center gap-1.5 py-1 text-xs font-semibold">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            In Progress
+                          </Badge>
+                        </div>
+                        <div className="w-full h-2 bg-muted/60 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500 ease-out rounded-full"
+                            style={{ width: `${Math.max(5, course.generationProgress?.percentage ?? 0)}%` }}
+                          />
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mt-2 italic">
+                          You can review and edit your course while images generate. Visuals will appear automatically here once completed!
+                        </p>
+                      </div>
+                    )}
+
                     {/* Course Stats & Edit Button */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6" data-testid="course-stats">
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground order-2 sm:order-1">
@@ -1733,6 +1807,8 @@ export default function CourseEditPage() {
                                             courseTitle={course.title}
                                             moduleTitle={selectedModule.title}
                                             lessonTitle={lesson.title}
+                                            isGeneratingImages={course.generationStatus === "generating"}
+                                            generationProgress={course.generationProgress}
                                           />
                                         ) : (
                                           <div className="text-base leading-relaxed text-muted-foreground space-y-4">
@@ -1756,6 +1832,17 @@ export default function CourseEditPage() {
                                                     .map(renderMedia)
                                                 ) : (
                                                   <p className="text-muted-foreground/50 italic">No content yet</p>
+                                                )}
+                                                {course.generationStatus === "generating" && (!lesson.media || lesson.media.length === 0) && (
+                                                  <div className="p-6 my-6 rounded-2xl border-2 border-dashed border-blue-500/30 bg-blue-500/[0.04] flex flex-col items-center justify-center text-center animate-pulse">
+                                                    <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2">
+                                                      <Sparkles className="h-5 w-5 animate-spin-slow" />
+                                                    </div>
+                                                    <h5 className="text-sm font-semibold text-foreground">AI Illustration In Progress</h5>
+                                                    <p className="text-xs text-muted-foreground max-w-sm mt-0.5">
+                                                      An AI image is currently generating for this lesson ({course.generationProgress?.percentage ?? 0}% completed).
+                                                    </p>
+                                                  </div>
                                                 )}
                                               </>
                                             ) : (
@@ -1903,6 +1990,19 @@ export default function CourseEditPage() {
                                                     )}
                                                   </div>
                                                 ))}
+
+                                                {/* Generating placeholder in view mode if lesson has no image yet */}
+                                                {course.generationStatus === "generating" && !getLessonBlocks(lesson).some(b => b.type === 'image') && (
+                                                  <div className="p-6 my-6 rounded-2xl border-2 border-dashed border-blue-500/30 bg-blue-500/[0.04] flex flex-col items-center justify-center text-center animate-pulse">
+                                                    <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2">
+                                                      <Sparkles className="h-5 w-5 animate-spin-slow" />
+                                                    </div>
+                                                    <h5 className="text-sm font-semibold text-foreground">AI Illustration In Progress</h5>
+                                                    <p className="text-xs text-muted-foreground max-w-sm mt-0.5">
+                                                      An AI image is currently generating for this lesson ({course.generationProgress?.percentage ?? 0}% completed). It will appear here automatically when ready.
+                                                    </p>
+                                                  </div>
+                                                )}
                                               </div>
                                             )}
                                           </div>

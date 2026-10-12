@@ -897,19 +897,24 @@ function getReadableTextForTTS(lesson: Lesson): string {
 
 // Helper to parse blocks from lesson content (matching course-edit.tsx logic)
 function getLessonBlocks(lesson: Lesson): ILessonBlock[] {
+  let blocks: ILessonBlock[] = [];
+  let isParsedJson = false;
+
   try {
     const content = lesson.content || '';
     if (content.trim().startsWith('[') && content.trim().endsWith(']')) {
       const parsed = JSON.parse(content);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) {
+        blocks = [...parsed];
+        isParsedJson = true;
+      }
     }
   } catch (e) {
     // Fallback to legacy conversion
   }
 
-  // Not JSON or failed to parse, convert legacy text + media to blocks
-  const blocks: ILessonBlock[] = [];
-  if (lesson.content) {
+  // Not JSON or failed to parse, convert legacy text to blocks
+  if (!isParsedJson && lesson.content) {
     blocks.push({
       id: `legacy-text-${lesson.id}-${blocks.length}`,
       type: 'text',
@@ -918,15 +923,28 @@ function getLessonBlocks(lesson: Lesson): ILessonBlock[] {
     });
   }
 
+  // Ensure any lesson.media items are present in blocks
   if (lesson.media && Array.isArray(lesson.media)) {
     lesson.media.forEach((m: any, i: number) => {
-      blocks.push({
-        id: m.id ? String(m.id) : `legacy-media-${lesson.id}-${i}`,
-        type: m.type === 'video' ? 'video' : 'image',
-        content: { url: m.url, alt: m.alt, caption: m.caption },
-        orderIndex: blocks.length
-      });
+      const alreadyExists = blocks.some(b =>
+        (b.type === 'image' || b.type === 'video') &&
+        b.content && (b.content.url === m.url || b.id === String(m.id))
+      );
+      if (!alreadyExists && m.url) {
+        const newBlock: ILessonBlock = {
+          id: m.id ? String(m.id) : `media-${lesson.id}-${i}`,
+          type: m.type === 'video' ? 'video' : 'image',
+          content: { url: m.url, alt: m.alt || '', caption: m.caption || '' },
+          orderIndex: typeof m.placement === 'number' ? m.placement : blocks.length
+        };
+        if (typeof m.placement === 'number' && m.placement >= 0 && m.placement < blocks.length) {
+          blocks.splice(m.placement, 0, newBlock);
+        } else {
+          blocks.push(newBlock);
+        }
+      }
     });
   }
+
   return blocks;
 }
