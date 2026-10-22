@@ -548,24 +548,12 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  {(() => {
-                    const blocks = getLessonBlocks(currentLesson);
-                    const isBlockBased = currentLesson.content?.startsWith('[');
-
-                    if (isBlockBased) {
-                      return <BlockViewer blocks={blocks} />;
-                    }
-
-                    return (
-                      <HighlightedContent
-                        content={currentLesson.content}
-                        currentWordIndex={currentWordIndex}
-                        isPlaying={isTTSPlaying}
-                        serverWords={serverWords}
-                        media={currentLesson.media}
-                      />
-                    );
-                  })()}
+                  <BlockViewer
+                    blocks={getLessonBlocks(currentLesson)}
+                    currentWordIndex={currentWordIndex}
+                    isPlaying={isTTSPlaying}
+                    serverWords={serverWords}
+                  />
                 </motion.div>
               </>
             ) : currentQuiz ? (
@@ -686,28 +674,162 @@ function QuizOption({ option, isCorrect }: { option: string; isCorrect: boolean 
   );
 }
 
-function BlockViewer({ blocks }: { blocks: ILessonBlock[] }) {
+function highlightHtmlText(html: string, targetWordIndex: number): string {
+  let wordCount = 0;
+  const tokens = html.split(/(<[^>]+>)/g);
+  return tokens.map(token => {
+    if (!token) return '';
+    if (token.startsWith('<') && token.endsWith('>')) {
+      return token;
+    }
+    const parts = token.split(/(\s+)/);
+    return parts.map(part => {
+      if (!part || /^\s+$/.test(part)) return part;
+      const isCurrent = wordCount === targetWordIndex;
+      wordCount++;
+      if (isCurrent) {
+        return `<mark id="tts-active-word" class="bg-primary text-primary-foreground font-semibold rounded px-1 py-0.5 shadow-sm inline transition-all duration-150">${part}</mark>`;
+      }
+      return part;
+    }).join('');
+  }).join('');
+}
+
+interface BlockViewerProps {
+  blocks: ILessonBlock[];
+  currentWordIndex: number;
+  isPlaying: boolean;
+  serverWords: string[];
+}
+
+function BlockViewer({ blocks, currentWordIndex, isPlaying, serverWords }: BlockViewerProps) {
+  const normalizeText = (text: string) => text.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  const wordMapping = useMemo(() => {
+    if (!serverWords || serverWords.length === 0) {
+      return { serverToOriginal: new Map<number, { blockId: string; localWordIndex: number }>() };
+    }
+
+    const originalFlat: { blockId: string; localWordIndex: number; word: string; charStart: number; charEnd: number }[] = [];
+    let charPos = 0;
+
+    blocks.forEach(block => {
+      if (block.type === 'text') {
+        const textOnly = (block.content?.text || '').replace(/<[^>]*>/g, ' ');
+        const words = textOnly.split(/\s+/).filter((w: string) => w.length > 0);
+        words.forEach((w: string, wIdx: number) => {
+          const norm = normalizeText(w);
+          originalFlat.push({
+            blockId: block.id,
+            localWordIndex: wIdx,
+            word: w,
+            charStart: charPos,
+            charEnd: charPos + norm.length,
+          });
+          charPos += norm.length;
+        });
+      } else if (block.type === 'quote') {
+        const textOnly = `${block.content?.text || ''} ${block.content?.author || ''}`.replace(/<[^>]*>/g, ' ');
+        const words = textOnly.split(/\s+/).filter((w: string) => w.length > 0);
+        words.forEach((w: string, wIdx: number) => {
+          const norm = normalizeText(w);
+          originalFlat.push({
+            blockId: block.id,
+            localWordIndex: wIdx,
+            word: w,
+            charStart: charPos,
+            charEnd: charPos + norm.length,
+          });
+          charPos += norm.length;
+        });
+      }
+    });
+
+    const serverFlat: { idx: number; charStart: number; charEnd: number }[] = [];
+    charPos = 0;
+    for (let i = 0; i < serverWords.length; i++) {
+      const norm = normalizeText(serverWords[i]);
+      serverFlat.push({
+        idx: i,
+        charStart: charPos,
+        charEnd: charPos + norm.length,
+      });
+      charPos += norm.length;
+    }
+
+    const serverToOriginal = new Map<number, { blockId: string; localWordIndex: number }>();
+
+    for (const server of serverFlat) {
+      const serverMid = (server.charStart + server.charEnd) / 2;
+      let bestMatch = originalFlat[0];
+      let bestDistance = Infinity;
+
+      for (const orig of originalFlat) {
+        if (serverMid >= orig.charStart && serverMid < orig.charEnd) {
+          bestMatch = orig;
+          break;
+        }
+        const origMid = (orig.charStart + orig.charEnd) / 2;
+        const distance = Math.abs(serverMid - origMid);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestMatch = orig;
+        }
+      }
+
+      if (bestMatch) {
+        serverToOriginal.set(server.idx, { blockId: bestMatch.blockId, localWordIndex: bestMatch.localWordIndex });
+      }
+    }
+
+    return { serverToOriginal };
+  }, [serverWords, blocks]);
+
+  const activeHighlight = useMemo(() => {
+    if (currentWordIndex < 0 || !isPlaying) return null;
+    return wordMapping.serverToOriginal.get(currentWordIndex) || null;
+  }, [currentWordIndex, isPlaying, wordMapping.serverToOriginal]);
+
+  useEffect(() => {
+    if (isPlaying && activeHighlight) {
+      const el = document.getElementById("tts-active-word");
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [activeHighlight, isPlaying]);
+
   return (
     <div className="space-y-10 py-4">
       {blocks.map((block) => (
         <div key={block.id} className="block-item animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {renderBlockReader(block)}
+          {renderBlockReader(block, activeHighlight, isPlaying)}
         </div>
       ))}
     </div>
   );
 }
 
-function renderBlockReader(block: ILessonBlock) {
+function renderBlockReader(
+  block: ILessonBlock,
+  activeHighlight: { blockId: string; localWordIndex: number } | null = null,
+  isPlaying: boolean = false
+) {
   switch (block.type) {
-    case 'text':
+    case 'text': {
+      const isTargetBlock = isPlaying && activeHighlight && activeHighlight.blockId === block.id;
+      const htmlContent = isTargetBlock
+        ? highlightHtmlText(block.content?.text || '', activeHighlight.localWordIndex)
+        : (block.content?.text || '');
+
       return (
         <div
           className="prose prose-slate max-w-none dark:prose-invert leading-relaxed text-foreground/85 tracking-normal"
           style={{ wordSpacing: '0.08em' }}
-          dangerouslySetInnerHTML={{ __html: block.content.text }}
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
         />
       );
+    }
     case 'image':
       return (
         <figure className="my-10">
@@ -745,12 +867,17 @@ function renderBlockReader(block: ILessonBlock) {
           />
         </div>
       );
-    case 'quote':
+    case 'quote': {
+      const isTargetBlock = isPlaying && activeHighlight && activeHighlight.blockId === block.id;
+      const htmlContent = isTargetBlock
+        ? highlightHtmlText(block.content?.text || '', activeHighlight.localWordIndex)
+        : (block.content?.text || '');
+
       return (
         <div className="my-10 border-l-4 border-primary/40 pl-5 sm:pl-8 py-6 sm:py-8 bg-primary/5 rounded-r-3xl italic shadow-sm">
           <div
             className="text-lg md:text-2xl text-foreground/90 leading-relaxed font-serif"
-            dangerouslySetInnerHTML={{ __html: block.content.text }}
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
           {block.content.author && (
             <cite className="block mt-6 text-sm font-bold text-primary not-italic">
@@ -759,6 +886,7 @@ function renderBlockReader(block: ILessonBlock) {
           )}
         </div>
       );
+    }
     case 'grid':
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-10">
@@ -862,37 +990,73 @@ function getReadableTextForTTS(lesson: Lesson): string {
   const blocks = getLessonBlocks(lesson);
   const textParts: string[] = [];
 
+  const cleanString = (str: string) => {
+    return (str || '')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, ' and ')
+      .replace(/&lt;/gi, ' ')
+      .replace(/&gt;/gi, ' ')
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .replace(/[*_#`~[\]]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   blocks.forEach(block => {
     switch (block.type) {
-      case 'text':
-        // Strip HTML tags for clean TTS
-        const cleanText = block.content.text.replace(/<[^>]*>/g, ' ');
-        textParts.push(cleanText);
+      case 'text': {
+        const clean = cleanString(block.content?.text || '');
+        if (clean) textParts.push(clean);
         break;
-      case 'quote':
-        textParts.push(`${block.content.text.replace(/<[^>]*>/g, ' ')} ${block.content.author ? ` - ${block.content.author}` : ''}`);
+      }
+      case 'quote': {
+        const clean = cleanString(block.content?.text || '');
+        const author = block.content?.author ? ` Quote by ${block.content.author}` : '';
+        if (clean) textParts.push(`${clean}.${author}`);
         break;
+      }
       case 'grid':
-        (block.content.items || []).forEach((item: any) => {
-          textParts.push(`${item.title}. ${item.content}`);
+        (block.content?.items || []).forEach((item: any) => {
+          const t = cleanString(item?.title || '');
+          const c = cleanString(item?.content || '');
+          if (t || c) textParts.push(`${t}. ${c}`);
         });
         break;
       case 'tabs':
-        (block.content.tabs || []).forEach((tab: any) => {
-          textParts.push(`${tab.label}. ${tab.content}`);
+        (block.content?.tabs || []).forEach((tab: any) => {
+          const l = cleanString(tab?.label || '');
+          const c = cleanString(tab?.content || '');
+          if (l || c) textParts.push(`${l}. ${c}`);
         });
         break;
-      case 'flip':
-        textParts.push(`${block.content.front}. ${block.content.back}`);
+      case 'flip': {
+        const f = cleanString(block.content?.front || '');
+        const b = cleanString(block.content?.back || '');
+        if (f || b) textParts.push(`${f}. ${b}`);
         break;
-      case 'quiz':
-        textParts.push(`Question: ${block.content.question}. Options: ${(block.content.options || []).join(', ')}.`);
+      }
+      case 'quiz': {
+        const q = cleanString(block.content?.question || '');
+        const opts = (block.content?.options || []).map((o: any) => cleanString(String(o))).filter(Boolean);
+        if (q) textParts.push(`Question: ${q}. Options: ${opts.join(', ')}.`);
         break;
+      }
+      case 'banner': {
+        const title = cleanString(block.content?.title || '');
+        const sub = cleanString(block.content?.subtitle || '');
+        if (title || sub) textParts.push(`${title}. ${sub}`);
+        break;
+      }
     }
   });
 
-  const finalResult = textParts.join(' ').trim();
-  return finalResult || lesson.content; // Fallback to content if no blocks found
+  const finalResult = textParts.join('. ').replace(/\s+/g, ' ').trim();
+  if (finalResult) return finalResult;
+
+  // Fallback if no blocks or textParts: clean the raw content
+  return cleanString(lesson.content || '');
 }
 
 // Helper to parse blocks from lesson content (matching course-edit.tsx logic)

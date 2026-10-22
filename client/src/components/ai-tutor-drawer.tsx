@@ -33,6 +33,173 @@ const PROMPT_CHIPS = [
   { icon: Sparkles, label: "Real-World Example", prompt: "Can you explain this concept using a concrete, real-world case study or scenario?" },
 ];
 
+function renderInlineMarkdown(text: string): React.ReactNode[] {
+  // Matches: ***bold italic***, **bold**, *italic*, `inline code`
+  const regex = /(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g;
+  const parts = text.split(regex);
+
+  return parts.map((part, index) => {
+    if (!part) return null;
+
+    if (part.startsWith('***') && part.endsWith('***') && part.length > 6) {
+      const inner = part.slice(3, -3);
+      return (
+        <strong key={index} className="font-bold text-foreground">
+          <em className="italic">{inner}</em>
+        </strong>
+      );
+    }
+
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+      const inner = part.slice(2, -2);
+      return (
+        <strong key={index} className="font-bold text-foreground">
+          {inner}
+        </strong>
+      );
+    }
+
+    if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
+      const inner = part.slice(1, -1);
+      return (
+        <em key={index} className="italic text-foreground/90">
+          {inner}
+        </em>
+      );
+    }
+
+    if (part.startsWith('`') && part.endsWith('`') && part.length > 2) {
+      const inner = part.slice(1, -1);
+      return (
+        <code key={index} className="px-1.5 py-0.5 rounded bg-muted/80 text-[11px] font-mono text-primary font-medium">
+          {inner}
+        </code>
+      );
+    }
+
+    return part;
+  });
+}
+
+export function FormattedChatMessage({ text }: { text: string }) {
+  const paragraphs = text.split(/\n\s*\n/);
+
+  return (
+    <div className="space-y-3">
+      {paragraphs.map((paragraph, pIdx) => {
+        const lines = paragraph.split('\n').map(l => l.trim()).filter(Boolean);
+        if (lines.length === 0) return null;
+
+        // Code block check
+        if (paragraph.startsWith('```') && paragraph.endsWith('```')) {
+          const codeContent = paragraph.replace(/^```[a-zA-Z]*\n?/, '').replace(/```$/, '');
+          return (
+            <pre key={pIdx} className="p-3 my-2 bg-slate-900 text-slate-100 rounded-xl overflow-x-auto text-xs font-mono">
+              <code>{codeContent}</code>
+            </pre>
+          );
+        }
+
+        // Header check
+        if (lines.length === 1 && /^#{1,4}\s+/.test(lines[0])) {
+          const headerText = lines[0].replace(/^#{1,4}\s+/, '');
+          return (
+            <h4 key={pIdx} className="font-bold text-foreground text-sm sm:text-base mt-2 mb-1">
+              {renderInlineMarkdown(headerText)}
+            </h4>
+          );
+        }
+
+        // Pure bullet list
+        const isBulletList = lines.every(l => /^(\*|-|•)\s+/.test(l));
+        if (isBulletList) {
+          return (
+            <ul key={pIdx} className="space-y-2 my-1.5">
+              {lines.map((line, lIdx) => {
+                const clean = line.replace(/^(\*|-|•)\s+/, '');
+                return (
+                  <li key={lIdx} className="flex items-start gap-2.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                    <span className="flex-1 leading-relaxed">{renderInlineMarkdown(clean)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+
+        // Pure numbered list
+        const isNumberedList = lines.every(l => /^\d+\.\s+/.test(l));
+        if (isNumberedList) {
+          return (
+            <ol key={pIdx} className="space-y-2 my-1.5">
+              {lines.map((line, lIdx) => {
+                const match = line.match(/^(\d+\.)\s+(.*)$/);
+                const num = match ? match[1] : `${lIdx + 1}.`;
+                const content = match ? match[2] : line;
+                return (
+                  <li key={lIdx} className="flex items-start gap-2.5">
+                    <span className="font-bold text-primary text-xs shrink-0 mt-0.5 min-w-[1.2rem]">{num}</span>
+                    <span className="flex-1 leading-relaxed">{renderInlineMarkdown(content)}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          );
+        }
+
+        // Mixed paragraph (e.g., text followed by bullets)
+        const hasSomeBullets = lines.some(l => /^(\*|-|•|\d+\.)\s+/.test(l));
+        if (hasSomeBullets) {
+          return (
+            <div key={pIdx} className="space-y-2">
+              {lines.map((line, lIdx) => {
+                if (/^(\*|-|•)\s+/.test(line)) {
+                  const clean = line.replace(/^(\*|-|•)\s+/, '');
+                  return (
+                    <div key={lIdx} className="flex items-start gap-2.5 pl-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                      <span className="flex-1 leading-relaxed">{renderInlineMarkdown(clean)}</span>
+                    </div>
+                  );
+                }
+                if (/^\d+\.\s+/.test(line)) {
+                  const match = line.match(/^(\d+\.)\s+(.*)$/);
+                  const num = match ? match[1] : `${lIdx + 1}.`;
+                  const content = match ? match[2] : line;
+                  return (
+                    <div key={lIdx} className="flex items-start gap-2.5 pl-1">
+                      <span className="font-bold text-primary text-xs shrink-0 mt-0.5 min-w-[1.2rem]">{num}</span>
+                      <span className="flex-1 leading-relaxed">{renderInlineMarkdown(content)}</span>
+                    </div>
+                  );
+                }
+                return (
+                  <p key={lIdx} className="leading-relaxed">
+                    {renderInlineMarkdown(line)}
+                  </p>
+                );
+              })}
+            </div>
+          );
+        }
+
+        // Standard paragraph
+        return (
+          <p key={pIdx} className="leading-relaxed">
+            {lines.map((line, lIdx) => (
+              <span key={lIdx}>
+                {renderInlineMarkdown(line)}
+                {lIdx < lines.length - 1 && <br />}
+              </span>
+            ))}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export function AiTutorDrawer({
   open,
   onOpenChange,
@@ -195,11 +362,11 @@ export function AiTutorDrawer({
               <div
                 className={`rounded-2xl px-4 py-3 max-w-[85%] leading-relaxed ${
                   m.role === "user"
-                    ? "bg-primary text-primary-foreground font-medium rounded-tr-xs shadow-md shadow-primary/20"
-                    : "bg-muted/60 text-foreground border border-border/50 rounded-tl-xs whitespace-pre-line"
+                    ? "bg-primary text-primary-foreground font-medium rounded-tr-xs shadow-md shadow-primary/20 text-xs sm:text-sm whitespace-pre-wrap"
+                    : "bg-muted/60 text-foreground border border-border/50 rounded-tl-xs text-xs sm:text-sm"
                 }`}
               >
-                {m.text}
+                {m.role === "user" ? m.text : <FormattedChatMessage text={m.text} />}
               </div>
 
               {m.role === "user" && (

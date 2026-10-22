@@ -10,7 +10,7 @@ import path from "path";
 import fs from "fs";
 import { generateTTS } from "./tts";
 import { generatedCourseSchema } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { randomUUID, createHash } from "crypto";
 import { sendWithdrawRequestEmail, sendUpgradeClickEmail } from "./resend";
 import { createRouteHandler } from "uploadthing/express";
 import { uploadRouter } from "./uploadthing";
@@ -2451,6 +2451,89 @@ export async function registerRoutes(
     endTime: number;
   }
 
+  function extractCleanTextForTTS(raw: string): string {
+    if (!raw || typeof raw !== "string") return "";
+
+    let textToClean = raw.trim();
+
+    // 1. If it's a JSON string of blocks (starts with [ or {), parse and extract text
+    if (textToClean.startsWith("[") || textToClean.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(textToClean);
+        const blocks = Array.isArray(parsed) ? parsed : [parsed];
+        const extracted: string[] = [];
+
+        for (const block of blocks) {
+          if (!block || typeof block !== "object") continue;
+          const c = block.content || {};
+
+          switch (block.type) {
+            case "text":
+              if (c.text) extracted.push(String(c.text));
+              break;
+            case "quote":
+              if (c.text) {
+                extracted.push(c.author ? `${c.text}. Quote by ${c.author}` : String(c.text));
+              }
+              break;
+            case "banner":
+              if (c.title) extracted.push(String(c.title));
+              if (c.subtitle) extracted.push(String(c.subtitle));
+              break;
+            case "grid":
+              if (Array.isArray(c.items)) {
+                for (const item of c.items) {
+                  if (item?.title) extracted.push(String(item.title));
+                  if (item?.content) extracted.push(String(item.content));
+                }
+              }
+              break;
+            case "tabs":
+              if (Array.isArray(c.tabs)) {
+                for (const tab of c.tabs) {
+                  if (tab?.label) extracted.push(String(tab.label));
+                  if (tab?.content) extracted.push(String(tab.content));
+                }
+              }
+              break;
+            case "flip":
+              if (c.front) extracted.push(String(c.front));
+              if (c.back) extracted.push(String(c.back));
+              break;
+            case "quiz":
+              if (c.question) extracted.push(`Question: ${c.question}`);
+              if (Array.isArray(c.options)) {
+                extracted.push(`Options: ${c.options.join(", ")}`);
+              }
+              break;
+            default:
+              if (c.text) extracted.push(String(c.text));
+              break;
+          }
+        }
+
+        if (extracted.length > 0) {
+          textToClean = extracted.join(". ");
+        }
+      } catch {
+        // Not valid JSON, continue with string cleaning
+      }
+    }
+
+    // 2. Strip HTML tags, decode entities, and strip markdown formatting symbols
+    return textToClean
+      .replace(/<[^>]*>/g, " ")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, " and ")
+      .replace(/&lt;/gi, " ")
+      .replace(/&gt;/gi, " ")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .replace(/[*_#`~[\]]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   const ttsCache = new Map<string, {
     audioBase64: string;
     duration: number;
@@ -2467,7 +2550,15 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Lesson not found" });
       }
 
-      const cacheKey = `${req.params.lessonId}-${req.body.voiceId || 'default'}`;
+      // Clean text for speech synthesis (strips JSON blocks, HTML tags, and markdown asterisks)
+      const cleanText = extractCleanTextForTTS(req.body.content || lesson.content);
+
+      if (!cleanText) {
+        return res.status(400).json({ error: "No readable speech content found in lesson" });
+      }
+
+      const textHash = createHash("md5").update(cleanText).digest("hex").slice(0, 8);
+      const cacheKey = `${req.params.lessonId}-${req.body.voiceId || 'default'}-${textHash}`;
       const cached = ttsCache.get(cacheKey);
 
       if (cached && Date.now() - cached.timestamp < TTS_CACHE_TTL) {
@@ -2479,7 +2570,7 @@ export async function registerRoutes(
       }
 
       const ttsResult = await generateTTS({
-        text: lesson.content,
+        text: cleanText,
         voiceId: req.body.voiceId,
       });
 

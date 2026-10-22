@@ -140,7 +140,9 @@ export function TTSPlayer({
       const response = await apiRequest(
         "POST",
         `/api/experiences/${experienceId}/lessons/${lessonId}/tts`,
-        {}
+        {
+          content,
+        }
       ) as TTSResponse;
       
       setAudioData(response.audioBase64);
