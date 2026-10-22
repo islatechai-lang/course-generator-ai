@@ -401,8 +401,8 @@ export default function DashboardPage() {
 
         <div className="flex flex-col items-center justify-center text-center space-y-6 max-w-sm z-10 animate-in fade-in duration-500">
           {/* Animated App Logo */}
-          <div className="relative flex items-center justify-center animate-bounce duration-1000">
-            <div className="absolute -inset-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 opacity-30 blur-md animate-pulse" />
+          <div className="relative flex items-center justify-center">
+            <div className="absolute -inset-3 rounded-2xl bg-gradient-to-r from-primary to-amber-500 opacity-25 blur-md animate-pulse" />
             <div className="relative h-20 w-20 rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-black/80 flex items-center justify-center">
               <img src="/app_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
             </div>
@@ -417,7 +417,7 @@ export default function DashboardPage() {
 
           {/* Minimalist Spinner */}
           <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50 text-xs font-semibold text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
             <span>Connecting to Whop...</span>
           </div>
         </div>
