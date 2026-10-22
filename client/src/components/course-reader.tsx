@@ -695,6 +695,41 @@ function highlightHtmlText(html: string, targetWordIndex: number): string {
   }).join('');
 }
 
+function highlightWordsInString(str: string, targetWordIndex: number): React.ReactNode {
+  if (!str) return null;
+  const words = str.split(/(\s+)/);
+  let wordCount = 0;
+
+  return (
+    <>
+      {words.map((part, idx) => {
+        if (!part || /^\s+$/.test(part)) return part;
+        const isCurrent = wordCount === targetWordIndex;
+        wordCount++;
+        if (isCurrent) {
+          return (
+            <mark
+              key={idx}
+              id="tts-active-word"
+              className="bg-primary text-primary-foreground font-semibold rounded px-1 py-0.5 shadow-sm inline transition-all duration-150"
+            >
+              {part}
+            </mark>
+          );
+        }
+        return part;
+      })}
+    </>
+  );
+}
+
+interface ActiveHighlight {
+  blockId: string;
+  field?: 'title' | 'content' | 'text' | 'author' | 'subtitle' | 'front' | 'back' | 'label';
+  itemIndex?: number;
+  localWordIndex: number;
+}
+
 interface BlockViewerProps {
   blocks: ILessonBlock[];
   currentWordIndex: number;
@@ -707,41 +742,73 @@ function BlockViewer({ blocks, currentWordIndex, isPlaying, serverWords }: Block
 
   const wordMapping = useMemo(() => {
     if (!serverWords || serverWords.length === 0) {
-      return { serverToOriginal: new Map<number, { blockId: string; localWordIndex: number }>() };
+      return { serverToOriginal: new Map<number, ActiveHighlight>() };
     }
 
-    const originalFlat: { blockId: string; localWordIndex: number; word: string; charStart: number; charEnd: number }[] = [];
+    const originalFlat: (ActiveHighlight & { word: string; charStart: number; charEnd: number })[] = [];
     let charPos = 0;
 
+    const addWords = (
+      rawText: string,
+      blockId: string,
+      field?: ActiveHighlight['field'],
+      itemIndex?: number
+    ) => {
+      if (!rawText) return;
+      const clean = rawText.replace(/<[^>]*>/g, ' ');
+      const words = clean.split(/\s+/).filter(w => w.length > 0);
+      words.forEach((w, wIdx) => {
+        const norm = normalizeText(w);
+        originalFlat.push({
+          blockId,
+          field,
+          itemIndex,
+          localWordIndex: wIdx,
+          word: w,
+          charStart: charPos,
+          charEnd: charPos + norm.length,
+        });
+        charPos += norm.length;
+      });
+    };
+
     blocks.forEach(block => {
-      if (block.type === 'text') {
-        const textOnly = (block.content?.text || '').replace(/<[^>]*>/g, ' ');
-        const words = textOnly.split(/\s+/).filter((w: string) => w.length > 0);
-        words.forEach((w: string, wIdx: number) => {
-          const norm = normalizeText(w);
-          originalFlat.push({
-            blockId: block.id,
-            localWordIndex: wIdx,
-            word: w,
-            charStart: charPos,
-            charEnd: charPos + norm.length,
+      switch (block.type) {
+        case 'text':
+          addWords(block.content?.text || '', block.id, 'text');
+          break;
+        case 'quote':
+          addWords(block.content?.text || '', block.id, 'text');
+          if (block.content?.author) {
+            addWords(`Quote by ${block.content.author}`, block.id, 'author');
+          }
+          break;
+        case 'banner':
+          if (block.content?.title) addWords(block.content.title, block.id, 'title');
+          if (block.content?.subtitle) addWords(block.content.subtitle, block.id, 'subtitle');
+          break;
+        case 'grid':
+          (block.content?.items || []).forEach((item: any, i: number) => {
+            if (item?.title) addWords(item.title, block.id, 'title', i);
+            if (item?.content) addWords(item.content, block.id, 'content', i);
           });
-          charPos += norm.length;
-        });
-      } else if (block.type === 'quote') {
-        const textOnly = `${block.content?.text || ''} ${block.content?.author || ''}`.replace(/<[^>]*>/g, ' ');
-        const words = textOnly.split(/\s+/).filter((w: string) => w.length > 0);
-        words.forEach((w: string, wIdx: number) => {
-          const norm = normalizeText(w);
-          originalFlat.push({
-            blockId: block.id,
-            localWordIndex: wIdx,
-            word: w,
-            charStart: charPos,
-            charEnd: charPos + norm.length,
+          break;
+        case 'tabs':
+          (block.content?.tabs || []).forEach((tab: any, i: number) => {
+            if (tab?.label) addWords(tab.label, block.id, 'label', i);
+            if (tab?.content) addWords(tab.content, block.id, 'content', i);
           });
-          charPos += norm.length;
-        });
+          break;
+        case 'flip':
+          if (block.content?.front) addWords(block.content.front, block.id, 'front');
+          if (block.content?.back) addWords(block.content.back, block.id, 'back');
+          break;
+        case 'quiz':
+          if (block.content?.question) addWords(`Question: ${block.content.question}`, block.id, 'text');
+          if (Array.isArray(block.content?.options)) {
+            addWords(`Options: ${block.content.options.join(', ')}`, block.id, 'content');
+          }
+          break;
       }
     });
 
@@ -757,7 +824,7 @@ function BlockViewer({ blocks, currentWordIndex, isPlaying, serverWords }: Block
       charPos += norm.length;
     }
 
-    const serverToOriginal = new Map<number, { blockId: string; localWordIndex: number }>();
+    const serverToOriginal = new Map<number, ActiveHighlight>();
 
     for (const server of serverFlat) {
       const serverMid = (server.charStart + server.charEnd) / 2;
@@ -778,7 +845,12 @@ function BlockViewer({ blocks, currentWordIndex, isPlaying, serverWords }: Block
       }
 
       if (bestMatch) {
-        serverToOriginal.set(server.idx, { blockId: bestMatch.blockId, localWordIndex: bestMatch.localWordIndex });
+        serverToOriginal.set(server.idx, {
+          blockId: bestMatch.blockId,
+          field: bestMatch.field,
+          itemIndex: bestMatch.itemIndex,
+          localWordIndex: bestMatch.localWordIndex,
+        });
       }
     }
 
@@ -812,12 +884,12 @@ function BlockViewer({ blocks, currentWordIndex, isPlaying, serverWords }: Block
 
 function renderBlockReader(
   block: ILessonBlock,
-  activeHighlight: { blockId: string; localWordIndex: number } | null = null,
+  activeHighlight: ActiveHighlight | null = null,
   isPlaying: boolean = false
 ) {
   switch (block.type) {
     case 'text': {
-      const isTargetBlock = isPlaying && activeHighlight && activeHighlight.blockId === block.id;
+      const isTargetBlock = isPlaying && activeHighlight && activeHighlight.blockId === block.id && (!activeHighlight.field || activeHighlight.field === 'text');
       const htmlContent = isTargetBlock
         ? highlightHtmlText(block.content?.text || '', activeHighlight.localWordIndex)
         : (block.content?.text || '');
@@ -869,7 +941,7 @@ function renderBlockReader(
       );
     case 'quote': {
       const isTargetBlock = isPlaying && activeHighlight && activeHighlight.blockId === block.id;
-      const htmlContent = isTargetBlock
+      const htmlContent = isTargetBlock && activeHighlight.field === 'text'
         ? highlightHtmlText(block.content?.text || '', activeHighlight.localWordIndex)
         : (block.content?.text || '');
 
@@ -881,25 +953,41 @@ function renderBlockReader(
           />
           {block.content.author && (
             <cite className="block mt-6 text-sm font-bold text-primary not-italic">
-              — {block.content.author}
+              — {isTargetBlock && activeHighlight.field === 'author'
+                  ? highlightWordsInString(block.content.author, activeHighlight.localWordIndex)
+                  : block.content.author}
             </cite>
           )}
         </div>
       );
     }
-    case 'grid':
+    case 'grid': {
+      const items = block.content?.items || [];
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-10">
-          {(block.content.items || []).map((item: any, i: number) => (
-            <Card key={i} className="bg-muted/30 border-none shadow-none rounded-[2rem] overflow-hidden hover:bg-muted/40 transition-colors">
-              <CardContent className="p-6 sm:p-8 space-y-4">
-                <h3 className="font-bold text-xl text-foreground">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{item.content}</p>
-              </CardContent>
-            </Card>
-          ))}
+          {items.map((item: any, i: number) => {
+            const isTargetItem = isPlaying && activeHighlight && activeHighlight.blockId === block.id && activeHighlight.itemIndex === i;
+
+            return (
+              <Card key={i} className="bg-muted/30 border-none shadow-none rounded-[2rem] overflow-hidden hover:bg-muted/40 transition-colors">
+                <CardContent className="p-6 sm:p-8 space-y-4">
+                  <h3 className="font-bold text-xl text-foreground">
+                    {isTargetItem && activeHighlight.field === 'title'
+                      ? highlightWordsInString(item.title, activeHighlight.localWordIndex)
+                      : item.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                    {isTargetItem && activeHighlight.field === 'content'
+                      ? highlightWordsInString(item.content, activeHighlight.localWordIndex)
+                      : item.content}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       );
+    }
     case 'quiz':
       return (
         <Card className="my-10 bg-primary/5 border-primary/10 rounded-[2.5rem] shadow-none overflow-hidden">
@@ -924,7 +1012,8 @@ function renderBlockReader(
           </CardContent>
         </Card>
       );
-    case 'banner':
+    case 'banner': {
+      const isTargetBanner = isPlaying && activeHighlight && activeHighlight.blockId === block.id;
       return (
         <div
           className="my-10 rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-12 md:p-20 text-white relative overflow-hidden shadow-2xl group/banner"
@@ -932,11 +1021,20 @@ function renderBlockReader(
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
           <div className="relative z-10 space-y-6 max-w-3xl">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight">{block.content.title}</h2>
-            <p className="text-lg sm:text-xl text-white/90 leading-relaxed font-medium">{block.content.subtitle}</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight">
+              {isTargetBanner && activeHighlight.field === 'title'
+                ? highlightWordsInString(block.content.title, activeHighlight.localWordIndex)
+                : block.content.title}
+            </h2>
+            <p className="text-lg sm:text-xl text-white/90 leading-relaxed font-medium">
+              {isTargetBanner && activeHighlight.field === 'subtitle'
+                ? highlightWordsInString(block.content.subtitle, activeHighlight.localWordIndex)
+                : block.content.subtitle}
+            </p>
           </div>
         </div>
       );
+    }
     case 'tabs':
       return (
         <div className="my-10">
@@ -952,34 +1050,51 @@ function renderBlockReader(
                 </TabsTrigger>
               ))}
             </TabsList>
-            {(block.content.tabs || []).map((tab: any, i: number) => (
-              <TabsContent
-                key={i}
-                value={`tab-${i}`}
-                className="mt-6 sm:mt-8 p-6 sm:p-10 border rounded-[2rem] sm:rounded-[2.5rem] bg-muted/20 border-muted-foreground/10 animate-in fade-in slide-in-from-bottom-4 duration-500"
-              >
-                <p className="text-foreground/90 text-base sm:text-lg leading-relaxed font-medium">{tab.content}</p>
-              </TabsContent>
-            ))}
+            {(block.content.tabs || []).map((tab: any, i: number) => {
+              const isTargetTab = isPlaying && activeHighlight && activeHighlight.blockId === block.id && activeHighlight.itemIndex === i;
+              return (
+                <TabsContent
+                  key={i}
+                  value={`tab-${i}`}
+                  className="mt-6 sm:mt-8 p-6 sm:p-10 border rounded-[2rem] sm:rounded-[2.5rem] bg-muted/20 border-muted-foreground/10 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                >
+                  <p className="text-foreground/90 text-base sm:text-lg leading-relaxed font-medium">
+                    {isTargetTab && activeHighlight.field === 'content'
+                      ? highlightWordsInString(tab.content, activeHighlight.localWordIndex)
+                      : tab.content}
+                  </p>
+                </TabsContent>
+              );
+            })}
           </Tabs>
         </div>
       );
-    case 'flip':
+    case 'flip': {
+      const isTargetFlip = isPlaying && activeHighlight && activeHighlight.blockId === block.id;
       return (
         <div className="flex justify-center w-full my-10">
           <div className="group/card [perspective:1000px] h-64 w-full md:w-[400px] cursor-pointer">
             <div className="relative h-full w-full transition-all duration-700 [transform-style:preserve-3d] group-hover/card:[transform:rotateY(180deg)] shadow-xl rounded-3xl">
               <div className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-muted/40 border-2 border-dashed border-muted-foreground/10 rounded-3xl [backface-visibility:hidden]">
-                <p className="text-2xl font-black text-center text-foreground">{block.content.front}</p>
+                <p className="text-2xl font-black text-center text-foreground">
+                  {isTargetFlip && activeHighlight.field === 'front'
+                    ? highlightWordsInString(block.content.front, activeHighlight.localWordIndex)
+                    : block.content.front}
+                </p>
                 <div className="mt-6 h-1 w-12 bg-primary/20 rounded-full" />
               </div>
               <div className="absolute inset-0 h-full w-full rounded-3xl bg-primary px-8 py-6 text-primary-foreground [transform:rotateY(180deg)] [backface-visibility:hidden] flex flex-col items-center justify-center text-center">
-                <p className="text-xl font-bold leading-relaxed">{block.content.back}</p>
+                <p className="text-xl font-bold leading-relaxed">
+                  {isTargetFlip && activeHighlight.field === 'back'
+                    ? highlightWordsInString(block.content.back, activeHighlight.localWordIndex)
+                    : block.content.back}
+                </p>
               </div>
             </div>
           </div>
         </div>
       );
+    }
     default:
       return null;
   }
