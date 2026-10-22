@@ -288,8 +288,8 @@ export function BlockEditor({ blocks, onChange, courseTitle, moduleTitle, lesson
                         ))}
 
                         {isGeneratingImages && !localBlocks.some(b => b.type === 'image') && (
-                            <div className="p-6 my-4 rounded-2xl border-2 border-dashed border-blue-500/30 bg-blue-500/[0.04] flex flex-col items-center justify-center text-center animate-pulse">
-                                <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2">
+                            <div className="p-6 my-4 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/[0.04] flex flex-col items-center justify-center text-center animate-pulse">
+                                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-2">
                                     <Sparkles className="h-5 w-5 animate-spin-slow" />
                                 </div>
                                 <h5 className="text-sm font-semibold text-foreground">AI Illustration In Progress</h5>
@@ -430,7 +430,7 @@ function InsertionPoint({ onAdd, isFirst = false }: { onAdd: (type: string) => v
                             <span>Text Block</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onAdd('banner')} className="gap-2 cursor-pointer">
-                            <Layout className="h-4 w-4 text-indigo-500/70" />
+                            <Layout className="h-4 w-4 text-primary/70" />
                             <span>Hero Banner</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onAdd('image')} className="gap-2 cursor-pointer">
@@ -450,7 +450,7 @@ function InsertionPoint({ onAdd, isFirst = false }: { onAdd: (type: string) => v
                             <span>Quick Quiz</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onAdd('tabs')} className="gap-2 cursor-pointer">
-                            <AlignLeft className="h-4 w-4 text-blue-500/70" />
+                            <AlignLeft className="h-4 w-4 text-primary/70" />
                             <span>Info Tabs</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onAdd('flip')} className="gap-2 cursor-pointer">

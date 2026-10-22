@@ -485,7 +485,7 @@ export default function DashboardPage() {
                 <span>Pro</span>
               </div>
             ) : data?.generationLimit?.isBasic ? (
-              <div className="flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm shrink-0 shadow-sm">
+              <div className="flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-primary/30 bg-primary/10 text-primary font-bold text-xs sm:text-sm shrink-0 shadow-sm">
                 <span>👑</span>
                 <span>Basic</span>
               </div>
@@ -546,7 +546,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <StatCard icon={Wallet} label="Available Balance" value={stats.availableBalance} testId="stat-available-balance" bgColor="bg-emerald-500/10 dark:bg-emerald-400/10" iconColor="text-emerald-600 dark:text-emerald-400" isCurrency />
           <StatCard icon={DollarSign} label="Total Earnings" value={stats.totalEarnings} testId="stat-earnings" bgColor="bg-amber-500/10 dark:bg-amber-400/10" iconColor="text-amber-600 dark:text-amber-400" isCurrency />
-          <StatCard icon={BookOpen} label="Total Courses" value={stats.totalCourses} testId="stat-total-courses" bgColor="bg-blue-500/10 dark:bg-blue-400/10" iconColor="text-blue-600 dark:text-blue-400" />
+          <StatCard icon={BookOpen} label="Total Courses" value={stats.totalCourses} testId="stat-total-courses" bgColor="bg-primary/10" iconColor="text-primary" />
           <StatCard icon={TrendingUp} label="Published" value={stats.publishedCourses} testId="stat-published" bgColor="bg-emerald-500/10 dark:bg-emerald-400/10" iconColor="text-emerald-600 dark:text-emerald-400" />
           <StatCard icon={Users} label="Total Students" value={stats.totalStudents} testId="stat-students" bgColor="bg-violet-500/10 dark:bg-violet-400/10" iconColor="text-violet-600 dark:text-violet-400" />
         </div>

@@ -90,7 +90,7 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
   return (
     <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-y-auto">
       {/* Background glow effects */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-amber-500/15 via-orange-500/10 to-indigo-500/10 blur-[140px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-primary/20 via-orange-500/10 to-amber-500/10 blur-[140px] pointer-events-none rounded-full" />
 
       {/* Main Container */}
       <div className={`w-full z-10 space-y-6 my-auto py-4 sm:py-6 transition-all ${showCheckout ? 'max-w-2xl' : 'max-w-5xl lg:max-w-6xl xl:max-w-[1240px]'}`}>
@@ -203,17 +203,17 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
 
               {/* 2. Basic Plan */}
               <div
-                className={`flex flex-col p-5 md:p-6 lg:p-7 rounded-2xl border-2 transition-all duration-300 relative group ${hoveredPlan === "basic" ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)] bg-blue-500/10' : 'border-blue-500/50 bg-blue-500/5 shadow-lg'}`}
+                className={`flex flex-col p-5 md:p-6 lg:p-7 rounded-2xl border-2 transition-all duration-300 relative group ${hoveredPlan === "basic" ? 'border-primary/50 shadow-[0_0_20px_rgba(248,85,20,0.15)] bg-card' : 'border-border/80 bg-card/60 shadow-md'}`}
                 onMouseEnter={() => setHoveredPlan("basic")}
                 onMouseLeave={() => setHoveredPlan(null)}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent opacity-50 pointer-events-none rounded-2xl" />
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[10px] lg:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50 pointer-events-none rounded-2xl" />
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-muted text-foreground border border-border text-[10px] lg:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
                   BASIC
                 </div>
                 <div className="mb-4 lg:mb-6 pt-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm lg:text-base font-bold uppercase tracking-wider text-blue-500">Basic</h3>
+                    <h3 className="text-sm lg:text-base font-bold uppercase tracking-wider text-foreground">Basic</h3>
                   </div>
                   <div className="flex flex-col mt-1.5">
                     <div className="flex items-baseline gap-1.5">
@@ -224,30 +224,30 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
                 </div>
 
                 <ul className="flex-1 space-y-3 lg:space-y-3.5 mb-8">
-                  <li className="flex items-center gap-2.5 text-xs lg:text-sm font-bold text-blue-500">
-                    <Zap className="h-4 w-4 shrink-0" />
+                  <li className="flex items-center gap-2.5 text-xs lg:text-sm font-semibold text-foreground/90">
+                    <Zap className="h-4 w-4 shrink-0 text-primary" />
                     10 Published Courses
                   </li>
-                  <li className="flex items-center gap-2.5 text-xs lg:text-sm font-bold text-blue-500">
-                    <Check className="h-4 w-4 shrink-0" />
+                  <li className="flex items-center gap-2.5 text-xs lg:text-sm font-semibold text-foreground/90">
+                    <Check className="h-4 w-4 shrink-0 text-primary" />
                     1 Daily Course Generation
                   </li>
-                  <li className="flex items-center gap-2.5 text-xs lg:text-sm font-bold text-blue-500">
-                    <Cpu className="h-4 w-4 shrink-0" />
+                  <li className="flex items-center gap-2.5 text-xs lg:text-sm font-semibold text-foreground/90">
+                    <Cpu className="h-4 w-4 shrink-0 text-primary" />
                     Magic AI
                   </li>
                   <li className="flex items-center gap-2.5 text-xs lg:text-sm text-muted-foreground">
-                    <X className="h-4 w-4 shrink-0 text-red-500" />
+                    <X className="h-4 w-4 shrink-0 text-muted-foreground/60" />
                     Guided Mode
                   </li>
-                  <li className="flex items-center gap-2.5 text-xs lg:text-sm font-bold text-blue-500">
-                    <Video className="h-4 w-4 shrink-0" />
+                  <li className="flex items-center gap-2.5 text-xs lg:text-sm font-semibold text-foreground/90">
+                    <Video className="h-4 w-4 shrink-0 text-primary" />
                     Direct Video Upload (800MB Storage)
                   </li>
                 </ul>
 
                 <Button
-                  className="w-full h-11 lg:h-12 text-xs sm:text-sm lg:text-base font-bold shadow-lg shadow-blue-500/20 bg-blue-500 hover:bg-blue-600 transition-all transform hover:scale-[1.02] active:scale-[0.98] ring-2 ring-blue-500/20 ring-offset-2 mt-auto text-white"
+                  className="w-full h-11 lg:h-12 text-xs sm:text-sm lg:text-base font-bold shadow-md bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border/80 transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-auto"
                   onClick={() => handleStartCheckout("basic")}
                   disabled={isLoading !== null}
                 >

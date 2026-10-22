@@ -162,17 +162,17 @@ export function UpgradeModal({ open, onOpenChange, currentPlan = "free" }: Upgra
 
                             {/* Basic Plan */}
                             <div
-                                className={`flex flex-col p-5 rounded-2xl border-2 transition-all duration-300 relative group ${hoveredPlan === "basic" ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)] bg-blue-500/10' : 'border-blue-500/50 bg-blue-500/5 shadow-lg'}`}
+                                className={`flex flex-col p-5 rounded-2xl border-2 transition-all duration-300 relative group ${hoveredPlan === "basic" ? 'border-primary/50 shadow-[0_0_20px_rgba(248,85,20,0.15)] bg-card' : 'border-border/80 bg-card/60 shadow-md'}`}
                                 onMouseEnter={() => setHoveredPlan("basic")}
                                 onMouseLeave={() => setHoveredPlan(null)}
                             >
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent opacity-50 pointer-events-none rounded-2xl" />
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50 pointer-events-none rounded-2xl" />
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-muted text-foreground border border-border text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
                                     BASIC
                                 </div>
                                 <div className="mb-4 pt-1">
                                     <div className="flex items-center gap-2">
-                                        <h3 className="text-sm font-bold uppercase tracking-wider text-blue-500">Basic</h3>
+                                        <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Basic</h3>
                                     </div>
                                     <div className="flex flex-col mt-1.5">
                                         <div className="flex items-baseline gap-1.5">
@@ -183,38 +183,38 @@ export function UpgradeModal({ open, onOpenChange, currentPlan = "free" }: Upgra
                                 </div>
 
                                 <ul className="flex-1 space-y-3 mb-8">
-                                    <li className="flex items-center gap-2.5 text-xs font-bold text-blue-500">
-                                        <Zap className="h-4 w-4 shrink-0" />
+                                    <li className="flex items-center gap-2.5 text-xs font-semibold text-foreground/90">
+                                        <Zap className="h-4 w-4 shrink-0 text-primary" />
                                         10 Published Courses
                                     </li>
-                                    <li className="flex items-center gap-2.5 text-xs font-bold text-blue-500">
-                                        <Check className="h-4 w-4 shrink-0" />
+                                    <li className="flex items-center gap-2.5 text-xs font-semibold text-foreground/90">
+                                        <Check className="h-4 w-4 shrink-0 text-primary" />
                                         1 Daily Course Generation
                                     </li>
-                                    <li className="flex items-center gap-2.5 text-xs font-bold text-blue-500">
-                                        <Cpu className="h-4 w-4 shrink-0" />
+                                    <li className="flex items-center gap-2.5 text-xs font-semibold text-foreground/90">
+                                        <Cpu className="h-4 w-4 shrink-0 text-primary" />
                                         Magic AI
                                     </li>
                                     <li className="flex items-center gap-2.5 text-xs text-muted-foreground">
-                                        <X className="h-4 w-4 shrink-0 text-red-500" />
+                                        <X className="h-4 w-4 shrink-0 text-muted-foreground/60" />
                                         Guided Mode
                                     </li>
-                                    <li className="flex items-center gap-2.5 text-xs font-bold text-blue-500">
-                                        <Video className="h-4 w-4 shrink-0" />
+                                    <li className="flex items-center gap-2.5 text-xs font-semibold text-foreground/90">
+                                        <Video className="h-4 w-4 shrink-0 text-primary" />
                                         Direct Video Upload (800MB Storage)
                                     </li>
                                 </ul>
 
                                 {currentPlan === "basic" ? (
                                     <Button
-                                        className="w-full h-11 text-sm font-bold bg-blue-500/20 text-blue-500 border border-blue-500/40 cursor-default mt-auto pointer-events-none"
+                                        className="w-full h-11 text-sm font-bold bg-muted text-muted-foreground border border-border cursor-default mt-auto pointer-events-none"
                                         disabled
                                     >
                                         Current Plan
                                     </Button>
                                 ) : (
                                     <Button
-                                        className="w-full h-11 text-sm font-bold shadow-lg shadow-blue-500/20 bg-blue-500 hover:bg-blue-600 transition-all transform hover:scale-[1.02] active:scale-[0.98] ring-2 ring-blue-500/20 ring-offset-2 mt-auto text-white"
+                                        className="w-full h-11 text-sm font-bold shadow-md bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border/80 transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-auto"
                                         onClick={() => handleStartCheckout("basic")}
                                         disabled={isLoading !== null}
                                     >

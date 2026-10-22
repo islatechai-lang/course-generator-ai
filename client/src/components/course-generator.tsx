@@ -419,10 +419,10 @@ export function CourseGenerator({
             </TabsTrigger>
             <TabsTrigger
               value="guided"
-              className="py-2.5 rounded-lg transition-all data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:border-blue-500/30 data-[state=active]:shadow-sm font-bold border border-transparent relative"
+              className="py-2.5 rounded-lg transition-all data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-primary/30 data-[state=active]:shadow-sm font-bold border border-transparent relative"
             >
               <span className="flex items-center justify-center">
-                <PenTool className="h-4 w-4 mr-2 text-blue-500" />
+                <PenTool className="h-4 w-4 mr-2 text-primary" />
                 Guided
               </span>
               {!generationLimit?.isPro ? (
@@ -678,7 +678,7 @@ export function CourseGenerator({
             <X className="h-4 w-4" />
           </Button>
           <AlertDialogHeader className="space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mx-auto">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto">
               <Sparkles className="h-6 w-6" />
             </div>
             <AlertDialogTitle className="text-xl font-bold text-center">
@@ -700,7 +700,7 @@ export function CourseGenerator({
             <Button
               type="button"
               onClick={() => handleConfirmScratch(true)}
-              className="w-full sm:w-1/2 h-11 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 gap-1.5"
+              className="w-full sm:w-1/2 h-11 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/20 gap-1.5"
             >
               <Sparkles className="h-4 w-4" />
               Generate Thumbnail

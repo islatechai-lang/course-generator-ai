@@ -214,7 +214,7 @@ function CourseSidebar({
                     <Layers className="h-4 w-4" />
                     <span>Content</span>
                     {course.generationStatus === "generating" ? (
-                      <Badge variant="outline" className="ml-auto mr-1 text-[10px] bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 animate-pulse px-1.5 py-0 flex items-center gap-1 font-semibold">
+                      <Badge variant="outline" className="ml-auto mr-1 text-[10px] bg-primary/10 text-primary border-primary/30 animate-pulse px-1.5 py-0 flex items-center gap-1 font-semibold">
                         <Loader2 className="h-2.5 w-2.5 animate-spin" />
                         <span>{course.generationProgress?.percentage ?? 0}%</span>
                       </Badge>
@@ -247,7 +247,7 @@ function CourseSidebar({
                             e.stopPropagation();
                             handleAddModule();
                           }}
-                          className="text-xs text-indigo-600 hover:text-indigo-700 hover:bg-transparent font-medium mt-1"
+                          className="text-xs text-primary hover:text-primary/80 hover:bg-transparent font-medium mt-1"
                         >
                           <Plus className="h-3.5 w-3.5 mr-1" />
                           <span>Add Module</span>
@@ -295,7 +295,7 @@ function CourseSidebar({
             className={cn(
               "w-full justify-center gap-2 shadow-sm transition-all duration-300 font-bold",
               isEditMode
-                ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100"
+                ? "bg-muted text-foreground hover:bg-muted/80 border border-border"
                 : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/10"
             )}
             onClick={isEditMode ? () => exitEditMode() : enterEditMode}
@@ -1241,7 +1241,7 @@ export default function CourseEditPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium rounded-lg border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium rounded-lg border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary"
                 onClick={() => {
                   localStorage.removeItem("cursai_course_tour_completed_global");
                   localStorage.removeItem(`cursai_course_tour_${courseId}`);
@@ -1261,7 +1261,7 @@ export default function CourseEditPage() {
               {course.generationStatus === "generating" && (
                 <Badge
                   variant="outline"
-                  className="border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/10 flex items-center gap-1.5 animate-pulse text-xs font-medium"
+                  className="border-primary/30 text-primary bg-primary/10 flex items-center gap-1.5 animate-pulse text-xs font-medium"
                 >
                   <Loader2 className="h-3 w-3 animate-spin" />
                   <span>Images {course.generationProgress?.percentage ?? 0}%</span>
@@ -1359,15 +1359,15 @@ export default function CourseEditPage() {
                   <>
                     {/* AI Illustrations Generation Progress Banner */}
                     {course.generationStatus === "generating" && (
-                      <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-card border border-blue-500/20 shadow-sm relative overflow-hidden animate-in fade-in duration-300">
+                      <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-card border border-primary/25 shadow-sm relative overflow-hidden animate-in fade-in duration-300">
                         {/* Background subtle glow */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/[0.07] via-indigo-500/[0.04] to-transparent pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.08] via-amber-500/[0.04] to-transparent pointer-events-none" />
 
                         <div className="relative space-y-3">
                           {/* Top Row: Title, Percentage, and Status */}
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className="h-9 w-9 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                              <div className="h-9 w-9 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center text-primary shrink-0">
                                 <Sparkles className="h-4.5 w-4.5 animate-spin-slow" />
                               </div>
                               <div className="min-w-0">
@@ -1375,7 +1375,7 @@ export default function CourseEditPage() {
                                   <h4 className="text-sm font-bold text-foreground truncate">
                                     Creating AI Lesson Visuals
                                   </h4>
-                                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 shrink-0">
+                                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary shrink-0">
                                     {course.generationProgress?.percentage ?? 0}%
                                   </span>
                                 </div>
@@ -1385,7 +1385,7 @@ export default function CourseEditPage() {
                               </div>
                             </div>
 
-                            <Badge variant="outline" className="self-start sm:self-auto border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/5 items-center gap-1.5 py-1 px-2.5 text-xs font-semibold shrink-0">
+                            <Badge variant="outline" className="self-start sm:self-auto border-primary/30 text-primary bg-primary/5 items-center gap-1.5 py-1 px-2.5 text-xs font-semibold shrink-0">
                               <Loader2 className="h-3 w-3 animate-spin" />
                               In Progress
                             </Badge>
@@ -1394,7 +1394,7 @@ export default function CourseEditPage() {
                           {/* Progress Bar */}
                           <div className="w-full h-2 bg-muted/60 dark:bg-muted/40 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 transition-all duration-500 ease-out rounded-full"
+                              className="h-full bg-gradient-to-r from-primary via-orange-500 to-amber-500 transition-all duration-500 ease-out rounded-full"
                               style={{ width: `${Math.max(5, course.generationProgress?.percentage ?? 0)}%` }}
                             />
                           </div>
@@ -1463,7 +1463,7 @@ export default function CourseEditPage() {
                             className={cn(
                               "h-10 rounded-full shadow-2xl border transition-all active:scale-95 px-5 font-bold",
                               isEditMode
-                                ? "bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-400"
+                                ? "bg-muted text-foreground hover:bg-muted/80 border-border"
                                 : "bg-primary text-primary-foreground hover:bg-primary/90 border-primary/20"
                             )}
                           >
@@ -1848,8 +1848,8 @@ export default function CourseEditPage() {
                                                   <p className="text-muted-foreground/50 italic">No content yet</p>
                                                 )}
                                                 {course.generationStatus === "generating" && (!lesson.media || lesson.media.length === 0) && (
-                                                  <div className="p-6 my-6 rounded-2xl border-2 border-dashed border-blue-500/30 bg-blue-500/[0.04] flex flex-col items-center justify-center text-center animate-pulse">
-                                                    <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2">
+                                                  <div className="p-6 my-6 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/[0.04] flex flex-col items-center justify-center text-center animate-pulse">
+                                                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-2">
                                                       <Sparkles className="h-5 w-5 animate-spin-slow" />
                                                     </div>
                                                     <h5 className="text-sm font-semibold text-foreground">AI Illustration In Progress</h5>
@@ -2007,8 +2007,8 @@ export default function CourseEditPage() {
 
                                                 {/* Generating placeholder in view mode if lesson has no image yet */}
                                                 {course.generationStatus === "generating" && !getLessonBlocks(lesson).some(b => b.type === 'image') && (
-                                                  <div className="p-6 my-6 rounded-2xl border-2 border-dashed border-blue-500/30 bg-blue-500/[0.04] flex flex-col items-center justify-center text-center animate-pulse">
-                                                    <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2">
+                                                  <div className="p-6 my-6 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/[0.04] flex flex-col items-center justify-center text-center animate-pulse">
+                                                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-2">
                                                       <Sparkles className="h-5 w-5 animate-spin-slow" />
                                                     </div>
                                                     <h5 className="text-sm font-semibold text-foreground">AI Illustration In Progress</h5>
@@ -2383,8 +2383,8 @@ export default function CourseEditPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="p-4 rounded-lg border bg-card">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                        <Users className="h-5 w-5 text-blue-500" />
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Users className="h-5 w-5 text-primary" />
                       </div>
                       <div>
                         <p className="text-2xl font-bold">{analytics?.totalStudents || 0}</p>
@@ -2514,10 +2514,10 @@ export default function CourseEditPage() {
                 ) : (
                   <div className="space-y-4 sm:space-y-6">
                     {/* 0. Critical Step: Make Course Generator App Public on Whop */}
-                    <Card className="rounded-2xl border bg-gradient-to-br from-blue-500/10 via-card to-card backdrop-blur-sm overflow-hidden shadow-sm border-blue-500/30">
-                      <div className="p-3.5 sm:p-5 border-b bg-blue-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+                    <Card className="rounded-2xl border bg-gradient-to-br from-primary/10 via-card to-card backdrop-blur-sm overflow-hidden shadow-sm border-primary/30">
+                      <div className="p-3.5 sm:p-5 border-b bg-primary/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="h-8 w-8 rounded-lg bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                          <div className="h-8 w-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center shrink-0">
                             <Globe className="h-4 w-4" />
                           </div>
                           <div>
@@ -2525,7 +2525,7 @@ export default function CourseEditPage() {
                             <p className="text-xs text-muted-foreground">Required so your community members can see and access your courses inside Whop.</p>
                           </div>
                         </div>
-                        <Badge variant="outline" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 text-xs font-bold w-fit self-start sm:self-auto shrink-0">
+                        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs font-bold w-fit self-start sm:self-auto shrink-0">
                           Step 1 of Launch
                         </Badge>
                       </div>
@@ -2536,7 +2536,7 @@ export default function CourseEditPage() {
                           <div className="p-3 sm:p-4 rounded-xl bg-muted/30 border border-border/60 flex flex-col justify-between space-y-2.5 sm:space-y-3">
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
+                                <span className="h-5 w-5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
                                 <span className="text-xs font-bold text-foreground">Click the 3 dots (⋮) on Course Generator</span>
                               </div>
                               <p className="text-xs text-muted-foreground pl-7">
@@ -2545,7 +2545,7 @@ export default function CourseEditPage() {
                             </div>
                             <div
                               onClick={() => setLightboxImage({ url: "/guide/step1-menu.png", alt: "Step 1: Click the 3 dots menu on Course Generator" })}
-                              className="group relative cursor-pointer rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2 hover:border-blue-500/60 transition-all"
+                              className="group relative cursor-pointer rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2 hover:border-primary/60 transition-all"
                             >
                               <img
                                 src="/guide/step1-menu.png"
@@ -2565,7 +2565,7 @@ export default function CourseEditPage() {
                           <div className="p-3 sm:p-4 rounded-xl bg-muted/30 border border-border/60 flex flex-col justify-between space-y-2.5 sm:space-y-3">
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
+                                <span className="h-5 w-5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
                                 <span className="text-xs font-bold text-foreground">Select "Change visibility" → Choose "Public"</span>
                               </div>
                               <p className="text-xs text-muted-foreground pl-7">
@@ -2574,7 +2574,7 @@ export default function CourseEditPage() {
                             </div>
                             <div
                               onClick={() => setLightboxImage({ url: "/guide/step2-visibility.png", alt: "Step 2: Change visibility to Public" })}
-                              className="group relative cursor-pointer rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2 hover:border-blue-500/60 transition-all"
+                              className="group relative cursor-pointer rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2 hover:border-primary/60 transition-all"
                             >
                               <img
                                 src="/guide/step2-visibility.png"
@@ -2591,8 +2591,8 @@ export default function CourseEditPage() {
                           </div>
                         </div>
 
-                        <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 flex items-start sm:items-center gap-2.5 text-xs text-blue-700 dark:text-blue-300">
-                          <CheckCircle2 className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5 sm:mt-0" />
+                        <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 flex items-start sm:items-center gap-2.5 text-xs text-foreground">
+                          <CheckCircle2 className="h-4 w-4 shrink-0 text-primary mt-0.5 sm:mt-0" />
                           <span>Once set to Public, all members in your community will immediately see your published courses in their sidebar.</span>
                         </div>
                       </CardContent>
@@ -2774,7 +2774,7 @@ export default function CourseEditPage() {
                     <Card className="rounded-2xl border bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm">
                       <div className="p-3.5 sm:p-5 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="h-8 w-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
+                          <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                             <Mail className="h-4 w-4" />
                           </div>
                           <div>
@@ -2789,7 +2789,7 @@ export default function CourseEditPage() {
                             size="sm"
                             disabled={isGeneratingEmail}
                             onClick={() => generateEmailMutation.mutate()}
-                            className="h-8 gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-500/10 border-blue-500/30 flex-1 sm:flex-initial"
+                            className="h-8 gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 hover:bg-primary/10 border-primary/30 flex-1 sm:flex-initial"
                           >
                             {isGeneratingEmail ? (
                               <>
@@ -2813,9 +2813,9 @@ export default function CourseEditPage() {
                                 "email-template",
                                 "Email Template"
                               )}
-                              className="h-8 gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-500/10 flex-1 sm:flex-initial"
+                              className="h-8 gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 hover:bg-primary/10 flex-1 sm:flex-initial"
                             >
-                              {copiedKey === "email-template" ? <Check className="h-3.5 w-3.5 text-blue-600" /> : <Copy className="h-3.5 w-3.5" />}
+                              {copiedKey === "email-template" ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
                               <span>{copiedKey === "email-template" ? "Copied" : "Copy Email"}</span>
                             </Button>
                           )}
@@ -2871,7 +2871,7 @@ export default function CourseEditPage() {
                       size={isMobile ? "default" : "sm"}
                       className={cn(
                         "font-semibold shadow-2xl transition-all",
-                        isMobile ? "h-11 px-6 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/25 border border-white/20" : "shadow-xl"
+                        isMobile ? "h-11 px-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/25 border border-white/20" : "shadow-xl"
                       )}
                       onClick={activeTab === "settings" ? () => updateCourseMutation.mutate({
                         title: title || course.title,

@@ -149,7 +149,7 @@ export function AiTutorDrawer({
         <SheetHeader className="p-4 sm:p-5 border-b border-border/60 bg-muted/20 shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-primary to-indigo-600 text-white flex items-center justify-center shadow-md shadow-primary/20">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-primary to-amber-500 text-white flex items-center justify-center shadow-md shadow-primary/20">
                 <Bot className="h-5 w-5" />
               </div>
               <div>

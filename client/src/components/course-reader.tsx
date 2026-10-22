@@ -646,7 +646,7 @@ export function CourseReader({ course, experienceId, initialLessonId }: CourseRe
       <div className="fixed bottom-16 right-4 sm:bottom-20 sm:right-6 z-40">
         <Button
           onClick={() => setIsTutorOpen(true)}
-          className="h-10 sm:h-11 px-3.5 sm:px-4 rounded-full bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/95 hover:to-indigo-700 text-white shadow-xl shadow-primary/30 flex items-center gap-2 font-bold text-xs sm:text-sm transform hover:scale-105 active:scale-95 transition-all border border-white/20"
+          className="h-10 sm:h-11 px-3.5 sm:px-4 rounded-full bg-gradient-to-r from-primary to-amber-500 hover:from-primary/95 hover:to-amber-600 text-white shadow-xl shadow-primary/30 flex items-center gap-2 font-bold text-xs sm:text-sm transform hover:scale-105 active:scale-95 transition-all border border-white/20"
         >
           <Sparkles className="h-4 w-4 fill-white/20 animate-pulse" />
           <span>Ask AI Tutor</span>

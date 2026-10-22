@@ -470,8 +470,8 @@ export function CourseGuideTour({
                 width: targetRect.width + 8,
                 height: targetRect.height + 8,
                 borderRadius: "10px",
-                boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.55), 0 0 25px rgba(99, 102, 241, 0.85)",
-                border: "2px solid #818cf8",
+                boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.55), 0 0 25px rgba(248, 85, 20, 0.85)",
+                border: "2px solid #f85514",
               }}
             />
 
@@ -528,7 +528,7 @@ export function CourseGuideTour({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="fixed z-[9995] bg-slate-950 text-slate-50 border border-indigo-500/50 shadow-2xl rounded-xl p-3 sm:p-3.5 backdrop-blur-xl box-border"
+              className="fixed z-[9995] bg-slate-950 text-slate-50 border border-primary/50 shadow-2xl rounded-xl p-3 sm:p-3.5 backdrop-blur-xl box-border"
               style={{
                 top: popoverPos.top,
                 left: popoverPos.left,
@@ -539,7 +539,7 @@ export function CourseGuideTour({
               {/* Header */}
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-1.5 truncate">
-                  <Badge className="bg-indigo-500/30 text-indigo-300 border-indigo-500/40 text-[10px] px-1.5 py-0 font-bold shrink-0">
+                  <Badge className="bg-primary/25 text-orange-200 border-primary/40 text-[10px] px-1.5 py-0 font-bold shrink-0">
                     {currentStep.badge}
                   </Badge>
                   <span className="text-xs font-bold text-slate-100 truncate">{currentStep.title}</span>
@@ -554,7 +554,7 @@ export function CourseGuideTour({
               </div>
 
               {/* Short Action Instruction */}
-              <div className="bg-indigo-500/20 border border-indigo-500/30 rounded-lg px-2.5 py-2 text-xs font-semibold text-indigo-200 mb-2.5 leading-snug break-words flex items-center gap-1.5">
+              <div className="bg-primary/15 border border-primary/30 rounded-lg px-2.5 py-2 text-xs font-semibold text-orange-200 mb-2.5 leading-snug break-words flex items-center gap-1.5">
                 <span>{activeInstruction}</span>
               </div>
 
@@ -572,7 +572,7 @@ export function CourseGuideTour({
                 <Button
                   size="sm"
                   onClick={handleNext}
-                  className="h-7 px-3 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm"
+                  className="h-7 px-3 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
                 >
                   {currentStepIndex === steps.length - 1 ? (
                     "Got it 👍"
@@ -600,14 +600,14 @@ export function CourseGuideTour({
           >
             {isChecklistExpanded ? (
               /* Concise Titles-Only Checklist Card */
-              <div className="w-[calc(100vw-32px)] sm:w-[280px] bg-slate-950 text-slate-50 border border-indigo-500/40 shadow-2xl rounded-2xl p-3.5 backdrop-blur-xl box-border">
+              <div className="w-[calc(100vw-32px)] sm:w-[280px] bg-slate-950 text-slate-50 border border-primary/40 shadow-2xl rounded-2xl p-3.5 backdrop-blur-xl box-border">
                 <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
                   <div className="flex items-center gap-2 truncate">
                     <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse shrink-0" />
                     <span className="text-xs font-bold truncate">Course Setup Steps</span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <Badge className="bg-indigo-500/30 text-indigo-300 text-[10px] px-1.5 py-0 border-0">
+                    <Badge className="bg-primary/25 text-orange-200 text-[10px] px-1.5 py-0 border-0">
                       {completedSteps.length}/{steps.length}
                     </Badge>
                     <button
@@ -631,14 +631,14 @@ export function CourseGuideTour({
                         className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-left text-xs transition-colors group ${
                           isDone
                             ? "text-slate-400 hover:bg-slate-900"
-                            : "text-slate-200 hover:bg-indigo-500/15 hover:text-indigo-300 font-medium"
+                            : "text-slate-200 hover:bg-primary/15 hover:text-orange-200 font-medium"
                         }`}
                       >
                         <div className="flex items-center gap-2 truncate">
                           {isDone ? (
                             <CheckCircle2 className="h-3.5 w-3.5 text-green-400 shrink-0" />
                           ) : (
-                            <div className="h-3.5 w-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px] text-slate-400 group-hover:border-indigo-400 group-hover:text-indigo-400 shrink-0">
+                            <div className="h-3.5 w-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px] text-slate-400 group-hover:border-primary group-hover:text-primary shrink-0">
                               {idx + 1}
                             </div>
                           )}
@@ -646,7 +646,7 @@ export function CourseGuideTour({
                             {step.title.replace(/^\d+\.\s*/, "")}
                           </span>
                         </div>
-                        <Play className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 text-indigo-400 shrink-0" />
+                        <Play className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 text-primary shrink-0" />
                       </button>
                     );
                   })}
@@ -656,11 +656,11 @@ export function CourseGuideTour({
               /* Collapsed Pill */
               <Button
                 onClick={() => setIsChecklistExpanded(true)}
-                className="h-9 px-3 rounded-full bg-slate-950 hover:bg-slate-900 text-white font-semibold shadow-xl shadow-indigo-500/20 border border-indigo-500/40 flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95 text-xs"
+                className="h-9 px-3 rounded-full bg-slate-950 hover:bg-slate-900 text-white font-semibold shadow-xl shadow-primary/20 border border-primary/40 flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95 text-xs"
               >
                 <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
                 <span>Guide Steps</span>
-                <Badge className="bg-indigo-500/30 text-indigo-300 text-[10px] px-1.5 py-0 border border-indigo-500/40">
+                <Badge className="bg-primary/25 text-orange-200 text-[10px] px-1.5 py-0 border border-primary/40">
                   {completedSteps.length}/{steps.length}
                 </Badge>
                 <ChevronUp className="h-3 w-3 text-slate-400" />

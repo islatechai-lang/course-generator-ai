@@ -59,7 +59,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
               window.dispatchEvent(new CustomEvent("trigger-upgrade-modal"));
             }
           }}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-md shadow-indigo-200 dark:shadow-none text-xs sm:text-sm h-9 sm:h-10 px-4 max-w-full"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md shadow-primary/20 text-xs sm:text-sm h-9 sm:h-10 px-4 max-w-full"
         >
           View Upgrade Options
         </Button>
@@ -84,7 +84,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
         </div>
         <Progress 
           value={Math.min(storagePercentage, 100)} 
-          className={`h-2 ${storagePercentage >= 90 ? "bg-red-500" : storagePercentage >= 75 ? "bg-amber-500" : "bg-indigo-600"}`}
+          className={`h-2 ${storagePercentage >= 90 ? "bg-red-500" : storagePercentage >= 75 ? "bg-amber-500" : "bg-primary"}`}
         />
         <p className="text-[10px] text-slate-400 dark:text-slate-500">
           Max file size: <strong className="font-semibold text-slate-500 dark:text-slate-400">{limit.maxFileSize}</strong> per upload. Direct upload uses cloud storage.
@@ -102,7 +102,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
         <div className="relative w-full min-w-0 max-w-full overflow-hidden">
           {isUploading && (
             <div className="absolute inset-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-[1px] flex flex-col items-center justify-center z-50 rounded-lg p-4 text-center">
-              <Loader2 className="h-7 w-7 sm:h-8 sm:w-8 text-indigo-600 animate-spin mb-2" />
+              <Loader2 className="h-7 w-7 sm:h-8 sm:w-8 text-primary animate-spin mb-2" />
               <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
                 Uploading your video...
               </p>
@@ -149,10 +149,10 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
               });
             }}
             appearance={{
-              container: "!w-full !max-w-full !min-w-0 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors p-3 sm:p-6 rounded-lg bg-slate-50/50 dark:bg-slate-900/10 overflow-hidden box-border min-h-[120px] flex flex-col justify-center items-center gap-1.5",
-              label: "!text-indigo-600 hover:!text-indigo-500 font-semibold cursor-pointer text-xs sm:text-sm text-center break-words px-1 max-w-full leading-snug",
+              container: "!w-full !max-w-full !min-w-0 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-colors p-3 sm:p-6 rounded-lg bg-slate-50/50 dark:bg-slate-900/10 overflow-hidden box-border min-h-[120px] flex flex-col justify-center items-center gap-1.5",
+              label: "!text-primary hover:!text-primary/80 font-semibold cursor-pointer text-xs sm:text-sm text-center break-words px-1 max-w-full leading-snug",
               allowedContent: "!text-slate-400 dark:!text-slate-500 text-[10px] sm:text-xs text-center break-words px-1 max-w-full",
-              button: "!bg-indigo-600 hover:!bg-indigo-500 !text-white font-medium text-xs px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-sm cursor-pointer mt-2 max-w-full !w-auto",
+              button: "!bg-primary hover:!bg-primary/90 !text-primary-foreground font-medium text-xs px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-sm cursor-pointer mt-2 max-w-full !w-auto",
             }}
             content={{
               label({ isDragActive }) {

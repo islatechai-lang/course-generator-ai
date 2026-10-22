@@ -503,7 +503,7 @@ export default function ExperiencePage() {
                   <span>Pro</span>
                 </div>
               ) : data?.generationLimit?.isBasic ? (
-                <div className="flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm shrink-0 shadow-sm">
+                <div className="flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-primary/30 bg-primary/10 text-primary font-bold text-xs sm:text-sm shrink-0 shadow-sm">
                   <span>👑</span>
                   <span>Basic</span>
                 </div>
@@ -581,8 +581,8 @@ export default function ExperiencePage() {
               label="Total Courses"
               value={stats.totalCourses}
               testId="stat-total-courses"
-              bgColor="bg-blue-500/10 dark:bg-blue-400/10"
-              iconColor="text-blue-600 dark:text-blue-400"
+              bgColor="bg-primary/10"
+              iconColor="text-primary"
             />
             <StatCard
               icon={TrendingUp}

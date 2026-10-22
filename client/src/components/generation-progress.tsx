@@ -78,9 +78,9 @@ export function GenerationProgress({ topic, isComplete = false, statusText }: Ge
   return (
     <Card className="relative overflow-hidden border border-border/50 shadow-2xl bg-card/80 dark:bg-[#0d0e12]/80 backdrop-blur-2xl p-0" style={{ borderRadius: '24px' }}>
       {/* Decorative Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-blue-500 to-purple-500" />
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-orange-500 to-amber-500" />
       <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 dark:bg-primary/5 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
       <div className="relative p-8 space-y-8">
         {/* Header */}
@@ -110,7 +110,7 @@ export function GenerationProgress({ topic, isComplete = false, statusText }: Ge
         {/* Improved Progress Bar */}
         <div className="relative h-3 bg-muted rounded-full p-0.5 overflow-hidden border border-border/50">
           <div
-            className="h-full bg-gradient-to-r from-primary via-blue-500 to-purple-600 rounded-full transition-all duration-500 ease-out relative group"
+            className="h-full bg-gradient-to-r from-primary via-orange-500 to-amber-500 rounded-full transition-all duration-500 ease-out relative group"
             style={{ width: `${progress}%` }}
           >
             {/* Glowing trail effect */}
