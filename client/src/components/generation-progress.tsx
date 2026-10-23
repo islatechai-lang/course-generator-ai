@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Zap, CheckCircle2, Circle, Loader2, Search, Layout, BookOpen, PenTool, Sparkles } from "lucide-react";
+import { Zap, CheckCircle2, Circle, Loader2, Search, Layout, PenTool, Sparkles } from "lucide-react";
 
 interface GenerationProgressProps {
   topic: string;
@@ -41,7 +41,7 @@ const steps = [
   },
 ];
 
-export function GenerationProgress({ topic, isComplete = false, statusText }: GenerationProgressProps) {
+export function GenerationProgress({ topic, isComplete = false }: GenerationProgressProps) {
   const [progress, setProgress] = useState(0);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
@@ -76,41 +76,41 @@ export function GenerationProgress({ topic, isComplete = false, statusText }: Ge
   }, [isComplete]);
 
   return (
-    <Card className="relative overflow-hidden border border-border/50 shadow-2xl bg-card/80 dark:bg-[#0d0e12]/80 backdrop-blur-2xl p-0" style={{ borderRadius: '24px' }}>
+    <Card className="relative overflow-hidden border border-border/60 shadow-2xl bg-card/90 dark:bg-[#0d0e12]/90 backdrop-blur-2xl p-0 rounded-2xl sm:rounded-3xl">
       {/* Decorative Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-orange-500 to-amber-500" />
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 dark:bg-primary/5 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#f85514] via-orange-500 to-amber-500" />
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#f85514]/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
-      <div className="relative p-8 space-y-8">
+      <div className="relative p-4 sm:p-7 md:p-8 space-y-5 sm:space-y-7">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
-            <h3 className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-amber-500 animate-pulse" />
-              Creating your curriculum
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1.5 flex-1 min-w-0">
+            <h3 className="text-xl sm:text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
+              <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-[#f85514] animate-pulse shrink-0" />
+              <span>Creating your curriculum</span>
             </h3>
-            <p className="text-muted-foreground text-base max-w-md">
-              Our Magic AI is building a masterclass for{" "}
-              <span className="font-semibold text-foreground bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
+            <p className="text-muted-foreground text-xs sm:text-sm max-w-md line-clamp-2">
+              Magic AI is building a masterclass for{" "}
+              <span className="font-bold text-foreground bg-[#f85514]/10 text-[#f85514] px-2 py-0.5 rounded-md border border-[#f85514]/20 inline-block mt-0.5">
                 {topic}
               </span>
             </p>
           </div>
-          <div className="flex flex-col items-end gap-1">
-            <div className="text-3xl font-black text-foreground tabular-nums drop-shadow-sm">
+          <div className="flex flex-col items-end gap-0.5 shrink-0">
+            <div className="text-2xl sm:text-3xl font-black text-foreground tabular-nums drop-shadow-sm">
               {Math.round(progress)}%
             </div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-primary animate-pulse">
+            <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#f85514] animate-pulse">
               System Active
             </div>
           </div>
         </div>
 
         {/* Improved Progress Bar */}
-        <div className="relative h-3 bg-muted rounded-full p-0.5 overflow-hidden border border-border/50">
+        <div className="relative h-2.5 sm:h-3 bg-muted rounded-full p-0.5 overflow-hidden border border-border/50">
           <div
-            className="h-full bg-gradient-to-r from-primary via-orange-500 to-amber-500 rounded-full transition-all duration-500 ease-out relative group"
+            className="h-full bg-gradient-to-r from-[#f85514] via-orange-500 to-amber-500 rounded-full transition-all duration-500 ease-out relative group"
             style={{ width: `${progress}%` }}
           >
             {/* Glowing trail effect */}
@@ -120,57 +120,56 @@ export function GenerationProgress({ topic, isComplete = false, statusText }: Ge
         </div>
 
         {/* Steps Grid */}
-        <div className="grid grid-cols-1 gap-4 mt-8">
+        <div className="grid grid-cols-1 gap-2.5 sm:gap-3.5 mt-4 sm:mt-6">
           {steps.map((step, index) => {
             const isFinished = isComplete || index < activeStepIndex;
             const isActive = !isComplete && index === activeStepIndex;
-            const isWaiting = !isComplete && index > activeStepIndex;
 
             return (
               <div
                 key={step.id}
-                className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-500 border ${
+                className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl transition-all duration-300 border ${
                   isActive 
-                    ? "bg-muted/50 border-border shadow-lg scale-[1.02]" 
+                    ? "bg-muted/60 border-border shadow-md scale-[1.01]" 
                     : isFinished 
-                    ? "opacity-80 border-transparent" 
+                    ? "opacity-80 border-transparent bg-muted/20" 
                     : "opacity-40 border-transparent"
                 }`}
               >
                 <div className="relative">
-                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
+                  <div className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                     isFinished ? "bg-green-500/20 text-green-600 dark:text-green-400" : 
-                    isActive ? "bg-[#f85514] text-white shadow-[0_0_20px_rgba(248,85,20,0.5)] animate-pulse" : 
+                    isActive ? "bg-[#f85514] text-white shadow-[0_0_15px_rgba(248,85,20,0.5)] animate-pulse" : 
                     "bg-muted text-muted-foreground"
                   }`}>
                     {isFinished ? (
-                      <CheckCircle2 className="h-5 w-5" />
+                      <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
                     ) : isActive ? (
-                      <step.icon className="h-5 w-5" />
+                      <step.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                     ) : (
-                      <Circle className="h-5 w-5" />
+                      <Circle className="h-4 w-4 sm:h-5 sm:w-5" />
                     )}
                   </div>
                   {isActive && (
-                    <div className="absolute -inset-1 bg-primary/20 rounded-xl blur-lg animate-pulse" />
+                    <div className="absolute -inset-1 bg-[#f85514]/20 rounded-xl blur-md animate-pulse" />
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className={`font-semibold text-base transition-colors duration-500 ${
-                      isActive ? "text-foreground" : isFinished ? "text-foreground/70" : "text-muted-foreground"
+                    <p className={`font-bold text-xs sm:text-sm transition-colors duration-300 ${
+                      isActive ? "text-foreground" : isFinished ? "text-foreground/80" : "text-muted-foreground"
                     }`}>
                       {step.label}
                     </p>
                     {isActive && (
-                      <span className="text-[10px] font-bold text-primary flex items-center gap-1.5 uppercase tracking-tighter">
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                      <span className="text-[9px] sm:text-[10px] font-bold text-[#f85514] flex items-center gap-1 uppercase tracking-wider shrink-0">
+                        <Loader2 className="h-2.5 w-2.5 animate-spin" />
                         In Progress
                       </span>
                     )}
                   </div>
-                  <p className={`text-sm truncate transition-colors duration-500 ${
+                  <p className={`text-[11px] sm:text-xs truncate transition-colors duration-300 mt-0.5 ${
                     isActive ? "text-muted-foreground" : isFinished ? "text-muted-foreground/80" : "text-muted-foreground/60"
                   }`}>
                     {step.description}
@@ -179,20 +178,6 @@ export function GenerationProgress({ topic, isComplete = false, statusText }: Ge
               </div>
             );
           })}
-        </div>
-
-        {/* Footer Info */}
-        <div className="flex items-center justify-between pt-4 border-t border-border/50">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Search className="h-3.5 w-3.5" />
-            <span>Scanning educational benchmarks...</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              AI Engine: V3-Optimized
-            </span>
-          </div>
         </div>
       </div>
     </Card>

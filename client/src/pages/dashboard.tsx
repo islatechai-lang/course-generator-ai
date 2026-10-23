@@ -659,8 +659,8 @@ export default function DashboardPage() {
         {/* Hero or Active Generation progress */}
         <div className="flex-1 overflow-auto">
           {isGenerating && instantGeneratingTopic ? (
-            <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center p-4 sm:p-6">
-              <div className="w-full max-w-2xl mx-auto animate-in fade-in duration-300">
+            <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center p-3 sm:p-6">
+              <div className="w-full max-w-xl mx-auto animate-in fade-in duration-300">
                 <GenerationProgress topic={instantGeneratingTopic} />
               </div>
             </div>
