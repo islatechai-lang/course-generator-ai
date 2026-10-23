@@ -20,6 +20,7 @@ import { CourseGenerator, CoursePreview } from "@/components/course-generator";
 import { InstantCourseHero } from "@/components/instant-course-hero";
 import { CourseLaunchModal, type LaunchCourseData } from "@/components/course-launch-modal";
 import { GenerationProgress } from "@/components/generation-progress";
+import { StudioSkeleton } from "@/components/studio-skeleton";
 import { UpgradeModal } from "@/components/upgrade-modal";
 import { TrialGate } from "@/components/trial-gate";
 import { OnboardingDemo } from "@/components/onboarding-demo";
@@ -608,35 +609,7 @@ export default function ExperiencePage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="h-full min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden select-none">
-        {/* Subtle Ambient Glowing Background Effect */}
-        <div className="absolute h-96 w-96 rounded-full bg-orange-500/10 blur-[120px] pointer-events-none" />
-
-        <div className="flex flex-col items-center justify-center text-center space-y-6 max-w-sm z-10 animate-in fade-in duration-500">
-          {/* Animated App Logo Pulse */}
-          <div className="relative flex items-center justify-center">
-            <div className="absolute -inset-3 rounded-2xl bg-gradient-to-r from-primary to-amber-500 opacity-25 blur-md animate-pulse" />
-            <div className="relative h-20 w-20 rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-black/80 flex items-center justify-center">
-              <img src="/app_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-xl font-bold tracking-tight text-foreground animate-pulse">Loading Your Studio</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Setting up your courses, AI builder, and creator tools...
-            </p>
-          </div>
-
-          {/* Minimalist Spinner Bar */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50 text-xs font-semibold text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            <span>Connecting to Whop...</span>
-          </div>
-        </div>
-      </div>
-    );
+    return <StudioSkeleton />;
   }
 
   const isAdmin = data?.accessLevel === "admin";

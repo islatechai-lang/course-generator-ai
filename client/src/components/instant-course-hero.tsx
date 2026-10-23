@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Sparkles, ArrowRight, TrendingUp, Zap, DollarSign, Users, BookOpen, Layers } from "lucide-react";
+import { useState, useRef } from "react";
+import { Sparkles, ArrowRight, TrendingUp, Zap, DollarSign, Users, BookOpen, Layers, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -42,6 +42,7 @@ export function InstantCourseHero({
   onOpenAdvanced,
 }: InstantCourseHeroProps) {
   const [topic, setTopic] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -51,7 +52,10 @@ export function InstantCourseHero({
 
   const handleChipClick = (chipTopic: string) => {
     setTopic(chipTopic);
-    onGenerate(chipTopic);
+    // Focus the input field so the user can review/edit and explicitly click Generate Course
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
   };
 
   return (
@@ -86,6 +90,7 @@ export function InstantCourseHero({
             <div className="flex items-center gap-2.5 w-full px-2 sm:px-3">
               <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground shrink-0" />
               <Input
+                ref={inputRef}
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
@@ -110,25 +115,42 @@ export function InstantCourseHero({
         {/* Starter Topic Cards Grid */}
         <div className="space-y-2.5 pt-1">
           <p className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">
-            Popular starter templates (tap to generate)
+            Popular starter topics (tap to use in prompt)
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 text-left">
             {STARTER_CHIPS.map((chip) => {
               const Icon = chip.icon;
+              const isSelected = topic === chip.topic;
+
               return (
                 <button
                   key={chip.label}
                   type="button"
                   onClick={() => handleChipClick(chip.topic)}
                   disabled={isGenerating}
-                  className="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/60 hover:border-[#f85514]/40 text-foreground transition-all duration-200 shadow-sm active:scale-[0.98] disabled:opacity-50 group"
+                  className={`flex items-center gap-3 p-2.5 sm:p-3 rounded-xl border text-foreground transition-all duration-200 shadow-sm active:scale-[0.98] disabled:opacity-50 group relative ${
+                    isSelected
+                      ? "border-[#f85514] bg-[#f85514]/10 ring-1 ring-[#f85514]/30 shadow-md"
+                      : "border-border/60 bg-muted/20 hover:bg-muted/60 hover:border-[#f85514]/40"
+                  }`}
                 >
-                  <div className="h-8 w-8 rounded-lg bg-[#f85514]/10 text-[#f85514] flex items-center justify-center shrink-0 border border-[#f85514]/20 group-hover:scale-110 transition-transform">
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 border transition-transform group-hover:scale-105 ${
+                    isSelected
+                      ? "bg-[#f85514] text-white border-[#f85514]"
+                      : "bg-[#f85514]/10 text-[#f85514] border-[#f85514]/20"
+                  }`}>
                     <Icon className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs sm:text-sm font-bold truncate group-hover:text-[#f85514] transition-colors">
-                      {chip.label}
+                    <div className="flex items-center justify-between gap-1">
+                      <span className={`text-xs sm:text-sm font-bold truncate transition-colors ${
+                        isSelected ? "text-[#f85514]" : "group-hover:text-[#f85514]"
+                      }`}>
+                        {chip.label}
+                      </span>
+                      {isSelected && (
+                        <Check className="h-3.5 w-3.5 text-[#f85514] shrink-0" />
+                      )}
                     </div>
                     <div className="text-[10px] sm:text-[11px] text-muted-foreground truncate">
                       {chip.description}
