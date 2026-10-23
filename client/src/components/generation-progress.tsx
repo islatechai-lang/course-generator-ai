@@ -140,7 +140,7 @@ export function GenerationProgress({ topic, isComplete = false, statusText }: Ge
                 <div className="relative">
                   <div className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
                     isFinished ? "bg-green-500/20 text-green-600 dark:text-green-400" : 
-                    isActive ? "bg-primary text-white shadow-[0_0_20px_rgba(59,130,246,0.5)] animate-pulse" : 
+                    isActive ? "bg-[#f85514] text-white shadow-[0_0_20px_rgba(248,85,20,0.5)] animate-pulse" : 
                     "bg-muted text-muted-foreground"
                   }`}>
                     {isFinished ? (

@@ -11,6 +11,9 @@ import { UpgradeModal } from "@/components/upgrade-modal";
 import { TrialGate } from "@/components/trial-gate";
 import { OnboardingDemo } from "@/components/onboarding-demo";
 import { CourseGenerator, CoursePreview } from "@/components/course-generator";
+import { InstantCourseHero } from "@/components/instant-course-hero";
+import { CourseLaunchModal, type LaunchCourseData } from "@/components/course-launch-modal";
+import { GenerationProgress } from "@/components/generation-progress";
 import { generateCourseImage } from "@/lib/image-generator";
 import type { GeneratedCourse, Course } from "@shared/schema";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -62,6 +65,10 @@ export default function DashboardPage() {
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [instantGeneratingTopic, setInstantGeneratingTopic] = useState<string | null>(null);
+  const [justCreatedCourse, setJustCreatedCourse] = useState<LaunchCourseData | null>(null);
+  const [isPublishingLaunch, setIsPublishingLaunch] = useState(false);
+  const [forceShowAdvancedStudio, setForceShowAdvancedStudio] = useState(false);
   const [hasDismissedGate, setHasDismissedGate] = useState(() => {
     return sessionStorage.getItem("dismissed_trial_gate") === "true";
   });
@@ -101,13 +108,13 @@ export default function DashboardPage() {
     if (data) {
       console.log("[Frontend] Dashboard data received:", data);
       
-      // Show onboarding demo if user hasn't seen it yet OR if they have 0 courses
+      // Show onboarding demo only for creators who have courses and haven't seen it yet.
+      // Zero-course creators get the pure frictionless Hero studio without popups!
       const hasSeenDemo = safeLocalStorage.getItem("hasSeenOnboardingDemo");
       const hasNoCourses = data.courses && data.courses.length === 0;
       const hasDismissedInSession = sessionStorage.getItem("hasDismissedOnboardingSession") === "true";
 
-      if ((!hasSeenDemo || hasNoCourses) && !hasDismissedInSession) {
-        console.log("[Frontend] User needs onboarding (unseen or 0 courses). Showing onboarding.");
+      if (!hasSeenDemo && !hasNoCourses && !hasDismissedInSession) {
         setShowOnboarding(true);
       }
     }
@@ -239,6 +246,152 @@ export default function DashboardPage() {
       });
     },
   });
+
+  const handleInstantGenerate = async (topic: string) => {
+    setIsGenerating(true);
+    setInstantGeneratingTopic(topic);
+    try {
+      const startResponse = await fetch(`/api/dashboard/${companyId}/courses/generate-async`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ topic }),
+      });
+
+      if (!startResponse.ok) {
+        if (startResponse.status === 429) {
+          const errorData = await startResponse.json().catch(() => ({}));
+          throw new Error(errorData.error || "Daily generation limit reached.");
+        }
+        throw new Error("Failed to start course generation. Please try again.");
+      }
+
+      const { jobId } = await startResponse.json();
+
+      const POLL_INTERVAL = 3000;
+      const MAX_POLL_TIME = 5 * 60 * 1000;
+      const startTime = Date.now();
+
+      const pollForResult = (): Promise<GeneratedCourse> => {
+        return new Promise((resolve, reject) => {
+          const poll = async () => {
+            if (Date.now() - startTime > MAX_POLL_TIME) {
+              reject(new Error("Generation timed out."));
+              return;
+            }
+            try {
+              const statusResponse = await fetch(`/api/dashboard/${companyId}/courses/generate-status/${jobId}`, {
+                credentials: "include",
+              });
+              if (!statusResponse.ok) {
+                reject(new Error("Failed to check generation status."));
+                return;
+              }
+              const job = await statusResponse.json();
+              if (job.status === "completed") {
+                resolve(job.result);
+                return;
+              }
+              if (job.status === "failed") {
+                reject(new Error(job.error || "Course generation failed."));
+                return;
+              }
+              setTimeout(poll, POLL_INTERVAL);
+            } catch (err) {
+              setTimeout(poll, POLL_INTERVAL);
+            }
+          };
+          poll();
+        });
+      };
+
+      const courseResult = await pollForResult();
+
+      let coverImage: string | undefined = undefined;
+      try {
+        const generatedImage = await generateCourseImage(courseResult.course_title);
+        if (generatedImage) coverImage = generatedImage;
+      } catch (imgErr) {
+        console.warn("Pre-generating cover image skipped:", imgErr);
+      }
+
+      // Automatically save course into the creator's account
+      const saveResponse = await apiRequest("POST", `/api/dashboard/${companyId}/courses`, {
+        generatedCourse: courseResult,
+        isFree: true,
+        price: "0",
+        coverImage,
+        generateLessonImages: false,
+        generateVideo: false,
+      });
+
+      const savedCourse = await saveResponse.json();
+      await queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId] });
+
+      setIsGenerating(false);
+      setInstantGeneratingTopic(null);
+
+      const moduleCount = courseResult.modules?.length || 1;
+      const lessonCount = courseResult.modules?.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0) || 1;
+
+      setJustCreatedCourse({
+        id: savedCourse.id,
+        title: savedCourse.title || courseResult.course_title,
+        moduleCount,
+        lessonCount,
+        coverImage: savedCourse.coverImage || coverImage,
+        isFree: true,
+        price: "0",
+        published: false,
+      });
+    } catch (error: any) {
+      console.error("Instant generation error:", error);
+      setIsGenerating(false);
+      setInstantGeneratingTopic(null);
+      toast({
+        title: "Generation failed",
+        description: error.message || "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLaunchPublish = async ({ isFree, price }: { isFree: boolean; price: string }) => {
+    if (!justCreatedCourse) return;
+    setIsPublishingLaunch(true);
+    try {
+      await apiRequest("PATCH", `/api/dashboard/${companyId}/courses/${justCreatedCourse.id}`, {
+        published: true,
+        isFree,
+        price: isFree ? "0" : price,
+      });
+      await queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId] });
+      toast({
+        title: "🚀 Course Published Live!",
+        description: "Your course is now live and available to your community.",
+      });
+      setJustCreatedCourse(null);
+    } catch (err: any) {
+      toast({
+        title: "Failed to publish",
+        description: err.message || "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPublishingLaunch(false);
+    }
+  };
+
+  const handleLaunchEdit = () => {
+    if (!justCreatedCourse) return;
+    const courseId = justCreatedCourse.id;
+    setJustCreatedCourse(null);
+    window.location.href = `/dashboard/${companyId}/courses/${courseId}/edit`;
+  };
+
+  const handleLaunchLater = () => {
+    setJustCreatedCourse(null);
+  };
 
   const handleCreateScratch = async (title: string, generateThumbnail: boolean = false) => {
     let coverImage: string | undefined = undefined;
@@ -425,8 +578,9 @@ export default function DashboardPage() {
     );
   }
 
+  const hasNoCourses = !data?.courses || data.courses.length === 0;
   const isPaidUser = data?.generationLimit?.isPro || data?.generationLimit?.isBasic;
-  if (!isPaidUser && !hasDismissedGate) {
+  if (!isPaidUser && !hasDismissedGate && !hasNoCourses) {
     return (
       <TrialGate
         userName={data?.user?.username}
@@ -449,6 +603,96 @@ export default function DashboardPage() {
     totalEarnings: data?.earnings?.totalEarnings || 0,
     availableBalance: data?.earnings?.availableBalance || 0,
   };
+
+  // If new creator with 0 courses, display the frictionless Hero Studio directly
+  if (hasNoCourses && !forceShowAdvancedStudio) {
+    return (
+      <div className="h-screen bg-background flex flex-col">
+        {/* Header */}
+        <div className="border-b bg-background shrink-0">
+          <div className="flex h-14 items-center justify-between px-3 sm:px-5">
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shadow-md border border-white/10 shrink-0 bg-black">
+                <img src="/app_logo.jpg" alt="Course Generator AI Logo" className="h-full w-full object-cover" />
+              </div>
+              <div className="sm:hidden">
+                <UserMenu />
+              </div>
+              <h1 className="font-semibold hidden sm:block">Course Generator AI</h1>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowHowItWorks(true)}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground flex"
+                data-testid="button-how-it-works"
+              >
+                <HelpCircle className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="hidden sm:block">
+                <UserMenu />
+              </div>
+              {data?.generationLimit?.isPro ? (
+                <div className="flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs sm:text-sm shrink-0 shadow-sm">
+                  <span>👑</span>
+                  <span>Pro</span>
+                </div>
+              ) : data?.generationLimit?.isBasic ? (
+                <div className="flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-primary/30 bg-primary/10 text-primary font-bold text-xs sm:text-sm shrink-0 shadow-sm">
+                  <span>👑</span>
+                  <span>Basic</span>
+                </div>
+              ) : null}
+              {!data?.generationLimit?.isPro && (
+                <Button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="h-9 px-3 sm:px-4 gap-1.5 sm:gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-none shrink-0"
+                >
+                  <Sparkles className="h-4 w-4 fill-current" />
+                  <span className="text-xs sm:text-sm font-medium">{isMobile ? "Upgrade" : "Upgrade Plan"}</span>
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Hero or Active Generation progress */}
+        <div className="flex-1 overflow-auto">
+          {isGenerating && instantGeneratingTopic ? (
+            <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center p-4 sm:p-6">
+              <div className="w-full max-w-2xl mx-auto animate-in fade-in duration-300">
+                <GenerationProgress topic={instantGeneratingTopic} />
+              </div>
+            </div>
+          ) : (
+            <InstantCourseHero
+              onGenerate={handleInstantGenerate}
+              isGenerating={isGenerating}
+              onOpenAdvanced={() => setForceShowAdvancedStudio(true)}
+            />
+          )}
+        </div>
+
+        {/* Launch Celebration Modal */}
+        <CourseLaunchModal
+          open={!!justCreatedCourse}
+          onOpenChange={(open) => !open && setJustCreatedCourse(null)}
+          course={justCreatedCourse}
+          onPublish={handleLaunchPublish}
+          onEdit={handleLaunchEdit}
+          onLater={handleLaunchLater}
+          isPublishing={isPublishingLaunch}
+        />
+
+        <UpgradeModal
+          open={showUpgradeModal}
+          onOpenChange={setShowUpgradeModal}
+          currentPlan={data?.generationLimit?.isPro ? "pro" : (data?.generationLimit?.isBasic ? "basic" : "free")}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen bg-background flex flex-col">
@@ -740,6 +984,16 @@ export default function DashboardPage() {
         open={showOnboarding}
         onOpenChange={handleOnboardingOpenChange}
         onComplete={handleOnboardingComplete}
+      />
+
+      <CourseLaunchModal
+        open={!!justCreatedCourse}
+        onOpenChange={(open) => !open && setJustCreatedCourse(null)}
+        course={justCreatedCourse}
+        onPublish={handleLaunchPublish}
+        onEdit={handleLaunchEdit}
+        onLater={handleLaunchLater}
+        isPublishing={isPublishingLaunch}
       />
     </div>
   );
