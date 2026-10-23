@@ -617,72 +617,58 @@ export default function DashboardPage() {
   // If new creator with 0 courses, display the frictionless Hero Studio directly
   if (hasNoCourses && !forceShowAdvancedStudio) {
     return (
-      <div className="h-screen bg-background flex flex-col">
-        {/* Header */}
-        <div className="border-b bg-background shrink-0">
-          <div className="flex h-14 items-center justify-between px-3 sm:px-5">
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shadow-md border border-white/10 shrink-0 bg-black">
-                <img src="/app_logo.jpg" alt="Course Generator AI Logo" className="h-full w-full object-cover" />
-              </div>
-              <div className="sm:hidden">
-                <UserMenu />
-              </div>
-              <h1 className="font-semibold hidden sm:block">Course Generator AI</h1>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowHowItWorks(true)}
-                className="h-8 w-8 text-muted-foreground hover:text-foreground flex"
-                data-testid="button-how-it-works"
-              >
-                <HelpCircle className="h-4 w-4" />
-              </Button>
+      <div className="h-screen bg-background flex flex-col relative overflow-hidden">
+        {isGenerating && instantGeneratingTopic ? (
+          <div className="min-h-screen flex items-center justify-center p-3 sm:p-6 relative">
+            <div className="absolute top-3.5 right-3.5 sm:top-6 sm:right-6 z-20">
+              <UserMenu />
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <div className="hidden sm:block">
-                <UserMenu />
-              </div>
-              {data?.generationLimit?.isPro ? (
-                <div className="flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs sm:text-sm shrink-0 shadow-sm">
-                  <span>👑</span>
-                  <span>Pro</span>
-                </div>
-              ) : data?.generationLimit?.isBasic ? (
-                <div className="flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-primary/30 bg-primary/10 text-primary font-bold text-xs sm:text-sm shrink-0 shadow-sm">
-                  <span>👑</span>
-                  <span>Basic</span>
-                </div>
-              ) : null}
-              {!data?.generationLimit?.isPro && (
-                <Button
-                  onClick={() => setShowUpgradeModal(true)}
-                  className="h-9 px-3 sm:px-4 gap-1.5 sm:gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-none shrink-0"
-                >
-                  <Sparkles className="h-4 w-4 fill-current" />
-                  <span className="text-xs sm:text-sm font-medium">{isMobile ? "Upgrade" : "Upgrade Plan"}</span>
-                </Button>
-              )}
+            <div className="w-full max-w-xl mx-auto my-auto animate-in fade-in duration-300">
+              <GenerationProgress topic={instantGeneratingTopic} />
             </div>
           </div>
-        </div>
-
-        {/* Hero or Active Generation progress */}
-        <div className="flex-1 overflow-auto">
-          {isGenerating && instantGeneratingTopic ? (
-            <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center p-3 sm:p-6">
-              <div className="w-full max-w-xl mx-auto animate-in fade-in duration-300">
-                <GenerationProgress topic={instantGeneratingTopic} />
+        ) : (
+          <InstantCourseHero
+            onGenerate={handleInstantGenerate}
+            isGenerating={isGenerating}
+            onOpenAdvanced={() => setForceShowAdvancedStudio(true)}
+            topRight={
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                {data?.generationLimit?.isPro ? (
+                  <div className="flex items-center gap-1.5 px-2.5 h-8 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs shadow-sm">
+                    <span>👑</span>
+                    <span>Pro</span>
+                  </div>
+                ) : data?.generationLimit?.isBasic ? (
+                  <div className="flex items-center gap-1.5 px-2.5 h-8 rounded-lg border border-primary/30 bg-primary/10 text-primary font-bold text-xs shadow-sm">
+                    <span>👑</span>
+                    <span>Basic</span>
+                  </div>
+                ) : null}
+                {!data?.generationLimit?.isPro && (
+                  <Button
+                    onClick={() => setShowUpgradeModal(true)}
+                    size="sm"
+                    className="h-8 px-2.5 sm:px-3 gap-1.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-none text-xs font-semibold shadow-sm"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 fill-current" />
+                    <span className="hidden sm:inline">Upgrade</span>
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowHowItWorks(true)}
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  data-testid="button-how-it-works"
+                >
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+                <UserMenu />
               </div>
-            </div>
-          ) : (
-            <InstantCourseHero
-              onGenerate={handleInstantGenerate}
-              isGenerating={isGenerating}
-              onOpenAdvanced={() => setForceShowAdvancedStudio(true)}
-            />
-          )}
-        </div>
+            }
+          />
+        )}
 
         {/* Launch Celebration Modal */}
         <CourseLaunchModal
