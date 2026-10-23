@@ -151,6 +151,26 @@ export default function ExperiencePage() {
     },
   });
 
+  const isPaidUser = !!(data?.generationLimit?.isPro || data?.generationLimit?.isBasic);
+
+  useEffect(() => {
+    const autoPublishId = sessionStorage.getItem("auto_publish_course_id");
+    if (autoPublishId && isPaidUser && experienceId) {
+      sessionStorage.removeItem("auto_publish_course_id");
+      apiRequest("PATCH", `/api/experiences/${experienceId}/courses/${autoPublishId}`, {
+        published: true,
+      })
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["/api/experiences", experienceId] });
+          toast({
+            title: "🚀 Course Published Live!",
+            description: "Your 3-day free trial is active and your course is now live for your community.",
+          });
+        })
+        .catch(console.error);
+    }
+  }, [isPaidUser, experienceId]);
+
   useEffect(() => {
     if (data) {
       console.log("[Frontend] Experience data received:", data);
@@ -392,10 +412,23 @@ export default function ExperiencePage() {
     if (!justCreatedCourse) return;
     setIsPublishingLaunch(true);
     try {
+      // First save monetization options (always allowed on free tier)
       await apiRequest("PATCH", `/api/experiences/${experienceId}/courses/${justCreatedCourse.id}`, {
-        published: true,
         isFree,
         price: isFree ? "0" : price,
+      });
+
+      if (!isPaidUser) {
+        // Free user: seamlessly trigger 3-Day Free Trial modal ($0 due today)
+        sessionStorage.setItem("auto_publish_course_id", justCreatedCourse.id);
+        setShowUpgradeModal(true);
+        setJustCreatedCourse(null);
+        return;
+      }
+
+      // Paid user: publish immediately!
+      await apiRequest("PATCH", `/api/experiences/${experienceId}/courses/${justCreatedCourse.id}`, {
+        published: true,
       });
       await queryClient.invalidateQueries({ queryKey: ["/api/experiences", experienceId] });
       toast({
@@ -404,11 +437,17 @@ export default function ExperiencePage() {
       });
       setJustCreatedCourse(null);
     } catch (err: any) {
-      toast({
-        title: "Failed to publish",
-        description: err.message || "Please try again.",
-        variant: "destructive",
-      });
+      if (err.data?.needsUpgrade || err.status === 403 || err.message?.includes("requires an active plan")) {
+        sessionStorage.setItem("auto_publish_course_id", justCreatedCourse.id);
+        setShowUpgradeModal(true);
+        setJustCreatedCourse(null);
+      } else {
+        toast({
+          title: "Failed to publish",
+          description: err.message || "Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsPublishingLaunch(false);
     }
@@ -604,7 +643,6 @@ export default function ExperiencePage() {
 
   if (isAdmin) {
     const hasNoCourses = !data?.courses || data.courses.length === 0;
-    const isPaidUser = data?.generationLimit?.isPro || data?.generationLimit?.isBasic;
 
     // New creators with 0 courses immediately get the zero-friction Hero flow (no TrialGate blocker!)
     if (!isPaidUser && !hasDismissedGate && !hasNoCourses) {
@@ -702,6 +740,7 @@ export default function ExperiencePage() {
             onEdit={handleLaunchEdit}
             onLater={handleLaunchLater}
             isPublishing={isPublishingLaunch}
+            isPaidUser={isPaidUser}
           />
 
           <UpgradeModal
@@ -1032,6 +1071,7 @@ export default function ExperiencePage() {
           onEdit={handleLaunchEdit}
           onLater={handleLaunchLater}
           isPublishing={isPublishingLaunch}
+          isPaidUser={isPaidUser}
         />
       </div>
     );

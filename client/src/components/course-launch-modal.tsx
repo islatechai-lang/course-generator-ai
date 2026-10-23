@@ -19,8 +19,7 @@ import {
   Gift,
   CheckCircle2,
   Loader2,
-  ArrowRight,
-  Layers,
+  ShieldCheck,
 } from "lucide-react";
 
 export interface LaunchCourseData {
@@ -42,6 +41,7 @@ interface CourseLaunchModalProps {
   onEdit: () => void;
   onLater: () => void;
   isPublishing?: boolean;
+  isPaidUser?: boolean;
 }
 
 const PRESET_PRICES = ["19", "29", "49", "99"];
@@ -54,6 +54,7 @@ export function CourseLaunchModal({
   onEdit,
   onLater,
   isPublishing = false,
+  isPaidUser = false,
 }: CourseLaunchModalProps) {
   const [monetizationType, setMonetizationType] = useState<"free" | "paid">("free");
   const [price, setPrice] = useState("49");
@@ -256,22 +257,38 @@ export function CourseLaunchModal({
             )}
           </div>
 
+          {/* 3-Day Free Trial Notice for Unpaid Users */}
+          {!isPaidUser && (
+            <div className="flex items-center gap-2.5 p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <Sparkles className="h-4 w-4 shrink-0 text-amber-500 animate-pulse" />
+              <div className="text-left text-xs leading-snug flex-1">
+                <span className="font-bold text-foreground">Includes 3-Day Free Trial ($0.00 Due Today)</span>
+                <span className="text-muted-foreground block text-[11px] mt-0.5">
+                  Publishing connects to your Whop community. Cancel anytime in 1 click.
+                </span>
+              </div>
+              <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+            </div>
+          )}
+
           {/* Action CTAs */}
           <div className="space-y-2.5 pt-1">
             <Button
               onClick={handlePublishClick}
               disabled={isPublishing}
-              className="w-full h-11 sm:h-12 rounded-xl font-bold text-sm sm:text-base text-white bg-[#f85514] hover:bg-[#e0480d] shadow-lg shadow-[#f85514]/25 gap-2 active:scale-[0.99] transition-all"
+              className="w-full h-11 sm:h-12 rounded-xl font-bold text-xs sm:text-sm md:text-base text-white bg-[#f85514] hover:bg-[#e0480d] shadow-lg shadow-[#f85514]/25 gap-2 active:scale-[0.99] transition-all"
             >
               {isPublishing ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Publishing to Community...</span>
+                  <span>{isPaidUser ? "Publishing to Community..." : "Preparing Free Trial..."}</span>
                 </>
               ) : (
                 <>
-                  <Rocket className="h-4 w-4" />
-                  <span>Publish to Community Now</span>
+                  <Rocket className="h-4 w-4 shrink-0" />
+                  <span className="truncate">
+                    {isPaidUser ? "Publish to Community Now" : "Publish with 3-Day Free Trial ($0 Due)"}
+                  </span>
                 </>
               )}
             </Button>
