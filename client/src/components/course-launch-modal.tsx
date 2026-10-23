@@ -99,30 +99,30 @@ export function CourseLaunchModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[94vw] max-w-[500px] max-h-[92vh] flex flex-col p-0 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/70 bg-card dark:bg-[#111215] shadow-2xl">
-        {/* Glowing Banner Header */}
-        <div className="relative px-5 py-5 sm:py-6 text-center overflow-hidden bg-gradient-to-b from-[#f85514]/15 via-orange-500/5 to-transparent border-b border-border/50 shrink-0">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-20 bg-[#f85514]/20 blur-2xl rounded-full pointer-events-none" />
+      <DialogContent className="w-[94vw] sm:max-w-[620px] md:max-w-[660px] max-h-[94vh] flex flex-col p-0 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/70 bg-card dark:bg-[#111215] shadow-2xl">
+        {/* Glowing Banner Header with True Centering */}
+        <div className="relative px-5 py-4 sm:py-5 flex flex-col items-center justify-center text-center overflow-hidden bg-gradient-to-b from-[#f85514]/15 via-orange-500/5 to-transparent border-b border-border/50 shrink-0">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-56 h-20 bg-[#f85514]/20 blur-2xl rounded-full pointer-events-none" />
 
           {/* Celebration Icon Pill */}
-          <div className="inline-flex items-center justify-center h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-gradient-to-tr from-[#f85514] to-amber-500 text-white shadow-lg shadow-[#f85514]/30 mb-2.5 sm:mb-3 animate-in zoom-in-75 duration-300">
-            <Rocket className="h-6 w-6 sm:h-7 sm:w-7" />
+          <div className="inline-flex items-center justify-center h-12 w-12 sm:h-13 sm:w-13 rounded-2xl bg-gradient-to-tr from-[#f85514] to-amber-500 text-white shadow-lg shadow-[#f85514]/30 mb-2 animate-in zoom-in-75 duration-300">
+            <Rocket className="h-6 w-6" />
           </div>
 
-          <DialogHeader className="space-y-1 text-center">
-            <DialogTitle className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+          <DialogHeader className="flex flex-col items-center justify-center text-center sm:text-center space-y-1 w-full">
+            <DialogTitle className="text-xl sm:text-2xl font-black tracking-tight text-foreground text-center sm:text-center w-full">
               Your Course is Ready!
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm text-muted-foreground max-w-xs sm:max-w-sm mx-auto leading-normal">
+            <DialogDescription className="text-xs sm:text-sm text-muted-foreground text-center sm:text-center max-w-sm sm:max-w-md mx-auto leading-normal">
               AI generated your complete curriculum, interactive lessons, and 24/7 AI Tutor.
             </DialogDescription>
           </DialogHeader>
         </div>
 
-        {/* Scrollable Modal Body */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5">
+        {/* Modal Body */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5 sm:space-y-4">
           {/* Course Summary Card */}
-          <div className="flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-muted/30">
+          <div className="flex items-center gap-3.5 p-3 rounded-xl border border-border/70 bg-muted/30">
             <div className="h-14 w-20 sm:h-16 sm:w-24 rounded-lg overflow-hidden bg-muted shrink-0 border border-border/50 relative shadow-sm">
               {course.coverImage ? (
                 <img
@@ -148,7 +148,7 @@ export function CourseLaunchModal({
                   {course.lessonCount} Lessons
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#f85514]/10 text-[#f85514] text-[10px] sm:text-[11px] font-bold border border-[#f85514]/20">
-                  <Bot className="h-3 w-3" /> AI Tutor
+                  <Bot className="h-3 w-3" /> AI Tutor Active
                 </span>
               </div>
             </div>
@@ -163,7 +163,7 @@ export function CourseLaunchModal({
               <span className="text-[11px] text-muted-foreground">You can change this anytime</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               {/* Free Option */}
               <button
                 type="button"
@@ -228,7 +228,7 @@ export function CourseLaunchModal({
                         key={preset}
                         type="button"
                         onClick={() => setPrice(preset)}
-                        className={`px-2 py-0.5 text-xs rounded-md font-semibold border transition-all ${
+                        className={`px-2.5 py-0.5 text-xs rounded-md font-semibold border transition-all ${
                           price === preset
                             ? "bg-[#f85514] text-white border-[#f85514]"
                             : "bg-card text-muted-foreground border-border/70 hover:border-foreground"
@@ -264,7 +264,7 @@ export function CourseLaunchModal({
               <div className="text-left text-xs leading-snug flex-1">
                 <span className="font-bold text-foreground">Includes 3-Day Free Trial ($0.00 Due Today)</span>
                 <span className="text-muted-foreground block text-[11px] mt-0.5">
-                  Publishing connects to your Whop community. Cancel anytime in 1 click.
+                  Publishing connects directly to your Whop community. Cancel anytime in 1 click.
                 </span>
               </div>
               <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
