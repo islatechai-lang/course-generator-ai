@@ -82,13 +82,13 @@ export function InstantCourseHero({
         {/* Hero Title & Subtitle */}
         <div className="space-y-2 sm:space-y-3 px-2">
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground leading-[1.2]">
-            What do you want to teach{" "}
+            What course should we build{" "}
             <span className="bg-gradient-to-r from-[#f85514] via-orange-500 to-amber-500 bg-clip-text text-transparent">
-              your community?
+              for your community?
             </span>
           </h1>
           <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Type any command or tap an idea below. AI instantly creates your complete interactive curriculum, action blueprints, and 24/7 AI Tutor.
+            Enter any topic or tap an idea below. AI instantly creates your complete interactive curriculum, action blueprints, and 24/7 AI Tutor.
           </p>
         </div>
 
