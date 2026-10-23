@@ -316,7 +316,7 @@ export default function DashboardPage() {
       }
 
       // Automatically save course into the creator's account
-      const saveResponse = await apiRequest("POST", `/api/dashboard/${companyId}/courses`, {
+      const savedCourse = await apiRequest("POST", `/api/dashboard/${companyId}/courses`, {
         generatedCourse: courseResult,
         isFree: true,
         price: "0",
@@ -325,7 +325,6 @@ export default function DashboardPage() {
         generateVideo: false,
       });
 
-      const savedCourse = await saveResponse.json();
       await queryClient.invalidateQueries({ queryKey: ["/api/dashboard", companyId] });
 
       setIsGenerating(false);

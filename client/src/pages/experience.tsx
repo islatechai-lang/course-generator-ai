@@ -349,7 +349,7 @@ export default function ExperiencePage() {
       }
 
       // Automatically save course into the creator's account
-      const saveResponse = await apiRequest("POST", `/api/experiences/${experienceId}/courses`, {
+      const savedCourse = await apiRequest("POST", `/api/experiences/${experienceId}/courses`, {
         generatedCourse: courseResult,
         isFree: true,
         price: "0",
@@ -358,7 +358,6 @@ export default function ExperiencePage() {
         generateVideo: false,
       });
 
-      const savedCourse = await saveResponse.json();
       await queryClient.invalidateQueries({ queryKey: ["/api/experiences", experienceId] });
 
       setIsGenerating(false);
