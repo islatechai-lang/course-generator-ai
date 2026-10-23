@@ -2,13 +2,13 @@ import { useState, useRef } from "react";
 import { Sparkles, ArrowRight, TrendingUp, Zap, DollarSign, Users, BookOpen, Layers, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { UserMenu } from "@/components/user-menu";
 
 interface InstantCourseHeroProps {
   onGenerate: (topic: string) => void;
   isGenerating?: boolean;
   onOpenAdvanced?: () => void;
   topRight?: React.ReactNode;
-  topLeft?: React.ReactNode;
 }
 
 const STARTER_CHIPS = [
@@ -43,7 +43,6 @@ export function InstantCourseHero({
   isGenerating = false,
   onOpenAdvanced,
   topRight,
-  topLeft,
 }: InstantCourseHeroProps) {
   const [topic, setTopic] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,24 +63,9 @@ export function InstantCourseHero({
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:py-20 overflow-hidden bg-background">
-      {/* Top Floating Header with Logo on Left and User Profile on Right (No harsh borders) */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-3.5 sm:p-6 pointer-events-none">
-        <div className="pointer-events-auto flex items-center gap-2">
-          {topLeft || (
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shadow-md border border-white/10 shrink-0 bg-black">
-                <img src="/app_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
-              </div>
-              <span className="font-bold text-sm sm:text-base text-foreground hidden sm:inline tracking-tight">
-                Course Generator AI
-              </span>
-            </div>
-          )}
-        </div>
-
-        <div className="pointer-events-auto flex items-center gap-2 sm:gap-3">
-          {topRight}
-        </div>
+      {/* Top Floating User Profile Only */}
+      <div className="absolute top-0 right-0 z-20 p-4 sm:p-6 pointer-events-auto">
+        {topRight || <UserMenu />}
       </div>
 
       {/* Ambient background glow matching #f85514 */}

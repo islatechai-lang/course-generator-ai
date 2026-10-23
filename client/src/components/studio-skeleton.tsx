@@ -3,21 +3,9 @@ import { Sparkles } from "lucide-react";
 export function StudioSkeleton() {
   return (
     <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-4 py-16 sm:py-20 overflow-hidden select-none animate-in fade-in duration-300">
-      {/* Top Floating Action Bar (No harsh borders) */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-3.5 sm:p-6 pointer-events-none">
-        <div className="pointer-events-auto flex items-center gap-2">
-          <div className="h-9 w-9 rounded-xl overflow-hidden shadow-md border border-white/10 shrink-0 bg-black flex items-center justify-center">
-            <img src="/app_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
-          </div>
-          <span className="font-bold text-sm sm:text-base text-foreground hidden sm:inline tracking-tight">
-            Course Generator AI
-          </span>
-        </div>
-
-        <div className="pointer-events-auto flex items-center gap-2 sm:gap-3">
-          <div className="h-8 w-20 sm:w-24 rounded-lg bg-gradient-to-r from-amber-500/15 to-[#f85514]/15 border border-[#f85514]/20 animate-pulse" />
-          <div className="h-9 w-9 rounded-full bg-muted/60 animate-pulse" />
-        </div>
+      {/* Top Floating User Profile Skeleton Only */}
+      <div className="absolute top-0 right-0 z-20 p-4 sm:p-6 pointer-events-auto">
+        <div className="h-9 w-9 rounded-full bg-muted/60 animate-pulse" />
       </div>
 
       {/* Ambient background glow */}
