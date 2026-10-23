@@ -14,25 +14,25 @@ const STARTER_CHIPS = [
     icon: TrendingUp,
     label: "Creator Audience Growth",
     description: "Monetization & audience playbook",
-    topic: "Creator Audience Growth & Monetization Playbook",
+    prompt: "Generate a Creator Audience Growth & Monetization Playbook course",
   },
   {
     icon: DollarSign,
     label: "Day Trading Blueprint",
     description: "Risk management & strategies",
-    topic: "Day Trading & Risk Management Blueprint",
+    prompt: "Generate a Day Trading & Risk Management Blueprint course",
   },
   {
     icon: Zap,
     label: "AI Automation & Systems",
     description: "Agents & modern workflows",
-    topic: "AI Automation, Agents & Workflows Masterclass",
+    prompt: "Generate an AI Automation, Agents & Workflows Masterclass course",
   },
   {
     icon: Users,
     label: "Client Acquisition Secrets",
     description: "High-ticket sales & outreach",
-    topic: "High-Ticket B2B Client Acquisition System",
+    prompt: "Generate a High-Ticket B2B Client Acquisition System course",
   },
 ];
 
@@ -50,9 +50,9 @@ export function InstantCourseHero({
     onGenerate(topic.trim());
   };
 
-  const handleChipClick = (chipTopic: string) => {
-    setTopic(chipTopic);
-    // Focus the input field so the user can review/edit and explicitly click Generate Course
+  const handleChipClick = (promptText: string) => {
+    setTopic(promptText);
+    // Focus the input field and select text so the creator can edit or hit Generate
     setTimeout(() => {
       inputRef.current?.focus();
     }, 50);
@@ -80,7 +80,7 @@ export function InstantCourseHero({
             </span>
           </h1>
           <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Enter any topic or tap an idea below. AI instantly creates your complete interactive curriculum, action blueprints, and 24/7 AI Tutor.
+            Type any command or tap an idea below. AI instantly creates your complete interactive curriculum, action blueprints, and 24/7 AI Tutor.
           </p>
         </div>
 
@@ -94,9 +94,9 @@ export function InstantCourseHero({
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="e.g. Scalable Growth Playbook, Trading Mastery..."
+                placeholder="e.g. Generate a course on Scalable Creator Growth, Crypto Trading..."
                 disabled={isGenerating}
-                className="border-0 bg-transparent text-sm sm:text-base text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-10 w-full"
+                className="border-0 bg-transparent text-sm sm:text-base text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-10 w-full font-medium"
                 autoFocus
               />
             </div>
@@ -115,18 +115,18 @@ export function InstantCourseHero({
         {/* Starter Topic Cards Grid */}
         <div className="space-y-2.5 pt-1">
           <p className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">
-            Popular starter topics (tap to use in prompt)
+            Popular starter topics (tap to insert AI prompt)
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 text-left">
             {STARTER_CHIPS.map((chip) => {
               const Icon = chip.icon;
-              const isSelected = topic === chip.topic;
+              const isSelected = topic === chip.prompt;
 
               return (
                 <button
                   key={chip.label}
                   type="button"
-                  onClick={() => handleChipClick(chip.topic)}
+                  onClick={() => handleChipClick(chip.prompt)}
                   disabled={isGenerating}
                   className={`flex items-center gap-3 p-2.5 sm:p-3 rounded-xl border text-foreground transition-all duration-200 shadow-sm active:scale-[0.98] disabled:opacity-50 group relative ${
                     isSelected
