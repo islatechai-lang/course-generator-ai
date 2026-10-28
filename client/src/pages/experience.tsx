@@ -690,9 +690,9 @@ export default function ExperiencePage() {
           <div className="h-14 px-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shadow-md border border-white/10 shrink-0 bg-black">
-                <img src="/app_logo.jpg" alt="Course Generator AI Logo" className="h-full w-full object-cover" />
+                <img src="/app_logo.jpg" alt="Course Studio AI Logo" className="h-full w-full object-cover" />
               </div>
-              <h1 className="font-semibold hidden sm:block">Course Generator AI</h1>
+              <h1 className="font-semibold hidden sm:block">Course Studio AI</h1>
               <Button
                 variant="ghost"
                 size="icon"
@@ -1018,9 +1018,9 @@ export default function ExperiencePage() {
         <div className="h-14 px-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shadow-md border border-white/10 shrink-0 bg-black">
-              <img src="/app_logo.jpg" alt="Course Generator AI Logo" className="h-full w-full object-cover" />
+              <img src="/app_logo.jpg" alt="Course Studio AI Logo" className="h-full w-full object-cover" />
             </div>
-            <h1 className="font-semibold hidden sm:block">Course Generator AI</h1>
+            <h1 className="font-semibold hidden sm:block">Course Studio AI</h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 hidden sm:flex">

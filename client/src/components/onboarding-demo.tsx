@@ -113,7 +113,7 @@ export function OnboardingDemo({ open, onOpenChange, onComplete }: OnboardingDem
                             <PlayCircle style={{ height: '18px', width: '18px', color: '#818cf8' }} />
                         </div>
                         <h2 style={{ fontSize: '15px', fontWeight: 700, letterSpacing: '-0.01em', color: '#f0f0f0' }}>
-                            Welcome to Whop Course Generator
+                            Welcome to Whop Course Studio
                         </h2>
                         <p style={{ fontSize: '11px', color: '#71717a', marginTop: '4px', maxWidth: '340px', lineHeight: 1.5 }}>
                             Watch the quick demo above to see how you can create AI-powered courses in minutes.

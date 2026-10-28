@@ -66,7 +66,7 @@ Metadata/Captions: 13px (text-xs), font-normal
 **Module/Lesson Cards (Editor):** Expandable accordion, p-6, reorder handles, inline title editing, regenerate action, completion checkbox.
 
 ### Forms
-**Course Generator:** Centered layout with max-w-2xl, large textarea (min-h-40), generous mb-8 spacing, prominent submit button (px-8 py-4). Loading state with spinner overlay during generation.
+**Course Studio:** Centered layout with max-w-2xl, large textarea (min-h-40), generous mb-8 spacing, prominent submit button (px-8 py-4). Loading state with spinner overlay during generation.
 
 **Course Editor:** Vertical stack of module cards, add module button between sections, pricing toggle (free/paid) with conditional price input, publish controls in sticky footer.
 

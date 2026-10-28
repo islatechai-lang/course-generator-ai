@@ -664,13 +664,13 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             {/* New Glowing C App Logo */}
             <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shadow-md border border-white/10 shrink-0 bg-black">
-              <img src="/app_logo.jpg" alt="Course Generator AI Logo" className="h-full w-full object-cover" />
+              <img src="/app_logo.jpg" alt="Course Studio AI Logo" className="h-full w-full object-cover" />
             </div>
             {/* User Profile on Left for Mobile */}
             <div className="sm:hidden">
               <UserMenu />
             </div>
-            <h1 className="font-semibold hidden sm:block">Course Generator AI</h1>
+            <h1 className="font-semibold hidden sm:block">Course Studio AI</h1>
             <Button
               variant="ghost"
               size="icon"

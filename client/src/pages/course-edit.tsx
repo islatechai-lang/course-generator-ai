@@ -2513,7 +2513,7 @@ export default function CourseEditPage() {
                   </div>
                 ) : (
                   <div className="space-y-4 sm:space-y-6">
-                    {/* 0. Critical Step: Make Course Generator App Public on Whop */}
+                    {/* 0. Critical Step: Make Course Studio App Public on Whop */}
                     <Card className="rounded-2xl border bg-gradient-to-br from-primary/10 via-card to-card backdrop-blur-sm overflow-hidden shadow-sm border-primary/30">
                       <div className="p-3.5 sm:p-5 border-b bg-primary/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
                         <div className="flex items-center gap-2.5">
@@ -2521,7 +2521,7 @@ export default function CourseEditPage() {
                             <Globe className="h-4 w-4" />
                           </div>
                           <div>
-                            <h3 className="font-bold text-sm text-foreground">Make Course Generator App Public</h3>
+                            <h3 className="font-bold text-sm text-foreground">Make Course Studio App Public</h3>
                             <p className="text-xs text-muted-foreground">Required so your community members can see and access your courses inside Whop.</p>
                           </div>
                         </div>
@@ -2537,19 +2537,19 @@ export default function CourseEditPage() {
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
                                 <span className="h-5 w-5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
-                                <span className="text-xs font-bold text-foreground">Click the 3 dots (⋮) on Course Generator</span>
+                                <span className="text-xs font-bold text-foreground">Click the 3 dots (⋮) on Course Studio</span>
                               </div>
                               <p className="text-xs text-muted-foreground pl-7">
-                                In your Whop left sidebar, find <strong>Course Generator</strong> and click the 3 dots menu.
+                                In your Whop left sidebar, find <strong>Course Studio</strong> and click the 3 dots menu.
                               </p>
                             </div>
                             <div
-                              onClick={() => setLightboxImage({ url: "/guide/step1-menu.png", alt: "Step 1: Click the 3 dots menu on Course Generator" })}
+                              onClick={() => setLightboxImage({ url: "/guide/step1-menu.png", alt: "Step 1: Click the 3 dots menu on Course Studio" })}
                               className="group relative cursor-pointer rounded-lg overflow-hidden border border-border/80 shadow-sm bg-black/40 flex items-center justify-center p-2 hover:border-primary/60 transition-all"
                             >
                               <img
                                 src="/guide/step1-menu.png"
-                                alt="Click 3 dots on Course Generator"
+                                alt="Click 3 dots on Course Studio"
                                 className="max-h-48 sm:max-h-72 w-full object-contain rounded transition-transform duration-200 group-hover:scale-[1.02]"
                               />
                               <div className="absolute bottom-2 right-2 sm:bottom-auto sm:right-auto sm:inset-0 sm:bg-black/40 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg sm:backdrop-blur-[1px]">

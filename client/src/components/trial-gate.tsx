@@ -77,7 +77,7 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
 
     toast({
       title: "Plan Activated! 🎉",
-      description: "Welcome to Course Generator! Your trial is now active.",
+      description: "Welcome to Course Studio! Your trial is now active.",
     });
 
     if (onSuccess) {
@@ -140,7 +140,7 @@ export function TrialGate({ onSuccess, onDismiss, userEmail, userName }: TrialGa
             <div className="flex flex-col items-center text-center space-y-3 lg:space-y-4 pt-1">
               <div className="relative">
                 <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-2xl overflow-hidden shadow-lg border border-white/20 bg-black flex items-center justify-center ring-4 ring-primary/20">
-                  <img src="/app_logo.jpg" alt="Course Generator" className="h-full w-full object-cover" />
+                  <img src="/app_logo.jpg" alt="Course Studio" className="h-full w-full object-cover" />
                 </div>
               </div>
 
