@@ -4,9 +4,26 @@ import { storage } from "./storage";
 
 const f = createUploadthing();
 
-const PRO_PLAN_ID = "plan_4qB6wAFl9q3sT";
-const OLD_PRO_PLAN_ID = "plan_x0eQCn2WM1qit";
-const BASIC_PLAN_ID = "plan_mndBT74OUdiNB";
+const PRO_PLAN_ID = "plan_QP5YgPTkdv4rs";
+const OLD_PRO_PLAN_IDS = ["plan_4qB6wAFl9q3sT", "plan_x0eQCn2WM1qit"];
+const BASIC_PLAN_ID = "plan_zpOm76hX1tY4i";
+const OLD_BASIC_PLAN_IDS = ["plan_mndBT74OUdiNB"];
+
+async function checkUserIsPro(userId: string): Promise<boolean> {
+  if (await checkPlanAccess(userId, PRO_PLAN_ID)) return true;
+  for (const oldId of OLD_PRO_PLAN_IDS) {
+    if (await checkPlanAccess(userId, oldId)) return true;
+  }
+  return false;
+}
+
+async function checkUserIsBasic(userId: string): Promise<boolean> {
+  if (await checkPlanAccess(userId, BASIC_PLAN_ID)) return true;
+  for (const oldId of OLD_BASIC_PLAN_IDS) {
+    if (await checkPlanAccess(userId, oldId)) return true;
+  }
+  return false;
+}
 
 // Storage limits
 const LIMITS = {
@@ -36,8 +53,8 @@ export const uploadRouter = {
       }
 
       // Check user plan status dynamically from Whop
-      const isPro = (await checkPlanAccess(verified.userId, PRO_PLAN_ID)) || (await checkPlanAccess(verified.userId, OLD_PRO_PLAN_ID));
-      const isBasic = !isPro && await checkPlanAccess(verified.userId, BASIC_PLAN_ID);
+      const isPro = await checkUserIsPro(verified.userId);
+      const isBasic = !isPro && await checkUserIsBasic(verified.userId);
 
       const plan: "free" | "basic" | "pro" = isPro ? "pro" : (isBasic ? "basic" : "free");
 

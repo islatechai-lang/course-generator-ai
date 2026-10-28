@@ -176,7 +176,7 @@ export function UpgradeModal({ open, onOpenChange, currentPlan = "free" }: Upgra
                                     </div>
                                     <div className="flex flex-col mt-1.5">
                                         <div className="flex items-baseline gap-1.5">
-                                            <span className="text-3xl font-bold text-foreground">$5</span>
+                                            <span className="text-3xl font-bold text-foreground">$3</span>
                                             <span className="text-muted-foreground text-xs font-semibold">/week</span>
                                         </div>
                                     </div>
@@ -242,9 +242,9 @@ export function UpgradeModal({ open, onOpenChange, currentPlan = "free" }: Upgra
                                     </div>
                                     <div className="flex flex-col mt-1.5">
                                         <div className="flex items-baseline gap-1.5">
-                                            <span className="text-3xl font-bold text-foreground">$8</span>
+                                            <span className="text-3xl font-bold text-foreground">$5</span>
                                             <span className="text-muted-foreground text-xs font-semibold">/week</span>
-                                            <span className="text-muted-foreground/60 text-sm line-through ml-1">$16</span>
+                                            <span className="text-muted-foreground/60 text-sm line-through ml-1">$10</span>
                                         </div>
                                         <p className="text-[11px] font-bold text-primary mt-1 flex items-center gap-1 italic">
                                             <Sparkles className="h-3 w-3" />

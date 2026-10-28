@@ -64,9 +64,26 @@ interface AuthenticatedRequest {
 }
 
 const DAILY_GENERATION_LIMIT = 2;
-const PRO_PLAN_ID = "plan_4qB6wAFl9q3sT";
-const OLD_PRO_PLAN_ID = "plan_x0eQCn2WM1qit";
-const BASIC_PLAN_ID = "plan_mndBT74OUdiNB";
+const PRO_PLAN_ID = "plan_QP5YgPTkdv4rs";
+const OLD_PRO_PLAN_IDS = ["plan_4qB6wAFl9q3sT", "plan_x0eQCn2WM1qit"];
+const BASIC_PLAN_ID = "plan_zpOm76hX1tY4i";
+const OLD_BASIC_PLAN_IDS = ["plan_mndBT74OUdiNB"];
+
+async function checkUserIsPro(userId: string): Promise<boolean> {
+  if (await checkPlanAccess(userId, PRO_PLAN_ID)) return true;
+  for (const oldId of OLD_PRO_PLAN_IDS) {
+    if (await checkPlanAccess(userId, oldId)) return true;
+  }
+  return false;
+}
+
+async function checkUserIsBasic(userId: string): Promise<boolean> {
+  if (await checkPlanAccess(userId, BASIC_PLAN_ID)) return true;
+  for (const oldId of OLD_BASIC_PLAN_IDS) {
+    if (await checkPlanAccess(userId, oldId)) return true;
+  }
+  return false;
+}
 
 const SPECIAL_PRO_USERS = ["user_gPT4lCtHrnQZj", "user_z9RDYAlNQ8ZGg"];
 
@@ -114,8 +131,8 @@ async function authenticateWhop(req: AuthenticatedRequest, res: Response, next: 
 
     req.whopUserId = result.userId;
 
-    const isPro = (await checkPlanAccess(result.userId, PRO_PLAN_ID)) || (await checkPlanAccess(result.userId, OLD_PRO_PLAN_ID));
-    const isBasic = !isPro && await checkPlanAccess(result.userId, BASIC_PLAN_ID);
+    const isPro = await checkUserIsPro(result.userId);
+    const isBasic = !isPro && await checkUserIsBasic(result.userId);
     req.isPro = isPro;
     req.isBasic = isBasic;
     console.log(`[Backend] authenticateWhop: user ${result.userId}, isPro=${isPro}, isBasic=${isBasic}`);
@@ -230,8 +247,8 @@ async function requireAdmin(req: AuthenticatedRequest, res: Response, next: Next
 
     // Check for Pro and Basic plan access - safely
     try {
-      req.isPro = (await checkPlanAccess(req.whopUserId, PRO_PLAN_ID)) || (await checkPlanAccess(req.whopUserId, OLD_PRO_PLAN_ID));
-      req.isBasic = !req.isPro && await checkPlanAccess(req.whopUserId, BASIC_PLAN_ID);
+      req.isPro = await checkUserIsPro(req.whopUserId);
+      req.isBasic = !req.isPro && await checkUserIsBasic(req.whopUserId);
     } catch (error) {
       console.error(`[requireAdmin] Plan check failed for user ${req.whopUserId}:`, error);
       req.isPro = false;
@@ -278,8 +295,8 @@ async function requireExperienceAccess(req: AuthenticatedRequest, res: Response,
 
     // Check for Pro and Basic plan access - safely
     try {
-      req.isPro = (await checkPlanAccess(req.whopUserId, PRO_PLAN_ID)) || (await checkPlanAccess(req.whopUserId, OLD_PRO_PLAN_ID));
-      req.isBasic = !req.isPro && await checkPlanAccess(req.whopUserId, BASIC_PLAN_ID);
+      req.isPro = await checkUserIsPro(req.whopUserId);
+      req.isBasic = !req.isPro && await checkUserIsBasic(req.whopUserId);
     } catch (error) {
       console.error(`[requireExperienceAccess] Plan check failed for user ${req.whopUserId}:`, error);
       req.isPro = false;
